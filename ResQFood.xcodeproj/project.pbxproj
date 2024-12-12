@@ -6,14 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		EEF1E0AD2D09E2570004D008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EEF1E08C2D09E2260004D008 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEF1E0932D09E2260004D008;
+			remoteInfo = ResQFood;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		EEF1E0942D09E2260004D008 /* ResQFood.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ResQFood.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEF1E0A92D09E2570004D008 /* ResQFoodTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ResQFoodTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		EEF1E0962D09E2260004D008 /* ResQFood */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ResQFood;
+			sourceTree = "<group>";
+		};
+		EEF1E0AA2D09E2570004D008 /* ResQFoodTest */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ResQFoodTest;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,14 +42,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEF1E0A62D09E2570004D008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		EEF1E08B2D09E2260004D008 = {
 			isa = PBXGroup;
 			children = (
-				EEF1E0962D09E2260004D008 /* ResQFood */,
 				EEF1E0952D09E2260004D008 /* Products */,
+				EEF1E0962D09E2260004D008 /* ResQFood */,
+				EEF1E0AA2D09E2570004D008 /* ResQFoodTest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				EEF1E0942D09E2260004D008 /* ResQFood.app */,
+				EEF1E0A92D09E2570004D008 /* ResQFoodTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = EEF1E0942D09E2260004D008 /* ResQFood.app */;
 			productType = "com.apple.product-type.application";
 		};
+		EEF1E0A82D09E2570004D008 /* ResQFoodTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEF1E0AF2D09E2570004D008 /* Build configuration list for PBXNativeTarget "ResQFoodTest" */;
+			buildPhases = (
+				EEF1E0A52D09E2570004D008 /* Sources */,
+				EEF1E0A62D09E2570004D008 /* Frameworks */,
+				EEF1E0A72D09E2570004D008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EEF1E0AE2D09E2570004D008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EEF1E0AA2D09E2570004D008 /* ResQFoodTest */,
+			);
+			name = ResQFoodTest;
+			packageProductDependencies = (
+			);
+			productName = ResQFoodTest;
+			productReference = EEF1E0A92D09E2570004D008 /* ResQFoodTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					EEF1E0932D09E2260004D008 = {
 						CreatedOnToolsVersion = 16.1;
+					};
+					EEF1E0A82D09E2570004D008 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = EEF1E0932D09E2260004D008;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				EEF1E0932D09E2260004D008 /* ResQFood */,
+				EEF1E0A82D09E2570004D008 /* ResQFoodTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		EEF1E0922D09E2260004D008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEF1E0A72D09E2570004D008 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEF1E0A52D09E2570004D008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EEF1E0AE2D09E2570004D008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEF1E0932D09E2260004D008 /* ResQFood */;
+			targetProxy = EEF1E0AD2D09E2570004D008 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		EEF1E0A02D09E2290004D008 /* Debug */ = {
@@ -252,13 +327,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ResQFood/Preview Content\"";
+				DEVELOPMENT_TEAM = 5F93CXQ65A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -266,9 +342,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = App.ResQFood;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -280,13 +360,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ResQFood/Preview Content\"";
+				DEVELOPMENT_TEAM = 5F93CXQ65A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -294,9 +375,55 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = App.ResQFood;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		EEF1E0B02D09E2570004D008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.ResQFoodTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ResQFood.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ResQFood";
+			};
+			name = Debug;
+		};
+		EEF1E0B12D09E2570004D008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.ResQFoodTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ResQFood.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ResQFood";
 			};
 			name = Release;
 		};
@@ -317,6 +444,15 @@
 			buildConfigurations = (
 				EEF1E0A32D09E2290004D008 /* Debug */,
 				EEF1E0A42D09E2290004D008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EEF1E0AF2D09E2570004D008 /* Build configuration list for PBXNativeTarget "ResQFoodTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEF1E0B02D09E2570004D008 /* Debug */,
+				EEF1E0B12D09E2570004D008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
