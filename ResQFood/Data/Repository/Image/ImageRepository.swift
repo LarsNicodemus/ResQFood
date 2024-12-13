@@ -7,6 +7,6 @@
 import SwiftUI
 
 protocol ImageRepository {
-    func uploadImage(_ image: UIImage) async throws -> String
-    func downloadImage(from urlString: String) async throws -> Data
+    func deleteImage(deleteHash: String) async throws -> Bool
+    func uploadImage(_ image: UIImage) async throws -> ImgurImageData
 }

@@ -23,7 +23,7 @@ struct ImageView: View {
                            ProgressView()
                        }
                    } else {
-                       Text("Invalid URL")
+                       Text("Ungültige URL")
                    }
                }
            }

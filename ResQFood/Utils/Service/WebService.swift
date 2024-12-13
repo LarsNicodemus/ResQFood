@@ -55,4 +55,29 @@ class WebService {
 
         return response
     }
+    
+    func deleteData<T: Codable>(
+        urlString: String,
+        method: String = "GET",
+        headers: [String: String]? = nil,
+        body: Data? = nil
+    ) async throws -> T {
+        guard let url = URL(string: urlString) else {
+            throw HTTPError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.allHTTPHeaderFields = headers
+        request.httpBody = body
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw HTTPError.networkError
+        }
+
+        return try JSONDecoder().decode(T.self, from: data)
+    }
 }
