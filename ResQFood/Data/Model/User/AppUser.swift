@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct AppUser: Codable, Identifiable {
     var id: String = UUID().uuidString
@@ -13,4 +14,5 @@ struct AppUser: Codable, Identifiable {
     var email: String?
     var password: String?
     var registeredOn: Date = Date()
+    
 }

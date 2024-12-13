@@ -8,11 +8,25 @@
 import SwiftUI
 
 struct AuthWrapper: View {
+    @EnvironmentObject var authVM: AuthViewModel
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack{
+            if authVM.userIsLoggedIn {
+                if authVM.userNotAnonym {
+                    AppNavigation()
+                } else {
+                    AppNavigationAnonym()
+                }
+                
+            } else {
+                AuthView()
+            }
+        }
     }
 }
 
 #Preview {
     AuthWrapper()
+        .environmentObject(AuthViewModel())
 }

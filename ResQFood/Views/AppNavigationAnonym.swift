@@ -1,21 +1,21 @@
 //
-//  AppNavigation.swift
+//  AppNavigationAnonym.swift
 //  ResQFood
 //
-//  Created by Lars Nicodemus on 11.12.24.
+//  Created by Lars Nicodemus on 13.12.24.
 //
 
 import SwiftUI
 
-struct AppNavigation: View {
+struct AppNavigationAnonym: View {
     @EnvironmentObject var authVM: AuthViewModel
     var body: some View {
         TabView{
             Tab("Home", systemImage: "house" ){
-                Text("Login mit Userdaten")
-                Text("Login mit Userdaten")
-                Text("Login mit Userdaten")
-                Text("Login mit Userdaten")
+                Text("Login Anonym")
+                Text("Login Anonym")
+                Text("Login Anonym")
+                Text("Login Anonym")
             }
             Tab("Settings", systemImage: "wrench") {
                 Button("Logout") {
@@ -28,7 +28,6 @@ struct AppNavigation: View {
 }
 
 #Preview {
-    AppNavigation()
+    AppNavigationAnonym()
         .environmentObject(AuthViewModel())
 }
-
