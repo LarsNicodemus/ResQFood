@@ -11,10 +11,75 @@ import SwiftUI
 struct CreateView: View {
     @StateObject var donVM: DonationViewModel = DonationViewModel()
     @StateObject var locVM: LocationViewModel = LocationViewModel()
+    @StateObject var imageVM: ImageViewModel = ImageViewModel()
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
+                HStack {
+                    Spacer()
+                    VStack {
+                        if !imageVM.selectedImages.isEmpty {
+                            ScrollView(.horizontal) {
+                                HStack {
+                                    ForEach(imageVM.selectedImages, id: \.self)
+                                    { image in
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .frame(width: 200, height: 200)
 
+                                            .scaledToFit()
+                                            .clipShape(
+                                                RoundedRectangle(cornerRadius: 10)
+                                            )
+                                    }
+                                }
+                            }
+                            
+                        }
+                        else {
+                            PhotosPicker(
+                                selection: $imageVM.selectedItems,
+                                matching: .images,
+                                photoLibrary: .shared()
+                            ) {
+                                Image("placeholder")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(
+                                        RoundedRectangle(cornerRadius: 10)
+                                    )
+                                    .frame(width: 200, height: 200)
+                            }
+                        }
+
+                        PhotosPicker(
+                            selection: $imageVM.selectedItems,
+                            matching: .images,
+                            photoLibrary: .shared()
+                        ) {
+                            Text("Bilder auswählen")
+                                
+                        }
+                        .onChange(of: imageVM.selectedItems) {
+                            oldItems, newItems in
+                            Task {
+                                await imageVM.handleImageSelection(
+                                    newItems: newItems)
+                            }
+                        }
+
+                        Button("Bilder hochladen") {
+                            Task {
+                                await imageVM.uploadImages()
+                                for image in imageVM.uploadedImages {
+                                    donVM.picturesUrl.append(image.url)
+                                }
+                            }
+                        }
+                    }
+                    Spacer()
+                }
                 TextField("Titel", text: $donVM.title)
                     .frame(height: 30)
                     .padding(8)
@@ -119,12 +184,31 @@ struct CreateView: View {
                     .padding(8)
                     .background(.gray.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                Button("Spende erstellen"){
+                    donVM.checkForDonationUpload()
+                }
             }
-
+            
+            
+        }
+        .foregroundStyle(Color("primaryAT"))
+        
+        .onChange(of: locVM.address) { old, new in
+                locVM.fetchCoordinates()
+                if let lat = locVM.geoCodingM.latitude,
+                   let long = locVM.geoCodingM.longitude {
+                    donVM.location.lat = lat
+                    donVM.location.long = long
+                    print(String(lat))
+                    print(String(long))
+                }
+            
         }
         .onChange(of: donVM.weightInputText) { old, new in
             donVM.weight = donVM.convertWeight(donVM.weightInputText)
         }
+       
     }
 }
 

@@ -16,6 +16,8 @@ class LocationViewModel: ObservableObject {
     var locationM = LocationManager.shared
     var geoCodingM = GeocodingManager.shared
     
-    
+    func fetchCoordinates(){
+        geoCodingM.fetchCoordinates(for: address)
+    }
     
 }

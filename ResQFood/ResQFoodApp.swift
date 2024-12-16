@@ -15,7 +15,7 @@ struct ResQFoodApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AuthWrapper()
                 .environmentObject(authVM)
         }
     }
