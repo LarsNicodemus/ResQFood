@@ -56,7 +56,7 @@ struct PasswordView: View {
                             systemName: authVM.isSecure
                                 ? "eye.slash.fill" : "eye.fill")
                     }
-                    .tint(Color("primary"))
+                    .tint(Color("primaryAT"))
                     .padding(.trailing, 8)
                 }
             }

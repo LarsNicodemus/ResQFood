@@ -21,8 +21,10 @@ struct AuthWrapper: View {
                 
             } else {
                 LoginView()
+                    .padding()
             }
         }
+        .accentColor(Color("primaryAT"))
     }
 }
 

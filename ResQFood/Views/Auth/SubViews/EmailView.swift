@@ -17,7 +17,7 @@ struct EmailView: View {
                 if let emailError = authVM.emailError {
                     Text(emailError)
                         .font(.caption)
-                        .foregroundColor(authVM.isResetEmailSent ? Color("primary") : .red)
+                        .foregroundColor(authVM.isResetEmailSent ? Color("primaryAT") : .red)
                         .padding(.trailing)
                 } else {
                     Text(" ")

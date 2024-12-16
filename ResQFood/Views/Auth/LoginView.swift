@@ -27,7 +27,7 @@ struct LoginView: View {
                 Button("Login") {
                     authVM.validateFieldsLogin()
                 }
-                .tint(Color("primary"))
+                .tint(Color("primaryAT"))
                 .foregroundColor(Color("onPrimary"))
                 .buttonStyle(.borderedProminent)
                 .padding(.trailing, 32)
@@ -35,7 +35,7 @@ struct LoginView: View {
                 Button("überspringen") {
                     authVM.loginAnonymously()
                 }
-                .tint(Color("primary"))
+                .tint(Color("primaryAT"))
                 .font(.system(size: 16))
                 Spacer()
             }
@@ -54,11 +54,11 @@ struct LoginView: View {
                 }
                 .padding(.bottom, 16)
 
-                .tint(Color("primary"))
+                .tint(Color("primaryAT"))
                 .font(.system(size: 16))
             } else if authVM.isResetEmailSent {
                 Text("Reset Email wurde gesendet.")
-                    .foregroundColor(Color("primary"))
+                    .foregroundColor(Color("primaryAT"))
                     .padding(.bottom, 16)
 
             } else {
@@ -71,13 +71,13 @@ struct LoginView: View {
                     "Jetzt registrieren",
                     destination: {
                         RegisterView()
+                            .padding()
                     })
 
             }
-            .tint(Color("primary"))
+            .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
-        .padding()
         .onAppear {
             if authVM.appUser == nil {
                 authVM.email = ""

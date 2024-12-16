@@ -21,7 +21,7 @@ struct RegisterView: View {
             Button("Registrieren"){
                 authVM.validateFieldsRegister()
             }
-            .tint(Color("primary"))
+            .tint(Color("primaryAT"))
             .foregroundColor(Color("onPrimary"))
             .buttonStyle(.borderedProminent)
             .padding(.bottom, 32)
@@ -35,7 +35,7 @@ struct RegisterView: View {
                     })
 
             }
-            .tint(Color("primary"))
+            .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
         .onAppear {
