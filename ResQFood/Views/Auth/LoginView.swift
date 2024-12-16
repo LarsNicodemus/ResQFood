@@ -1,5 +1,5 @@
 //
-//  LoginView.swift
+//  AuthView.swift
 //  ResQFood
 //
 //  Created by Lars Nicodemus on 11.12.24.
@@ -8,11 +8,89 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            RotatingImageView()
+                .padding(.bottom, 64)
+            EmailView()
+            PasswordView()
+            .padding(.bottom, 32)
+            
+            
+            
+            
+            HStack {
+                Spacer()
+                Button("Login") {
+                    authVM.validateFieldsLogin()
+                }
+                .tint(Color("primary"))
+                .foregroundColor(Color("onPrimary"))
+                .buttonStyle(.borderedProminent)
+                .padding(.trailing, 32)
+                
+                Button("überspringen") {
+                    authVM.loginAnonymously()
+                }
+                .tint(Color("primary"))
+                .font(.system(size: 16))
+                Spacer()
+            }
+            .padding(.bottom, 16)
+
+            if authVM.emailPasswordError && !authVM.isResetEmailSent {
+                
+                HStack {
+                    Text("Passwort vergessen?")
+                    Button(
+                        "Reset per Mail",
+                        action: {
+                            authVM.sendPasswordResetEmail()
+                        })
+
+                }
+                .padding(.bottom, 16)
+
+                .tint(Color("primary"))
+                .font(.system(size: 16))
+            } else if authVM.isResetEmailSent {
+                Text("Reset Email wurde gesendet.")
+                    .foregroundColor(Color("primary"))
+                    .padding(.bottom, 16)
+
+            } else {
+                Text(" ")
+                    .padding(.bottom, 16)
+            }
+            HStack {
+                Text("Sie haben noch keinen Zugang? ")
+                NavigationLink(
+                    "Jetzt registrieren",
+                    destination: {
+                        RegisterView()
+                    })
+
+            }
+            .tint(Color("primary"))
+            .font(.system(size: 16))
+        }
+        .padding()
+        .onAppear {
+            if authVM.appUser == nil {
+                authVM.email = ""
+                authVM.password = ""
+                authVM.emailError = nil
+                authVM.passwordError = nil
+            }
+        }
+    
     }
 }
 
 #Preview {
     LoginView()
+        .environmentObject(AuthViewModel())
 }

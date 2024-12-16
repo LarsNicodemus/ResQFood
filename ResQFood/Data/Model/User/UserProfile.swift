@@ -7,12 +7,12 @@
 import SwiftUI
 
 struct UserProfile: Codable {
-    var id: String?
-    var username: String?
+    var id: String
+    var username: String
     var birthDay: Date?
     var gender: String?
     var chatIDs: Set<String> = []
-    var location: UserLocation?
+    var location: AppLocation?
     var pictureUrl: String?
     var rating: Double?
     var points: Int?

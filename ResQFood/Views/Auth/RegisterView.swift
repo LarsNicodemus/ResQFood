@@ -10,43 +10,42 @@ import SwiftUI
 struct RegisterView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var isSecure = true
+
     var body: some View {
-        VStack{
-            TextField("Email", text: $authVM.email)
-                .frame(height: 30)
-                .padding(8)
-                .background(.gray.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            VStack{
-                if isSecure {
-                    SecureField("Password", text: $authVM.password)
-                } else {
-                    TextField("Password", text: $authVM.password)
-                }
-            }
-            .frame(height: 30)
-            .padding(8)
-            .background(.gray.opacity(0.2))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay {
-                HStack{
-                    Spacer()
-                    Button(action: {
-                                isSecure.toggle()
-                    }) {
-                        Image(systemName: isSecure ? "eye.slash.fill" : "eye.fill")
-                    }
-                    .padding(.trailing, 8)
-                }
-            }
-            .padding(.bottom, 16)
+        VStack {
+            RotatingImageView()
+                .padding(.bottom, 64)
+            EmailView()
+            PasswordView()
+            .padding(.bottom, 32)
             Button("Registrieren"){
-                authVM.register()
+                authVM.validateFieldsRegister()
             }
+            .tint(Color("primary"))
+            .foregroundColor(Color("onPrimary"))
             .buttonStyle(.borderedProminent)
+            .padding(.bottom, 32)
+
+            HStack {
+                Text("Sie haben schon einen Zugang? ")
+                Button(
+                    "zum Login",
+                    action: {
+                        dismiss()
+                    })
+
+            }
+            .tint(Color("primary"))
+            .font(.system(size: 16))
         }
-        
+        .onAppear {
+            if authVM.appUser == nil {
+                authVM.email = ""
+                authVM.password = ""
+                authVM.emailError = nil
+                authVM.passwordError = nil
+            }
+        }
         .onChange(of: authVM.userIsLoggedIn) { oldValue, newValue in
                     if newValue {
                         dismiss()

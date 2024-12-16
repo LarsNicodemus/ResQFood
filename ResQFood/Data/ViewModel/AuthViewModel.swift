@@ -19,6 +19,14 @@ class AuthViewModel: ObservableObject {
     @Published var registrationStatus: String = ""
     @Published var loginStatus: String = ""
     @Published var logoutStatus: String = ""
+    @Published var isSecure = true
+    @Published var emailError: String? = nil
+    @Published var passwordError: String? = nil
+    @Published var didValidate = false
+    @Published var emailAlredyUsed = false
+    @Published var emailPasswordError = false
+    @Published var errorMessage = ""
+    @Published var isResetEmailSent = false
 
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
@@ -42,11 +50,10 @@ class AuthViewModel: ObservableObject {
     var userIsLoggedIn: Bool {
         user != nil
     }
-    
+
     var userNotAnonym: Bool {
         user?.email != nil
     }
-    
 
     func checkAuth() {
         userRepo.checkAuth { currentUser in
@@ -75,11 +82,15 @@ class AuthViewModel: ObservableObject {
     func register() {
         userRepo.register(email: email, password: password) { userResult in
             self.user = userResult
+        } onFailure: {
+            self.emailAlredyUsed = true
         }
     }
 
     func loginWithEmail() {
-        userRepo.loginWithEmail(email: email, password: password)
+        userRepo.loginWithEmail(email: email, password: password) {
+            self.emailPasswordError = true
+        }
     }
 
     func loginAnonymously() {
@@ -91,6 +102,83 @@ class AuthViewModel: ObservableObject {
 
     func logOut() {
         userRepo.logOut()
+    }
+
+    func validateEmail() {
+        if email.isEmpty {
+            emailError = "Email darf nicht leer sein."
+        } else if !email.contains("@") {
+            emailError = "Bitte geben Sie eine gültige Email-Adresse ein."
+        } else if emailAlredyUsed {
+            emailError = "Diese Email-Adresse wird bereits verwendet."
+        } else if emailPasswordError && !isResetEmailSent {
+            emailError = "Email-Adresse oder Passwort fehlerhaft."
+        } else if isResetEmailSent {
+            emailError = "Reset Email wurde gesendet."
+        } else {
+            emailError = nil
+        }
+    }
+
+    func validatePassword() {
+        if password.isEmpty {
+            passwordError = "Passwort darf nicht leer sein."
+        } else if password.count < 6 {
+            passwordError = "Das Passwort muss mindestens 6 Zeichen lang sein."
+        } else {
+            passwordError = nil
+        }
+    }
+
+    func validateFieldsLogin() {
+        didValidate = true
+        validateEmail()
+        validatePassword()
+
+        if emailError == nil && passwordError == nil {
+            loginWithEmail()
+        }
+    }
+
+    func validateFieldsRegister() {
+        didValidate = true
+        validateEmail()
+        validatePassword()
+
+        if emailError == nil && passwordError == nil {
+            register()
+        }
+    }
+
+    func sendPasswordResetEmail() {
+        guard !email.isEmpty, isValidEmail(email) else {
+            errorMessage = "Please enter a valid email address"
+            return
+        }
+        fb.auth.sendPasswordReset(withEmail: email) { error in
+            if let error = error {
+                switch error {
+                case AuthErrorCode.userNotFound:
+                    self.errorMessage = "No user found with this email"
+                case AuthErrorCode.invalidEmail:
+                    self.errorMessage = "Invalid email format"
+                case AuthErrorCode.networkError:
+                    self.errorMessage =
+                        "Network error. Please check your connection"
+                default:
+                    self.errorMessage = error.localizedDescription
+                }
+            } else {
+                self.errorMessage = ""
+                self.isResetEmailSent = true
+            }
+        }
+    }
+
+    func isValidEmail(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: email)
     }
 
 }

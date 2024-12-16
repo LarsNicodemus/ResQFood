@@ -14,5 +14,4 @@ struct Chat: Codable, Identifiable {
 	var admin: String
 	var name: String
 	var creatingDate: Date = Date()
-	var lastMessage: String = ""
 }

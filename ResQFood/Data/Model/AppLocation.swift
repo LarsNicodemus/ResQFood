@@ -5,7 +5,7 @@
 //  Created by Lars Nicodemus on 12.12.24.
 //
 
-struct UserLocation: Codable {
+struct AppLocation: Codable {
     var lat: Double
     var long: Double
 }
