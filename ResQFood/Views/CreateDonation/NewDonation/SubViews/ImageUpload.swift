@@ -33,6 +33,7 @@ struct ImageUploadView: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .frame(width: 200, height: 200)
             }
 
@@ -42,17 +43,17 @@ struct ImageUploadView: View {
                 }
             }
 
-            if let urlString = imageVM.uploadedImgurImageData?.link {
-                Text("Hochgeladene Bild-URL: \(urlString)")
-                ImageView(imageURL: urlString)
-            }
+//            if let urlString = imageVM.uploadedImgurImageData?.link {
+//                Text("Hochgeladene Bild-URL: \(urlString)")
+//                ImageView(imageURL: urlString)
+//            }
         }
         
-        Button("Bild Löschen") {
-            Task {
-                 imageVM.deleteImage(imageVM.uploadedImgurImageData!)
-            }
-        }
+//        Button("Bild Löschen") {
+//            Task {
+//                 imageVM.deleteImage(imageVM.uploadedImgurImageData!)
+//            }
+//        }
         
     }
 }

@@ -12,7 +12,7 @@ protocol UserRepository {
     func createUser(id: String, email: String, completion: @escaping (AppUser) -> Void)
     func createAnonymusUser(id: String, completion: @escaping (AppUser) -> Void)
     func register(email: String, password: String, completion: @escaping (User) -> Void, onFailure: @escaping () -> Void)
-    func loginWithEmail(email: String, password: String, onFailure: @escaping () -> Void)
+    func loginWithEmail(email: String, password: String,completion: @escaping (User) -> Void, onFailure: @escaping () -> Void)
     func loginAnonymously(completion: @escaping (User) -> Void)
     func logOut()
     func checkAuth(completion: @escaping (User) -> Void)

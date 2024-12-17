@@ -13,6 +13,7 @@ struct FoodDonation: Codable, Identifiable {
     var description: String
     var type: String
     var weight: Double
+    var weightUnit: String
     var bbd: Date
     var condition: String
     var pictureUrl: String?

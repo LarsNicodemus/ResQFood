@@ -31,6 +31,8 @@ struct PasswordView: View {
                         .onChange(of: authVM.password) { old, new in
                             if !authVM.password.isEmpty {
                                 authVM.passwordError = nil
+                                authVM.emailPasswordError = false
+                                authVM.isResetEmailSent = false
                             }
                         }
                 } else {
@@ -38,6 +40,8 @@ struct PasswordView: View {
                         .onChange(of: authVM.password) { old, new in
                             if !authVM.password.isEmpty {
                                 authVM.passwordError = nil
+                                authVM.emailPasswordError = false
+                                authVM.isResetEmailSent = false
                             }
                         }
                 }

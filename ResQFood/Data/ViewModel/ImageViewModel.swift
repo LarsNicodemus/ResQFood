@@ -15,6 +15,11 @@ class ImageViewModel: ObservableObject {
     @Published var selectedImage: UIImage?
     @Published var uploadedImageURL: String?
     @Published var selectedItem: PhotosPickerItem?
+    
+    @Published var selectedImages: [UIImage] = []
+       @Published var selectedItems: [PhotosPickerItem] = []
+       @Published var uploadedImages: [AppImage] = []
+    
     @Published var selectedImageData: Data?
     @Published var imageURL: String? = nil
     @Published var isLoading = false
@@ -43,6 +48,7 @@ func uploadImage() async {
             print("Upload Error: \(error.localizedDescription)")
         }
     }
+    
     
     func handleImageSelection(newItem: PhotosPickerItem?) async {
         do {
@@ -80,4 +86,40 @@ func uploadImage() async {
                     isLoading = false
                 }
             }
+    
+    func handleImageSelection(newItems: [PhotosPickerItem]) async {
+        selectedImages = []
+
+        for item in newItems {
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    selectedImages.append(uiImage)
+                } else {
+                    print("Error: Could not load image data.")
+                }
+            } catch {
+                print("Error loading image data: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func uploadImages() async {
+        isLoading = true
+        uploadedImages = []
+        do {
+            for image in selectedImages {
+                let uploadedImageData = try await imageRepository.uploadImage(image)
+                let appImage = AppImage(id: uploadedImageData.id,
+                                        deletehash: uploadedImageData.deletehash,
+                                        url: uploadedImageData.link)
+                uploadedImages.append(appImage)
+            }
+            print("Images uploaded: \(uploadedImages)")
+        } catch {
+            print("Upload Error: \(error.localizedDescription)")
+        }
+        isLoading = false
+    }
 }
+

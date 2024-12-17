@@ -89,7 +89,7 @@ class UserRepositoryImplementation: UserRepository {
     }
 
     func loginWithEmail(
-        email: String, password: String, onFailure: @escaping () -> Void
+        email: String, password: String,completion: @escaping (User) -> Void, onFailure: @escaping () -> Void
     ) {
         fb.auth.signIn(withEmail: email, password: password) { result, error in
             if let error = error as NSError? {
@@ -98,9 +98,10 @@ class UserRepositoryImplementation: UserRepository {
                     onFailure()
                 }
                 return
-            } else if let error = error {
-                print("Login failed: \(error.localizedDescription)")
-                return
+            }
+            
+            if let user = result?.user {
+                completion(user)
             }
         }
     }
