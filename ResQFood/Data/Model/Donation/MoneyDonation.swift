@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct MoneyDonation: Codable, Identifiable {
-    var id: String = UUID().uuidString
+    @DocumentID var id: String?
     var title: String
     var description: String
     var type: String

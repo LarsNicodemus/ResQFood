@@ -13,9 +13,7 @@ struct AppNavigationAnonym: View {
         TabView{
             Tab("Home", systemImage: "house" ){
                 Text("Login Anonym")
-                Text("Login Anonym")
-                Text("Login Anonym")
-                Text("Login Anonym")
+                
             }
             Tab("Settings", systemImage: "wrench") {
                 Button("Logout") {

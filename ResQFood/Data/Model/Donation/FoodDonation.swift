@@ -16,14 +16,15 @@ struct FoodDonation: Codable, Identifiable {
     var weightUnit: String
     var bbd: Date
     var condition: String
-    var pictureUrl: String?
+    var picturesUrl: [String]?
     var location: AppLocation
     var preferredTransfer: String
     var expiringDate: Date
-    var contactInfo: ContactInfo?
-    var chatID: String?
     
-    var donator: String
+    var donatorId: String
+    var contactInfo: ContactInfo?
+    
+    var chatID: String?
     var pickedUp: Bool?
     var isReserved: Bool?
 }
