@@ -188,6 +188,7 @@ struct CreateView: View {
                 Button("Spende erstellen"){
                     donVM.checkForDonationUpload()
                 }
+                .padding(.bottom, 48)
             }
             
             

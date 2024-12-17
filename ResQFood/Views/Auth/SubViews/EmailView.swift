@@ -32,6 +32,8 @@ struct EmailView: View {
                 .onChange(of: authVM.email) { old, new in
                     if !authVM.email.isEmpty {
                         authVM.emailError = nil
+                        authVM.emailPasswordError = false
+                        authVM.isResetEmailSent = false
                     }
                 }
                 .onChange(

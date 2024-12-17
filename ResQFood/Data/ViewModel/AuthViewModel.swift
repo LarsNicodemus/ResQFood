@@ -88,7 +88,17 @@ class AuthViewModel: ObservableObject {
     }
 
     func loginWithEmail() {
-        userRepo.loginWithEmail(email: email, password: password) {
+        self.emailPasswordError = false
+        self.isResetEmailSent = false
+        userRepo.loginWithEmail(
+            email: email,
+            password: password
+        ) { user in
+            self.user = user
+            self.emailPasswordError = false
+            self.emailError = nil
+            self.passwordError = nil
+        } onFailure: {
             self.emailPasswordError = true
         }
     }
@@ -102,6 +112,7 @@ class AuthViewModel: ObservableObject {
 
     func logOut() {
         userRepo.logOut()
+        didValidate = false
     }
 
     func validateEmail() {
@@ -134,7 +145,8 @@ class AuthViewModel: ObservableObject {
         didValidate = true
         validateEmail()
         validatePassword()
-
+        emailPasswordError = false
+        isResetEmailSent = false
         if emailError == nil && passwordError == nil {
             loginWithEmail()
         }
