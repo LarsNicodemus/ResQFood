@@ -11,13 +11,10 @@ import Foundation
 
 @MainActor
 class DonationViewModel: ObservableObject {
+
+    @Published var donations: [FoodDonation]? = nil
     
-    
-    @Published var donations: [FoodDonation] = []
-    
-    
-    
-    
+
     @Published var title: String = ""
     @Published var description: String = ""
     @Published var selectedType: GroceryType = .fruits
@@ -45,23 +42,70 @@ class DonationViewModel: ObservableObject {
     @Published var picturesError: String? = nil
     @Published var locationError: String? = nil
     @Published var showToast: Bool = false
-
     @Published var uploadSuccess = false
     @Published var uploadErrorMessage: String? = nil
     @Published var uploadSuccessMessage: String? = nil
+
+    @Published var userProfile: UserProfile? = nil
+
     
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()
+    private let profileRepo = UserRepositoryImplementation()
+
     
+    
+    init() {
+        setupDonationsListener()
+    }
+    
+    deinit {
+            listener?.remove()
+            listener = nil
+        }
+    
+    private func getUserProfileByID(userID: String) {
+            Task {
+                do {
+                    userProfile = try await profileRepo.getUProfileByID(userID)
+                } catch {
+                    print("appUser not created \(error)")
+                }
+            }
+        
+
+    }
+    private func setupDonationsListener() {
+        listener?.remove()
+        listener = nil
+
+        listener = donationRepo.addDonationsListener { donations in
+                self.donations = donations
+            for donation in donations {
+                print(donation.title)
+            }
+            }
+    }
+
     func addDonation() {
-        guard !title.isEmpty, !description.isEmpty, weight != 0.0  else { return }
-                let donation = FoodDonation(
-                    title: title, description: description, type: selectedType.rawValue, weight: weight,
-                    weightUnit: selectedWeightUnit.rawValue, bbd: bbd, condition: selectedItemCondition.rawValue,
-                    picturesUrl: picturesUrl,
-                    location: location, preferredTransfer: selectedPreferredTransfer.rawValue,
-                    expiringDate: expiringDate)
+        guard let userID = fb.userID else { return }
+        getUserProfileByID(userID: userID)
+        guard let userProfile = userProfile else { return }
+        guard !title.isEmpty, !description.isEmpty, weight != 0.0 else {
+            return
+        }
+        let donation = FoodDonation(
+            creatorID: userID,
+            creatorName: userProfile.username,
+            title: title, description: description, type: selectedType.rawValue,
+            weight: weight,
+            weightUnit: selectedWeightUnit.rawValue, bbd: bbd,
+            condition: selectedItemCondition.rawValue,
+            picturesUrl: picturesUrl,
+            location: location,
+            preferredTransfer: selectedPreferredTransfer.rawValue,
+            expiringDate: expiringDate)
         Task {
             do {
                 try await donationRepo.addDonation(donation)
@@ -71,13 +115,14 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
-    
+
     func editDonation(id: String) {
         let titleToEdit = title.isEmpty ? nil : title
         let contentToEdit = title.isEmpty ? nil : title
-        donationRepo.editDonation(id: id, title: titleToEdit, content: contentToEdit)
+        donationRepo.editDonation(
+            id: id, title: titleToEdit, content: contentToEdit)
     }
-    
+
     func deleteDonation(id: String) {
         Task {
             do {
@@ -86,9 +131,9 @@ class DonationViewModel: ObservableObject {
                 print(error)
             }
         }
-        
+
     }
-    
+
     func getDonations() {
         Task {
             do {
@@ -98,11 +143,7 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
-    
 
-    
-    
-    
     func convertWeight(_ input: String) -> Double {
         let cleanedInput = input.replacingOccurrences(of: ",", with: ".")
         let filteredInput = cleanedInput.filter { $0.isNumber || $0 == "." }
@@ -113,7 +154,7 @@ class DonationViewModel: ObservableObject {
             return 0.0
         }
     }
-    
+
     func checkForDonationUpload() {
         checkTitle()
         checkDescription()
@@ -125,18 +166,18 @@ class DonationViewModel: ObservableObject {
         if weightError != nil { print(weightError!) }
         if picturesError != nil { print(picturesError!) }
         if locationError != nil { print(locationError!) }
-        
+
         let allValid =
-        titleError == nil && descriptionError == nil && weightError == nil
-        && picturesError == nil && locationError == nil
-        
+            titleError == nil && descriptionError == nil && weightError == nil
+            && picturesError == nil && locationError == nil
+
         if allValid {
             addDonation()
         } else {
             print("FEHLER!!")
         }
     }
-    
+
     func checkTitle() {
         if title.isEmpty {
             titleError = "Bitte geben Sie einen Titel ein."
@@ -173,53 +214,9 @@ class DonationViewModel: ObservableObject {
         } else {
             locationError = nil
         }
-        
+
     }
-    
-//    func addDonation(
-//        title: String, description: String, type: String, weight: Double,
-//        weightUnit: String, bbd: Date, condition: String, picturesUrl: [String]?,
-//        location: AppLocation,
-//        preferredTransfer: String, expiringDate: Date
-//    ) {
-//        guard let userId = fb.userID else {
-//            print("Fehler beim Laden der User ID!")
-//            return
-//        }
-//        
-//        let foodDonation = FoodDonation(
-//            title: title, description: description, type: type, weight: weight,
-//            weightUnit: weightUnit, bbd: bbd, condition: condition,
-//            picturesUrl: picturesUrl,
-//            location: location, preferredTransfer: preferredTransfer,
-//            expiringDate: expiringDate)
-//        
-//        do {
-//            let _ = try fb.database.collection("donations").addDocument(
-//                from: foodDonation
-//            ) { error in
-//                if let error = error {
-//                    self.uploadErrorMessage =
-//                    "Fehler beim Speichern der Donation: \(error.localizedDescription)"
-//                    self.uploadSuccess = false
-//                    print(
-//                        "Fehler beim Speichern der Donation: \(error.localizedDescription)"
-//                    )
-//                    print("Fehler beim Speichern der Donation!")
-//                } else {
-//                    self.uploadSuccess = true
-//                    self.uploadSuccessMessage = "Deine Spende wurde erfolgreich erstellt."
-//                    self.resetDonationFields()
-//                    print("Donation erfolgreich angelegt!")
-//                }
-//            }
-//        } catch {
-//            uploadErrorMessage = "Unerwarteter Fehler: \(error.localizedDescription)"
-//            uploadSuccess = false
-//            print("Unerwarteter Fehler: \(error.localizedDescription)")
-//            print("Fehler beim Speichern deDonation!")
-//        }
-//    }
+
     func resetDonationFields() {
         title = ""
         description = ""
@@ -232,6 +229,6 @@ class DonationViewModel: ObservableObject {
         location = AppLocation(lat: 0.0, long: 0.0)
         selectedPreferredTransfer = .atHome
         expiringDate = Date()
-        
-}
+
+    }
 }

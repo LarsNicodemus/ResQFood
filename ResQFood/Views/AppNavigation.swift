@@ -9,8 +9,6 @@ import SwiftUI
 
 struct AppNavigation: View {
     @EnvironmentObject var authVM: AuthViewModel
-    @StateObject var donVM: DonationViewModel = DonationViewModel()
-    @StateObject var locVM: LocationViewModel = LocationViewModel()
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
 
@@ -23,10 +21,10 @@ struct AppNavigation: View {
             }
             Tab("Donation", systemImage: "document.badge.plus" ){
                 CreateView()
-                    .environmentObject(donVM)
-                    .environmentObject(locVM)
             }
-            
+            Tab("Donations", systemImage: "list.star" ){
+                DonationListView()
+            }
             Tab("Settings", systemImage: "wrench") {
                 VStack{
                     Button("Logout") {

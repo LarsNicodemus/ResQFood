@@ -39,4 +39,26 @@ class GeocodingManager: ObservableObject {
             }
         }
     }
+    
+    func getLocationName(latitude: Double, longitude: Double) async -> String {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let geocoder = CLGeocoder()
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(location)
+            if let placemark = placemarks.first {
+                let city = placemark.locality ?? ""
+                let postalCode = placemark.postalCode ?? ""
+
+//                let street = placemark.thoroughfare ?? ""
+//                let number = placemark.subThoroughfare ?? ""
+                
+                return "\(postalCode), \(city)".trimmingCharacters(in: .whitespaces)
+            }
+        } catch {
+            print("Geocoding error: \(error)")
+        }
+        
+        return "Ort nicht gefunden"
+    }
 }

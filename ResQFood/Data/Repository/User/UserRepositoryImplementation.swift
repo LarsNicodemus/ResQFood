@@ -143,5 +143,11 @@ class UserRepositoryImplementation: UserRepository {
                 }
             }
     }
+    func getUProfileByID(_ id: String) async throws -> UserProfile {
+        return try await fb.database
+            .collection("profiles")
+            .document(id)
+            .getDocument(as: UserProfile.self)
+    }
 
 }

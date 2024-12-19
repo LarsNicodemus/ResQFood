@@ -8,11 +8,24 @@
 import SwiftUI
 
 struct DonationListView: View {
+    @EnvironmentObject var donVM: DonationViewModel
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        if let donations = donVM.donations {
+        List{
+                ForEach(donations, id: \.id) { donation in
+                    DonationListItem(donation: donation)
+                }
+            }
+        .listStyle(.plain)
+
+        } else {
+            EmptyListPlaceholder()
+        }
     }
 }
 
 #Preview {
     DonationListView()
+        .environmentObject(DonationViewModel())
 }
+

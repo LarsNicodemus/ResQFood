@@ -10,7 +10,9 @@ import SwiftUI
 struct AuthWrapper: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
-
+    @StateObject var donVM: DonationViewModel = DonationViewModel()
+    @StateObject var locVM: LocationViewModel = LocationViewModel()
+    
     var body: some View {
         NavigationStack {
             if authVM.user != nil {
@@ -18,6 +20,9 @@ struct AuthWrapper: View {
                     if authVM.appUser != nil {
                         if authVM.appUser?.userProfileID != nil {
                             AppNavigation()
+                                .environmentObject(donVM)
+                                .environmentObject(locVM)
+                            
                         } else {
                             ProfileCreationView()
 
@@ -25,6 +30,7 @@ struct AuthWrapper: View {
                     }
                 } else {
                     AppNavigationAnonym()
+                        .environmentObject(donVM)
                 }
 
             } else {

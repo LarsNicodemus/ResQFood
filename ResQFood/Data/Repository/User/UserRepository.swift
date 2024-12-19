@@ -18,5 +18,6 @@ protocol UserRepository {
     func editProfile(id: String, username: String?, birthday: Date?, gender: String?, location: Adress?, pictureURL: String?, rating: Double?, points: Int?, contactInfo: ContactInfo?, foodwasteSaved: Double?)
     func addProfile(_ profile: UserProfile) async throws
     func addUserListener(userID: String, completion: @escaping (AppUser?) -> Void) -> ListenerRegistration
+    func getUProfileByID(_ id: String) async throws -> UserProfile
 
 }

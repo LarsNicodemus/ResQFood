@@ -10,6 +10,8 @@ import FirebaseFirestore
 
 struct FoodDonation: Codable, Identifiable {
     @DocumentID var id: String?
+    var creatorID: String
+    var creatorName: String?
     var creationDate: Date = Date()
     var title: String
     var description: String
