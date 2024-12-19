@@ -5,117 +5,143 @@
 //  Created by Lars Nicodemus on 11.12.24.
 //
 import FirebaseAuth
+import FirebaseFirestore
 
 class UserRepositoryImplementation: UserRepository {
+
     private let fb = FirebaseService.shared
 
-    func logOut() {
+    func getUserByID(_ id: String) async throws -> AppUser {
+        return try await fb.database
+            .collection("users")
+            .document(id)
+            .getDocument(as: AppUser.self)
+    }
+
+    func login(email: String, password: String) async throws {
+        try await fb.auth.signIn(withEmail: email, password: password)
+    }
+
+    func loginAnonymously() async throws {
+        let result = try await fb.auth.signInAnonymously()
+        let user = AppUser()
+        try fb.database
+            .collection("users")
+            .document(result.user.uid)
+            .setData(from: user)
+    }
+
+    func register(email: String, password: String) async throws {
+        let result = try await fb.auth.createUser(
+            withEmail: email, password: password)
+
+        let user = AppUser()
+        try fb.database
+            .collection("users")
+            .document(result.user.uid)
+            .setData(from: user)
+    }
+
+    func logout() throws {
         try? fb.auth.signOut()
     }
 
-    func checkAuth(completion: @escaping (FirebaseAuth.User) -> Void) {
-        guard let currentUser = Auth.auth().currentUser else {
-            print("Not logged in")
-            return
-        }
-        completion(currentUser)
+    func deleteUser() async throws {
+        guard let userID = fb.userID else { return }
+        try await fb.database
+            .collection("users")
+            .document(userID)
+            .delete()
+        try await fb.database
+            .collection("profiles")
+            .document(userID)
+            .delete()
+        try await fb.auth.currentUser?.delete()
     }
-
-    func getUser(id: String, completion: @escaping (AppUser) -> Void) {
-        fb.database.collection("users").document(id).getDocument {
-            snapshot, error in
-            if let error {
-                print(error.localizedDescription)
-                return
-            }
-
-            guard let snapshot else {
-                return
-            }
-
-            do {
-                let user = try snapshot.data(as: AppUser.self)
-                completion(user)
-            } catch {
-            }
-        }
-    }
-
-    func createUser(
-        id: String, email: String, completion: @escaping (AppUser) -> Void
-    ) {
-        let user = AppUser(id: id, email: email)
-
-        do {
-            try fb.database.collection("users").document(id).setData(from: user)
-            completion(user)
-        } catch {
-            print("Saving user failed: \(error)")
-        }
-    }
-
-    func createAnonymusUser(id: String, completion: @escaping (AppUser) -> Void)
-    {
-        let user = AppUser(id: id)
-
-        do {
-            try fb.database.collection("users").document(id).setData(from: user)
-            completion(user)
-        } catch {
-            print("Saving user failed: \(error)")
-        }
-    }
-
-    func register(
-        email: String, password: String, completion: @escaping (User) -> Void,
-        onFailure: @escaping () -> Void
-    ) {
-        fb.auth.createUser(withEmail: email, password: password) {
-            authResult, error in
-            if let error = error as NSError? {
-                print("Login failed: \(error.localizedDescription)")
-                if error.code == AuthErrorCode.emailAlreadyInUse.rawValue {
-                    onFailure()
-                }
-                return
-            } else if let error = error {
-                print("Login failed: \(error.localizedDescription)")
-                return
-            }
-
-            guard let authResult = authResult?.user else { return }
-            completion(authResult)
-        }
-    }
-
-    func loginWithEmail(
-        email: String, password: String,completion: @escaping (User) -> Void, onFailure: @escaping () -> Void
-    ) {
-        fb.auth.signIn(withEmail: email, password: password) { result, error in
-            if let error = error as NSError? {
-                print("Login failed: \(error.localizedDescription)")
-                if error.code == AuthErrorCode.invalidCredential.rawValue {
-                    onFailure()
-                }
-                return
-            }
+    
+    func addProfile(_ profile: UserProfile) async throws {
+        guard let userID = fb.userID else { return }
+        
+        let docRef = fb.database.collection("profiles").document(userID)
+        let docSnapshot = try await docRef.getDocument()
+        
+        if !docSnapshot.exists {
+            try docRef.setData(from: profile)
             
-            if let user = result?.user {
-                completion(user)
-            }
+            try await fb.database
+                .collection("users")
+                .document(userID)
+                .updateData([
+                    "userProfileID": userID
+                ])
         }
     }
-
-    func loginAnonymously(completion: @escaping (User) -> Void) {
-        Auth.auth().signInAnonymously { authResult, error in
-            if let error {
-                print("SignIn failed:", error.localizedDescription)
-                return
-            }
-
-            guard let authResult else { return }
-            print("User is authenticated with id '\(authResult.user.uid)'")
-            completion(authResult.user)
+    
+    func editProfile(
+        id: String, username: String?, birthday: Date?, gender: String?,
+        location: Adress?, pictureURL: String?, rating: Double?, points: Int?,
+        contactInfo: ContactInfo?, foodwasteSaved: Double?
+    ) {
+        var valuesToUpdate: [String: Any] = [:]
+        if let username { valuesToUpdate["username"] = username }
+        if let birthday { valuesToUpdate["birthday"] = birthday }
+        if let gender { valuesToUpdate["gender"] = gender }
+        if let location { valuesToUpdate["location"] = location }
+        if let pictureURL { valuesToUpdate["pictureURL"] = pictureURL }
+        if let rating { valuesToUpdate["rating"] = rating }
+        if let points { valuesToUpdate["points"] = points }
+        if let contactInfo { valuesToUpdate["contactInfo"] = contactInfo }
+        if let foodwasteSaved {
+            valuesToUpdate["foodwasteSaved"] = foodwasteSaved
         }
+        guard !valuesToUpdate.isEmpty else { return }
+        fb.database
+            .collection("profiles")
+            .document(id)
+            .updateData(valuesToUpdate)
     }
+
+    func addProfileListener(userID: String, onChange: @escaping (UserProfile?) -> Void) -> any ListenerRegistration {
+        return fb.database
+            .collection("profiles")
+            .whereField("userID", isEqualTo: userID)
+            .addSnapshotListener { querySnapshot, error in
+                guard let documents = querySnapshot?.documents else {
+                    return
+                }
+                
+                guard let document = documents.first else {
+                    return
+                }
+                
+                do {
+                    let userProfile = try document.data(as: UserProfile.self)
+                    onChange(userProfile)
+                } catch {
+                    print(error)
+                }
+            }
+    }
+    
+    func addUserListener(userID: String, completion: @escaping (AppUser?) -> Void) -> ListenerRegistration {
+        return fb.database
+            .collection("users")
+            .document(userID)
+            .addSnapshotListener { documentSnapshot, error in
+                guard let document = documentSnapshot else {
+                    print("Error fetching document: \(error?.localizedDescription ?? "Unknown error")")
+                    completion(nil)
+                    return
+                }
+                
+                do {
+                    let user = try document.data(as: AppUser.self)
+                    completion(user)
+                } catch {
+                    print("Error decoding user: \(error)")
+                    completion(nil)
+                }
+            }
+    }
+
 }

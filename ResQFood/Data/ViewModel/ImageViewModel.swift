@@ -14,12 +14,12 @@ class ImageViewModel: ObservableObject {
 
     @Published var selectedImage: UIImage?
     @Published var uploadedImageURL: String?
-    @Published var selectedItem: PhotosPickerItem?
-    
+    @Published var selectedItem: PhotosPickerItem? = nil
+
     @Published var selectedImages: [UIImage] = []
-       @Published var selectedItems: [PhotosPickerItem] = []
-       @Published var uploadedImages: [AppImage] = []
-    
+    @Published var selectedItems: [PhotosPickerItem] = []
+    @Published var uploadedImages: [AppImage] = []
+
     @Published var selectedImageData: Data?
     @Published var imageURL: String? = nil
     @Published var isLoading = false
@@ -27,10 +27,8 @@ class ImageViewModel: ObservableObject {
     @Published var images: [ImgurImageData] = []
     @Published var uploadedImgurImageData: ImgurImageData?
     @Published var uploadedImage: AppImage?
-    
-    
-    @MainActor
-func uploadImage() async {
+
+    func uploadImage() async {
         guard let image = selectedImage else {
             print("No image selected")
             return
@@ -41,15 +39,37 @@ func uploadImage() async {
             let uploadedImageData = try await imageRepository.uploadImage(image)
 
             uploadedImgurImageData = uploadedImageData
-            uploadedImage = AppImage(id: uploadedImgurImageData!.id, deletehash: uploadedImgurImageData!.deletehash, url: uploadedImgurImageData!.link)
-            
+            uploadedImage = AppImage(
+                id: uploadedImgurImageData!.id,
+                deletehash: uploadedImgurImageData!.deletehash,
+                url: uploadedImgurImageData!.link)
+
             print("Image uploaded: \(uploadedImageData)")
         } catch {
             print("Upload Error: \(error.localizedDescription)")
         }
     }
-    
-    
+
+    func uploadImagenew() async {
+        isLoading = true
+        uploadedImages = []
+        do {
+            for image in selectedImages {
+                let uploadedImageData = try await imageRepository.uploadImage(
+                    image)
+                let appImage = AppImage(
+                    id: uploadedImageData.id,
+                    deletehash: uploadedImageData.deletehash,
+                    url: uploadedImageData.link)
+                uploadedImages.append(appImage)
+            }
+            print("Images uploaded: \(uploadedImages)")
+        } catch {
+            print("Upload Error: \(error.localizedDescription)")
+        }
+        isLoading = false
+    }
+
     func handleImageSelection(newItem: PhotosPickerItem?) async {
         do {
             if let data = try await newItem?.loadTransferable(type: Data.self) {
@@ -69,31 +89,34 @@ func uploadImage() async {
             )
         }
     }
-    
+
     func deleteImage(_ image: ImgurImageData) {
         Task {
-                    isLoading = true
-                    do {
-                        let success = try await imageRepository.deleteImage(deleteHash: image.deletehash)
-                        if success {
-                            uploadedImgurImageData = nil
-                            uploadedImage = nil
-                            print("Image deleted")
-                        }
-                    } catch {
-                        errorMessage = "Fehler beim Löschen: \(error.localizedDescription)"
-                    }
-                    isLoading = false
+            isLoading = true
+            do {
+                let success = try await imageRepository.deleteImage(
+                    deleteHash: image.deletehash)
+                if success {
+                    uploadedImgurImageData = nil
+                    uploadedImage = nil
+                    print("Image deleted")
                 }
+            } catch {
+                errorMessage =
+                    "Fehler beim Löschen: \(error.localizedDescription)"
             }
-    
+            isLoading = false
+        }
+    }
+
     func handleImageSelection(newItems: [PhotosPickerItem]) async {
         selectedImages = []
 
         for item in newItems {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
+                    let uiImage = UIImage(data: data)
+                {
                     selectedImages.append(uiImage)
                 } else {
                     print("Error: Could not load image data.")
@@ -109,10 +132,12 @@ func uploadImage() async {
         uploadedImages = []
         do {
             for image in selectedImages {
-                let uploadedImageData = try await imageRepository.uploadImage(image)
-                let appImage = AppImage(id: uploadedImageData.id,
-                                        deletehash: uploadedImageData.deletehash,
-                                        url: uploadedImageData.link)
+                let uploadedImageData = try await imageRepository.uploadImage(
+                    image)
+                let appImage = AppImage(
+                    id: uploadedImageData.id,
+                    deletehash: uploadedImageData.deletehash,
+                    url: uploadedImageData.link)
                 uploadedImages.append(appImage)
             }
             print("Images uploaded: \(uploadedImages)")
@@ -122,4 +147,3 @@ func uploadImage() async {
         isLoading = false
     }
 }
-

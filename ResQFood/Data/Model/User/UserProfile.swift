@@ -5,14 +5,15 @@
 //  Created by Lars Nicodemus on 12.12.24.
 //
 import SwiftUI
+import FirebaseFirestore
 
 struct UserProfile: Codable {
-    var id: String
+    @DocumentID var id: String?
+    var userID: String
     var username: String
     var birthDay: Date?
     var gender: String?
-    var chatIDs: Set<String> = []
-    var location: AppLocation?
+    var location: Adress?
     var pictureUrl: String?
     var rating: Double?
     var points: Int?

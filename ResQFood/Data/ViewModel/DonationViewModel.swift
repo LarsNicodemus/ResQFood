@@ -12,6 +12,12 @@ import Foundation
 @MainActor
 class DonationViewModel: ObservableObject {
     
+    
+    @Published var donations: [FoodDonation] = []
+    
+    
+    
+    
     @Published var title: String = ""
     @Published var description: String = ""
     @Published var selectedType: GroceryType = .fruits
@@ -46,6 +52,56 @@ class DonationViewModel: ObservableObject {
     
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
+    private let donationRepo = DonationRepositoryImplementation()
+    
+    func addDonation() {
+        guard !title.isEmpty, !description.isEmpty, weight != 0.0  else { return }
+                let donation = FoodDonation(
+                    title: title, description: description, type: selectedType.rawValue, weight: weight,
+                    weightUnit: selectedWeightUnit.rawValue, bbd: bbd, condition: selectedItemCondition.rawValue,
+                    picturesUrl: picturesUrl,
+                    location: location, preferredTransfer: selectedPreferredTransfer.rawValue,
+                    expiringDate: expiringDate)
+        Task {
+            do {
+                try await donationRepo.addDonation(donation)
+                resetDonationFields()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func editDonation(id: String) {
+        let titleToEdit = title.isEmpty ? nil : title
+        let contentToEdit = title.isEmpty ? nil : title
+        donationRepo.editDonation(id: id, title: titleToEdit, content: contentToEdit)
+    }
+    
+    func deleteDonation(id: String) {
+        Task {
+            do {
+                try await donationRepo.deleteDonation(id)
+            } catch {
+                print(error)
+            }
+        }
+        
+    }
+    
+    func getDonations() {
+        Task {
+            do {
+                donations = try await donationRepo.getDonations()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+
+    
+    
     
     func convertWeight(_ input: String) -> Double {
         let cleanedInput = input.replacingOccurrences(of: ",", with: ".")
@@ -75,14 +131,7 @@ class DonationViewModel: ObservableObject {
         && picturesError == nil && locationError == nil
         
         if allValid {
-            addDonation(
-                title: title, description: description,
-                type: selectedType.rawValue, weight: weight,
-                weightUnit: selectedWeightUnit.rawValue, bbd: bbd,
-                condition: selectedItemCondition.rawValue,
-                picturesUrl: picturesUrl, location: location,
-                preferredTransfer: selectedPreferredTransfer.rawValue,
-                expiringDate: expiringDate)
+            addDonation()
         } else {
             print("FEHLER!!")
         }
@@ -127,50 +176,50 @@ class DonationViewModel: ObservableObject {
         
     }
     
-    func addDonation(
-        title: String, description: String, type: String, weight: Double,
-        weightUnit: String, bbd: Date, condition: String, picturesUrl: [String]?,
-        location: AppLocation,
-        preferredTransfer: String, expiringDate: Date
-    ) {
-        guard let userId = fb.userID else {
-            print("Fehler beim Laden der User ID!")
-            return
-        }
-        
-        let foodDonation = FoodDonation(
-            title: title, description: description, type: type, weight: weight,
-            weightUnit: weightUnit, bbd: bbd, condition: condition,
-            picturesUrl: picturesUrl,
-            location: location, preferredTransfer: preferredTransfer,
-            expiringDate: expiringDate, donatorId: userId)
-        
-        do {
-            let _ = try fb.database.collection("donations").addDocument(
-                from: foodDonation
-            ) { error in
-                if let error = error {
-                    self.uploadErrorMessage =
-                    "Fehler beim Speichern der Donation: \(error.localizedDescription)"
-                    self.uploadSuccess = false
-                    print(
-                        "Fehler beim Speichern der Donation: \(error.localizedDescription)"
-                    )
-                    print("Fehler beim Speichern der Donation!")
-                } else {
-                    self.uploadSuccess = true
-                    self.uploadSuccessMessage = "Deine Spende wurde erfolgreich erstellt."
-                    self.resetDonationFields()
-                    print("Donation erfolgreich angelegt!")
-                }
-            }
-        } catch {
-            uploadErrorMessage = "Unerwarteter Fehler: \(error.localizedDescription)"
-            uploadSuccess = false
-            print("Unerwarteter Fehler: \(error.localizedDescription)")
-            print("Fehler beim Speichern deDonation!")
-        }
-    }
+//    func addDonation(
+//        title: String, description: String, type: String, weight: Double,
+//        weightUnit: String, bbd: Date, condition: String, picturesUrl: [String]?,
+//        location: AppLocation,
+//        preferredTransfer: String, expiringDate: Date
+//    ) {
+//        guard let userId = fb.userID else {
+//            print("Fehler beim Laden der User ID!")
+//            return
+//        }
+//        
+//        let foodDonation = FoodDonation(
+//            title: title, description: description, type: type, weight: weight,
+//            weightUnit: weightUnit, bbd: bbd, condition: condition,
+//            picturesUrl: picturesUrl,
+//            location: location, preferredTransfer: preferredTransfer,
+//            expiringDate: expiringDate)
+//        
+//        do {
+//            let _ = try fb.database.collection("donations").addDocument(
+//                from: foodDonation
+//            ) { error in
+//                if let error = error {
+//                    self.uploadErrorMessage =
+//                    "Fehler beim Speichern der Donation: \(error.localizedDescription)"
+//                    self.uploadSuccess = false
+//                    print(
+//                        "Fehler beim Speichern der Donation: \(error.localizedDescription)"
+//                    )
+//                    print("Fehler beim Speichern der Donation!")
+//                } else {
+//                    self.uploadSuccess = true
+//                    self.uploadSuccessMessage = "Deine Spende wurde erfolgreich erstellt."
+//                    self.resetDonationFields()
+//                    print("Donation erfolgreich angelegt!")
+//                }
+//            }
+//        } catch {
+//            uploadErrorMessage = "Unerwarteter Fehler: \(error.localizedDescription)"
+//            uploadSuccess = false
+//            print("Unerwarteter Fehler: \(error.localizedDescription)")
+//            print("Fehler beim Speichern deDonation!")
+//        }
+//    }
     func resetDonationFields() {
         title = ""
         description = ""

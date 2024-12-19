@@ -38,6 +38,13 @@ struct RegisterView: View {
             .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
+        .onChange(of: authVM.user) { old, new in
+            if new != nil {
+                dismiss()
+            } else {
+                print("hier liegt vllt der fehler?")
+            }
+        }
         .onAppear {
             if authVM.appUser == nil {
                 authVM.email = ""
@@ -46,11 +53,6 @@ struct RegisterView: View {
                 authVM.passwordError = nil
             }
         }
-        .onChange(of: authVM.userIsLoggedIn) { oldValue, newValue in
-                    if newValue {
-                        dismiss()
-                    }
-                }
     }
 }
 

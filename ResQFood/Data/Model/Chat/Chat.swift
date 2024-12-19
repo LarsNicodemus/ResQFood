@@ -7,11 +7,12 @@
 
 
 import Foundation
+import FirebaseFirestore
 
 struct Chat: Codable, Identifiable {
-	var id: String = UUID().uuidString
+    @DocumentID var id: String?
 	var members: Set<String>
 	var admin: String
 	var name: String
-	var creatingDate: Date = Date()
+	var creationDate: Date = Date()
 }

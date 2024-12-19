@@ -33,7 +33,7 @@ struct LoginView: View {
                 .padding(.trailing, 32)
                 
                 Button("überspringen") {
-                    authVM.loginAnonymously()
+                    authVM.loginAnonym()
                 }
                 .tint(Color("primaryAT"))
                 .font(.system(size: 16))

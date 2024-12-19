@@ -28,9 +28,22 @@
 		EEF1E0A92D09E2570004D008 /* ResQFoodTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ResQFoodTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		EE751EDB2D12B870002251D1 /* Exceptions for "ResQFood" folder in "ResQFood" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = EEF1E0932D09E2260004D008 /* ResQFood */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		EEF1E0962D09E2260004D008 /* ResQFood */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EE751EDB2D12B870002251D1 /* Exceptions for "ResQFood" folder in "ResQFood" target */,
+			);
 			path = ResQFood;
 			sourceTree = "<group>";
 		};
@@ -348,6 +361,8 @@
 				DEVELOPMENT_TEAM = 5F93CXQ65A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ResQFood/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -382,6 +397,8 @@
 				DEVELOPMENT_TEAM = 5F93CXQ65A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ResQFood/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

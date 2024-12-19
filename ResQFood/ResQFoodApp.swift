@@ -12,11 +12,15 @@ import Firebase
 struct ResQFoodApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authVM = AuthViewModel()
+    @StateObject private var profileVM = ProfileViewModel()
+    @StateObject private var imageVM = ImageViewModel()
 
     var body: some Scene {
         WindowGroup {
             AuthWrapper()
                 .environmentObject(authVM)
+                .environmentObject(profileVM)
+                .environmentObject(imageVM)
         }
     }
 }

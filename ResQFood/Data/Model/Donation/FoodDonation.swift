@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct FoodDonation: Codable, Identifiable {
-    var id: String = UUID().uuidString
+    @DocumentID var id: String?
+    var creationDate: Date = Date()
     var title: String
     var description: String
     var type: String
@@ -21,7 +23,6 @@ struct FoodDonation: Codable, Identifiable {
     var preferredTransfer: String
     var expiringDate: Date
     
-    var donatorId: String
     var contactInfo: ContactInfo?
     
     var chatID: String?

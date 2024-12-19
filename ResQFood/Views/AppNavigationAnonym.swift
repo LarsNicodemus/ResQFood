@@ -17,8 +17,14 @@ struct AppNavigationAnonym: View {
             }
             Tab("Settings", systemImage: "wrench") {
                 Button("Logout") {
-                    authVM.logOut()
+                    authVM.logout()
                 }
+                .primaryButtonStyle()
+
+                Button("Delete User") {
+                    authVM.deleteUser()
+                }
+                .primaryButtonStyle()
             }
             
         }

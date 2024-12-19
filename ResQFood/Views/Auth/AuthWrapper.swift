@@ -9,16 +9,24 @@ import SwiftUI
 
 struct AuthWrapper: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var profileVM: ProfileViewModel
 
     var body: some View {
-        NavigationStack{
-            if authVM.userIsLoggedIn {
+        NavigationStack {
+            if authVM.user != nil {
                 if authVM.userNotAnonym {
-                    AppNavigation()
+                    if authVM.appUser != nil {
+                        if authVM.appUser?.userProfileID != nil {
+                            AppNavigation()
+                        } else {
+                            ProfileCreationView()
+
+                        }
+                    }
                 } else {
                     AppNavigationAnonym()
                 }
-                
+
             } else {
                 LoginView()
                     .padding()
@@ -31,4 +39,6 @@ struct AuthWrapper: View {
 #Preview {
     AuthWrapper()
         .environmentObject(AuthViewModel())
+        .environmentObject(ProfileViewModel())
+        .environmentObject(ImageViewModel())
 }

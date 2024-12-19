@@ -7,12 +7,12 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct AppUser: Codable, Identifiable {
-    var id: String = UUID().uuidString
-    
-    var email: String?
-    var password: String?
-    var registeredOn: Date = Date()
-    
+    @DocumentID var id: String?
+    var registeredOn: Date  = Date()
+    var donationIDs: Set<String> = []
+    var chatIDs: Set<String> = []
+    var userProfileID: String? 
 }

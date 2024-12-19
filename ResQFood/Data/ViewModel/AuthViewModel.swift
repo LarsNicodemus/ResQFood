@@ -6,6 +6,7 @@
 //
 
 import FirebaseAuth
+import FirebaseFirestore
 import Foundation
 
 class AuthViewModel: ObservableObject {
@@ -31,20 +32,104 @@ class AuthViewModel: ObservableObject {
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
     private var listener: NSObjectProtocol?
+    private var userListener: ListenerRegistration?
+
 
     init() {
-        checkAuth()
         listener = fb.auth.addStateDidChangeListener { auth, user in
-            print("\(user?.uid ?? "NO ID")")
             self.user = user
-            if let user = user {
-                self.createUser(id: user.uid, email: self.email)
-            } else {
-                self.user = nil
-                self.appUser = nil
-            }
+            self.setupUserListener()
         }
 
+    }
+
+    deinit {
+        listener = nil
+
+        userListener?.remove()
+        userListener = nil
+    }
+
+    
+    private func setupUserListener() {
+        userListener?.remove()
+        userListener = nil
+        
+        if let userID = fb.userID {
+            userListener = userRepo.addUserListener(userID: userID) { user in
+                    self.appUser = user
+            }
+        }
+    }
+    
+    func getUserByID() {
+        guard let userID = fb.userID else { return }
+
+        Task {
+            do {
+                appUser = try await userRepo.getUserByID(userID)
+            } catch {
+                print("appUser not created \(error)")
+            }
+        }
+    }
+
+    func login() {
+        Task {
+            do {
+                try await userRepo.login(email: email, password: password)
+                email = ""
+                password = ""
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    func loginAnonym() {
+        Task {
+            do {
+                try await userRepo.loginAnonymously()
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    func register() {
+        Task {
+            do {
+                try await userRepo.register(email: email, password: password)
+                email = ""
+                password = ""
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func logout() {
+            do {
+                userListener?.remove()
+                userListener = nil
+                try userRepo.logout()
+                appUser = nil
+            } catch {
+                print(error)
+            }
+        }
+    
+    func deleteUser() {
+        Task {
+            do {
+                userListener?.remove()
+                userListener = nil
+                try await userRepo.deleteUser()
+                appUser = nil
+            } catch {
+                print(error)
+            }
+        }
     }
 
     var userIsLoggedIn: Bool {
@@ -53,66 +138,6 @@ class AuthViewModel: ObservableObject {
 
     var userNotAnonym: Bool {
         user?.email != nil
-    }
-
-    func checkAuth() {
-        userRepo.checkAuth { currentUser in
-            self.user = currentUser
-        }
-    }
-
-    private func getUser(id: String) {
-        userRepo.getUser(id: id) { user in
-            self.appUser = user
-        }
-    }
-
-    private func createUser(id: String, email: String) {
-        userRepo.createUser(id: id, email: email) { user in
-            self.getUser(id: user.id)
-        }
-    }
-
-    private func createAnonymusUser(id: String) {
-        userRepo.createAnonymusUser(id: id) { user in
-            self.getUser(id: user.id)
-        }
-    }
-
-    func register() {
-        userRepo.register(email: email, password: password) { userResult in
-            self.user = userResult
-        } onFailure: {
-            self.emailAlredyUsed = true
-        }
-    }
-
-    func loginWithEmail() {
-        self.emailPasswordError = false
-        self.isResetEmailSent = false
-        userRepo.loginWithEmail(
-            email: email,
-            password: password
-        ) { user in
-            self.user = user
-            self.emailPasswordError = false
-            self.emailError = nil
-            self.passwordError = nil
-        } onFailure: {
-            self.emailPasswordError = true
-        }
-    }
-
-    func loginAnonymously() {
-        userRepo.loginAnonymously { userResult in
-            self.user = userResult
-            self.createAnonymusUser(id: userResult.uid)
-        }
-    }
-
-    func logOut() {
-        userRepo.logOut()
-        didValidate = false
     }
 
     func validateEmail() {
@@ -148,7 +173,7 @@ class AuthViewModel: ObservableObject {
         emailPasswordError = false
         isResetEmailSent = false
         if emailError == nil && passwordError == nil {
-            loginWithEmail()
+            login()
         }
     }
 

@@ -8,5 +8,4 @@
 struct ContactInfo: Codable {
     var email: String?
     var number: String?
-    var adress: Adress?
 }
