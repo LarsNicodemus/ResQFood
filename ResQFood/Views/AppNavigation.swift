@@ -11,49 +11,81 @@ struct AppNavigation: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
-
+    //    @State private var selectedTab = 0
+    //    @State var activeTab: TabModel = .home
+    //
+    //    init() {
+    //        UITabBar.appearance().isHidden = true
+    //    }
     @State var showUser = false
     var body: some View {
-        TabView{
-            Tab("Home", systemImage: "house" ){
-                Text("Login mit Userdaten")
-                
-            }
-            Tab("Donation", systemImage: "document.badge.plus" ){
-                CreateView()
-            }
-            Tab("Donations", systemImage: "list.star" ){
-                DonationListView()
-            }
-            Tab("Settings", systemImage: "wrench") {
-                VStack{
-                    Button("Logout") {
-                        authVM.logout()
-                    }
-                    .primaryButtonStyle()
-                    
-                    Button("Delete User") {
-                        authVM.deleteUser()
-                    }
-                    .primaryButtonStyle()
-                    Button("Show User"){
-                        showUser.toggle()
-                    }
-                    .primaryButtonStyle()
-                    
-                    if showUser {
-                        if showUser {
-                            if let profileID = authVM.appUser?.userProfileID, !profileID.isEmpty {
-                                Text("Profile ID: \(profileID)")
-                            } else {
-                                Text("No valid Profile ID")
-                            }
-                        }
-                    }
+        if authVM.userNotAnonym {
+            TabView {
+                Tab("Home", systemImage: "house") {
+                    HomeView()
+
                 }
+                
+                    Tab("Donation", systemImage: "document.badge.plus") {
+                        CreateView()
+                    }
+                
+                Tab("Donations", systemImage: "list.star") {
+                    DonationsView()
+                }
+                Tab("Menü", systemImage: "wrench") {
+                    MenuView()
+                }
+
             }
-            
+        } else {
+            TabView {
+                Tab("Home", systemImage: "house") {
+                    HomeView()
+
+                }
+                
+                Tab("Donations", systemImage: "list.star") {
+                    DonationsView()
+                }
+                Tab("Menü", systemImage: "wrench") {
+                    MenuView()
+                }
+
+            }
         }
+        //        ZStack{
+        //            VStack{
+        //                TabView(selection: $activeTab) {
+        //                    ForEach(TabModel.allCases, id: \.rawValue) { tab in
+        //                        HStack{
+        //                            tab.navigateTo
+        //                        }.tag(tab)
+        //                    }
+        //                }
+        //            }
+        //            VStack {
+        //                Spacer()
+        //                TabBarView(activeTab: $activeTab)
+        //            }
+        //        }
+        //        .toolbar(.hidden)
+        //        ZStack(alignment: .bottom) {
+        //                    TabView(selection: $selectedTab) {
+        //                        HomeView()
+        //                            .tag(0)
+        //
+        //                        CreateView()
+        //                            .tag(1)
+        //
+        //                        DonationsView()
+        //                            .tag(2)
+        //                    }
+        //
+        //            CustomAnimatedTabBar(selectedTab: $selectedTab)
+        //                        .padding(.horizontal)
+        //                        .padding(.bottom)
+        //                }
     }
 }
 
@@ -62,5 +94,7 @@ struct AppNavigation: View {
         .environmentObject(AuthViewModel())
         .environmentObject(ImageViewModel())
         .environmentObject(ProfileViewModel())
-}
+        .environmentObject(DonationViewModel())
+        .environmentObject(LocationViewModel())
 
+}

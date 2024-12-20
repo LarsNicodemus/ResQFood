@@ -9,26 +9,35 @@ import MapKit
 import SwiftUI
 
 struct DonationMapView: View {
-    @EnvironmentObject var donVM: DonationViewModel
-    @StateObject var mapVM: MapViewModel = MapViewModel()
+    @ObservedObject var mapVM: MapViewModel
 
     var body: some View {
         ZStack {
             Map(position: $mapVM.position) {
-                //                if let donations = donVM.donations {
-                //                    ForEach(donations, id: \.id) { donation in
-                //                        Marker(donation.title, coordinate: .init(latitude: donation.location.lat, longitude: donation.location.long))
-                //                    }
-                //                }
-                //                if let coordinates = mapVM.coordinates {
-                //                    Marker(mapVM.searchTerm, coordinate: coordinates)
-                //
-                //                }
+               
                 if let coordinates = mapVM.coordinates {
-                    Marker("Meine Position", coordinate: coordinates)
+                    Annotation("Meine Position", coordinate: coordinates) {
+                        Image(systemName: "heart.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 32)
+                            .foregroundStyle(Color("primaryContainer"))
+                            .overlay {
+                                    Image(systemName: "heart")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle(Color("primaryAT"))
+                                }
+                        
+                        Text("Meine Position")
+                            .font(.caption)
+                            .foregroundStyle(Color("primaryAT"))
+                    }
+                    .annotationTitles(.hidden)
                 }
-
-                if let donations = donVM.donations {
+                
+                if !mapVM.locationsInRadius.isEmpty {
+                let donations = mapVM.locationsInRadius
                     ForEach(donations, id: \.id) { donation in
                         
                         Annotation(donation.title, coordinate: CLLocationCoordinate2D(latitude: donation.location.lat, longitude: donation.location.long)) {
@@ -42,28 +51,8 @@ struct DonationMapView: View {
                                 .foregroundStyle(Color("primaryAT"))
                         }
                         .annotationTitles(.hidden)
-                        
-                        Marker(
-                            donation.title,
-                            coordinate: .init(
-                                latitude: donation.location.lat,
-                                longitude: donation.location.long))
                     }
                 }
-//                ForEach(mapVM.locationsInRadius) { location in
-//                    Annotation(location.name, coordinate: location.coordinate) {
-//                        Image("fridgeicon2")
-//                            .resizable()
-//                            .scaledToFit()
-//                            .frame(height: 32)
-//                            .foregroundStyle(Color("primaryAT"))
-//                        Text(location.name)
-//                            .font(.caption)
-//                            .foregroundStyle(Color("primaryAT"))
-//                    }
-//                    .annotationTitles(.hidden)
-//
-//                }
 
                 if let coordinates = mapVM.coordinates {
                     MapCircle(center: coordinates, radius: mapVM.searchRadius)
@@ -75,7 +64,6 @@ struct DonationMapView: View {
             .mapControls {
                 MapScaleView()
                 MapCompass()
-                MapUserLocationButton()
                 MapPitchToggle()
             }
 
@@ -86,8 +74,19 @@ struct DonationMapView: View {
                         .background(Color("primaryContainer"))
                         .clipShape(
                             RoundedRectangle(cornerRadius: 10))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color("primaryAT"),lineWidth: 1)
+                                
+                        }
                     Button("Start") {
                         mapVM.getCoordinates()
+                    }
+                    .primaryButtonStyle()
+                    Button {
+                        mapVM.resetLocation()
+                    } label: {
+                        Image(systemName: "location.fill")
                     }
                     .primaryButtonStyle()
                 }
@@ -101,6 +100,7 @@ struct DonationMapView: View {
                             mapVM.updateLocationsInRadius()
                         }
                         .tint(Color("primaryAT"))
+                        
 
                         Text("5 KM")
                             .font(.system(size: 10))
@@ -110,8 +110,8 @@ struct DonationMapView: View {
                         .font(.system(size: 10))
                 }
             }
-            .padding()
-
+            .padding(.top, 4)
+            .padding(.horizontal, 8)
         }
         .task {
             mapVM.requestLocation()
@@ -121,12 +121,7 @@ struct DonationMapView: View {
 }
 
 #Preview {
-    DonationMapView()
-        .environmentObject(DonationViewModel())
+    DonationMapView(mapVM: MapViewModel())
 }
 
-struct Location: Identifiable {
-    let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
-}
+

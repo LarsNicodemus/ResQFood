@@ -16,9 +16,9 @@ struct AuthWrapper: View {
     var body: some View {
         NavigationStack {
             if authVM.user != nil {
-                if authVM.userNotAnonym {
+                
                     if authVM.appUser != nil {
-                        if authVM.appUser?.userProfileID != nil {
+                        if authVM.appUser?.userProfileID != nil || !authVM.userNotAnonym {
                             AppNavigation()
                                 .environmentObject(donVM)
                                 .environmentObject(locVM)
@@ -28,11 +28,6 @@ struct AuthWrapper: View {
 
                         }
                     }
-                } else {
-                    AppNavigationAnonym()
-                        .environmentObject(donVM)
-                }
-
             } else {
                 LoginView()
                     .padding()

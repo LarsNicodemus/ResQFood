@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        if authVM.userNotAnonym {
+            Text("Login mit Userdaten")
+        } else {
+            Text("Login Anonym")
+        }
     }
 }
 
 #Preview {
     HomeView()
+        .environmentObject(AuthViewModel())
 }

@@ -78,11 +78,11 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.login(email: email, password: password)
-                email = ""
-                password = ""
+                resetEmailPassword()
             } catch {
                 print(error)
             }
+            
         }
     }
 
@@ -100,8 +100,7 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.register(email: email, password: password)
-                email = ""
-                password = ""
+                resetEmailPassword()
             } catch {
                 print(error)
             }
@@ -216,6 +215,11 @@ class AuthViewModel: ObservableObject {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
+    }
+    
+    func resetEmailPassword(){
+        email = ""
+        password = ""
     }
 
 }

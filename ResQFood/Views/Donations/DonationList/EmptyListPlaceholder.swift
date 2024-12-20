@@ -13,7 +13,7 @@ struct EmptyListPlaceholder: View {
             Image("placeholderIG")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 200, height: 200)
+                .frame(width: 150, height: 150)
                 .foregroundColor(.gray)
             
             Text("Keine Spenden verfügbar.")
@@ -26,4 +26,8 @@ struct EmptyListPlaceholder: View {
         }
         .padding()
     }
+}
+
+#Preview {
+    EmptyListPlaceholder()
 }

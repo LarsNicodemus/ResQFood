@@ -8,24 +8,26 @@
 import SwiftUI
 
 struct DonationListView: View {
+    @ObservedObject var mapVM: MapViewModel
+
     @EnvironmentObject var donVM: DonationViewModel
     var body: some View {
-        if let donations = donVM.donations {
-        List{
+        if !mapVM.locationsInRadius.isEmpty {
+            List {
+                let donations = mapVM.locationsInRadius
                 ForEach(donations, id: \.id) { donation in
+
                     DonationListItem(donation: donation)
                 }
-            }
-        .listStyle(.plain)
-
+            }.listStyle(.plain)
         } else {
             EmptyListPlaceholder()
         }
+
     }
 }
 
 #Preview {
-    DonationListView()
+    DonationListView(mapVM: MapViewModel())
         .environmentObject(DonationViewModel())
 }
-

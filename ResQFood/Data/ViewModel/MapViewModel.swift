@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import MapKit
+import FirebaseFirestore
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
@@ -15,22 +16,33 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var searchTerm: String = ""
     @Published var position: MapCameraPosition = .automatic
     @Published var searchRadius: Double = 1000
-    @Published var locationsInRadius: [Location] = []
-    private var allLocations: [Location] = [
-        Location(name: "1KG Reis", coordinate: CLLocationCoordinate2D(latitude: 50.383, longitude: 8.052)),
-        Location(name: "3 Eier", coordinate: CLLocationCoordinate2D(latitude: 50.383, longitude: 8.051)),
-        Location(name: "Kaffepads", coordinate: CLLocationCoordinate2D(latitude: 50.383, longitude: 8.053)),
-        Location(name: "Sixpack Bier", coordinate: CLLocationCoordinate2D(latitude: 50.383, longitude: 8.055)),
-        Location(name: "Hexenhaus Lebkuchen", coordinate: CLLocationCoordinate2D(latitude: 50.383, longitude: 8.058)),
-        Location(name: "Milchflasche", coordinate: CLLocationCoordinate2D(latitude: 50.3835, longitude: 8.050))
-    ]
+    @Published var locationsInRadius: [FoodDonation] = []
+    @Published var donations: [FoodDonation]? = nil
+    
+
+    private var listener: ListenerRegistration?
+    private let donationRepo = DonationRepositoryImplementation()
+    
+    
     override init() {
         super.init()
         locationManager.delegate = self
+        setupDonationsListener()
     }
+    
+    deinit {
+        listener?.remove()
+        listener = nil
+    }
+    
     @MainActor
     func requestLocation() {
         locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    func resetLocation() {
+        locationManager.stopUpdatingLocation()
         locationManager.startUpdatingLocation()
     }
     
@@ -38,6 +50,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.coordinates = locations.last?.coordinate
         updateLocationsInRadius()
     }
+    
     @MainActor
     func getCoordinates() {
         Task {
@@ -53,28 +66,37 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func updateLocationsInRadius() {
-            guard let currentCoordinates = coordinates else { return }
-            
-            locationsInRadius = allLocations.filter { location in
-                isLocationInRadius(location, center: currentCoordinates)
-            }
-        }
+        guard let currentCoordinates = coordinates else { return }
+        
+        locationsInRadius = donations?.filter { donation in
+            isLocationInRadius(donation.location, center: currentCoordinates)
+        } ?? []
+    }
     
-    private func isLocationInRadius(_ location: Location, center: CLLocationCoordinate2D) -> Bool {
-            let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
-            let pointLocation = CLLocation(latitude: location.coordinate.latitude,
-                                         longitude: location.coordinate.longitude)
-            
-            return centerLocation.distance(from: pointLocation) <= searchRadius
-        }
+    private func isLocationInRadius(_ location: AppLocation, center: CLLocationCoordinate2D) -> Bool {
+        let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+        let pointLocation = CLLocation(latitude: location.lat,
+                                       longitude: location.long)
+        
+        return centerLocation.distance(from: pointLocation) <= searchRadius
+    }
     
-    func addLocation(_ location: Location) {
-            allLocations.append(location)
-            updateLocationsInRadius()
-        }
     
     func updateSearchRadius(_ radius: Double) {
-            searchRadius = radius
-            updateLocationsInRadius()
-        }
+        searchRadius = radius
+        updateLocationsInRadius()
+    }
+    
+    private func setupDonationsListener() {
+        listener?.remove()
+        listener = nil
+
+        listener = donationRepo.addDonationsListener { donations in
+                self.donations = donations
+            for donation in donations {
+                print(donation.title)
+            }
+            }
+    }
+    
 }
