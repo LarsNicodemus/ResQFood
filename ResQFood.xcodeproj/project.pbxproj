@@ -363,6 +363,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ResQFood/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Die App benötigt Zugriff auf die Kamera, um QR-Codes zu scannen.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Um das bestmögliche Ergebnis zu liefern, benötigen wir während der Nutzung Zugriff auf deinen Standort.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -399,6 +401,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ResQFood/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Die App benötigt Zugriff auf die Kamera, um QR-Codes zu scannen.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Um das bestmögliche Ergebnis zu liefern, benötigen wir während der Nutzung Zugriff auf deinen Standort.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
