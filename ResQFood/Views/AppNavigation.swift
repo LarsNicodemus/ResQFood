@@ -31,7 +31,8 @@ struct AppNavigation: View {
                     }
                 
                 Tab("Donations", systemImage: "list.star") {
-                    DonationsView()
+//                    DonationsView()
+                    GroceryAZView()
                 }
                 Tab("Menü", systemImage: "wrench") {
                     MenuView()

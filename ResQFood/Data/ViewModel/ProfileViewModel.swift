@@ -55,7 +55,8 @@ class ProfileViewModel: ObservableObject {
     func getUserByID() {
         guard let userID = fb.userID else { return }
 
-        Task {
+        Task { @MainActor in
+
             do {
                 appUser = try await userRepo.getUserByID(userID)
             } catch {

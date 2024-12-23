@@ -78,7 +78,7 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.login(email: email, password: password)
-                resetEmailPassword()
+                await resetEmailPassword()
             } catch {
                 print(error)
             }
@@ -100,7 +100,7 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.register(email: email, password: password)
-                resetEmailPassword()
+                await resetEmailPassword()
             } catch {
                 print(error)
             }
@@ -217,6 +217,7 @@ class AuthViewModel: ObservableObject {
         return emailPred.evaluate(with: email)
     }
     
+    @MainActor
     func resetEmailPassword(){
         email = ""
         password = ""
