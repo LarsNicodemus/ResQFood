@@ -12,24 +12,30 @@ struct MenuView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView{
-                VStack(alignment: .leading){
-                    ForEach(MenuList.allCases) { menuItem in
-                        HStack{
-                            NavigationLink(destination: menuItem.view) {
-                                Text(menuItem.rawValue)
-                                    .lineLimit(nil)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(width: 200, alignment: .leading)
+            
+            VStack{
+                Text("Menü")
+                    .font(.system(size: 20,weight: .bold))
+                ScrollView{
+                    VStack(alignment: .leading){
+                        ForEach(MenuList.allCases) { menuItem in
+                            HStack{
+                                NavigationLink(destination: menuItem.view) {
+                                    Text(menuItem.rawValue)
+                                        .lineLimit(nil)
+                                        .multilineTextAlignment(.leading)
+                                        .frame(width: 200, alignment: .leading)
+                                }
+                                .primaryButtonStyle()
+                                Spacer()
                             }
-                            .primaryButtonStyle()
-                            Spacer()
                         }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
+                    .padding(.top, 64)
                 }
             }
-            .padding(.top, 72)
+            .padding()
         }
     }
 }

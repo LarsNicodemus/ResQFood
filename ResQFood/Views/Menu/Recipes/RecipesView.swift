@@ -134,6 +134,7 @@ struct RecipesView: View {
                 print(newValue)
             }
         }
+        .padding()
         .padding(.top, 72)
         Spacer()
     }

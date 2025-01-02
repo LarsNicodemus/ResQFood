@@ -17,12 +17,7 @@ class MealDBRepositoryImplementation: MealDBRepository {
             let response: [String: [Meal]] = try await webService.downloadData(urlString: urlString)
             return response["meals"]
         }
-    
-//    func getRecipeDetails(idMeal: String) async throws -> DetailedMeal? {
-//            let urlString = "\(baseURL)/lookup.php?i=\(idMeal)"
-//            let response: [String: [DetailedMeal]] = try await webService.downloadData(urlString: urlString)
-//            return response["meals"]?.first
-//        }
+
     func getRecipeDetails(idMeal: String) async throws -> DetailedMeal? {
             let urlString = "\(baseURL)/lookup.php?i=\(idMeal)"
             let (data, _) = try await URLSession.shared.data(from: URL(string: urlString)!)
