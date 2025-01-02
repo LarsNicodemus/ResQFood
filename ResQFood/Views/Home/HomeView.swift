@@ -11,10 +11,16 @@ struct HomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
-        if authVM.userNotAnonym {
-            Text("Login mit Userdaten")
-        } else {
-            Text("Login Anonym")
+        VStack{
+            VStack{
+                if authVM.userNotAnonym {
+                    Text("Login mit Userdaten")
+                } else {
+                    Text("Login Anonym")
+                }
+            }
+            .padding(.top, 32)
+            .padding(.bottom, 32)
         }
     }
 }

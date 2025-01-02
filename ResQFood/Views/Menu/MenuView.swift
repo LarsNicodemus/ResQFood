@@ -9,33 +9,27 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject var authVM: AuthViewModel
-    @State var showUser = false
 
     var body: some View {
-        VStack{
-            Button("Logout") {
-                authVM.logout()
-            }
-            .primaryButtonStyle()
-            
-            Button("Delete User") {
-                authVM.deleteUser()
-            }
-            .primaryButtonStyle()
-            Button("Show User"){
-                showUser.toggle()
-            }
-            .primaryButtonStyle()
-            
-            if showUser {
-                if showUser {
-                    if let profileID = authVM.appUser?.userProfileID, !profileID.isEmpty {
-                        Text("Profile ID: \(profileID)")
-                    } else {
-                        Text("No valid Profile ID")
+        NavigationStack {
+            ScrollView{
+                VStack(alignment: .leading){
+                    ForEach(MenuList.allCases) { menuItem in
+                        HStack{
+                            NavigationLink(destination: menuItem.view) {
+                                Text(menuItem.rawValue)
+                                    .lineLimit(nil)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(width: 200, alignment: .leading)
+                            }
+                            .primaryButtonStyle()
+                            Spacer()
+                        }
                     }
+                    .listStyle(.plain)
                 }
             }
+            .padding(.top, 72)
         }
     }
 }
@@ -43,4 +37,15 @@ struct MenuView: View {
 #Preview {
     MenuView()
         .environmentObject(AuthViewModel())
+}
+
+
+
+struct MenuItemView: View {
+    var text: String
+    var body: some View {
+        VStack {
+            Text(text)
+        }
+    }
 }

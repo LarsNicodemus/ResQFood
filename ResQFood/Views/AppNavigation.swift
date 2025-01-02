@@ -31,14 +31,14 @@ struct AppNavigation: View {
                     }
                 
                 Tab("Donations", systemImage: "list.star") {
-//                    DonationsView()
-                    GroceryAZView()
+                    DonationsView()
                 }
                 Tab("Menü", systemImage: "wrench") {
                     MenuView()
                 }
 
             }
+            .tint(Color("primaryAT"))
         } else {
             TabView {
                 Tab("Home", systemImage: "house") {
@@ -54,6 +54,8 @@ struct AppNavigation: View {
                 }
 
             }
+            .tint(Color("primaryAT"))
+
         }
         //        ZStack{
         //            VStack{

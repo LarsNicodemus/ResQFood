@@ -8,11 +8,39 @@
 import SwiftUI
 
 struct SettingsOverView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+    @State var showUser = false
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Button("Logout") {
+                authVM.logout()
+            }
+            .primaryButtonStyle()
+            
+            Button("Delete User") {
+                authVM.deleteUser()
+            }
+            .primaryButtonStyle()
+            Button("Show User"){
+                showUser.toggle()
+            }
+            .primaryButtonStyle()
+            
+            if showUser {
+                if showUser {
+                    if let profileID = authVM.appUser?.userProfileID, !profileID.isEmpty {
+                        Text("Profile ID: \(profileID)")
+                    } else {
+                        Text("No valid Profile ID")
+                    }
+                }
+            }
+        }
     }
 }
 
 #Preview {
     SettingsOverView()
+        .environmentObject(AuthViewModel())
+
 }
