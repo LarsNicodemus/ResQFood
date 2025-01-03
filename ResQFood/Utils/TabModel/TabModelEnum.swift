@@ -24,12 +24,12 @@ enum TabModel: String, CaseIterable {
         }
     }
     
-    var navigateTo: AnyView {
-        switch self {
-        case .home: return AnyView(HomeView())
-        case .create: return AnyView(CreateView())
-        case .donations: return AnyView(DonationsView())
-        case .menu: return AnyView(MenuView())
-        }
-    }
+//    var navigateTo: AnyView {
+//        switch self {
+//        case .home: return AnyView(HomeView())
+//        case .create: return AnyView(CreateView())
+//        case .donations: return AnyView(DonationsView())
+//        case .menu: return AnyView(MenuView())
+//        }
+//    }
 }

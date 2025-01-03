@@ -11,6 +11,8 @@ struct AppNavigation: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
+    @Binding var navigationPath: NavigationPath
+
     //    @State private var selectedTab = 0
     //    @State var activeTab: TabModel = .home
     //
@@ -34,7 +36,7 @@ struct AppNavigation: View {
                     DonationsView()
                 }
                 Tab("Menü", systemImage: "wrench") {
-                    MenuView()
+                    MenuView(navigationPath: $navigationPath)
                 }
 
             }
@@ -50,7 +52,7 @@ struct AppNavigation: View {
                     DonationsView()
                 }
                 Tab("Menü", systemImage: "wrench") {
-                    MenuView()
+                    MenuView(navigationPath: $navigationPath)
                 }
 
             }
@@ -93,7 +95,7 @@ struct AppNavigation: View {
 }
 
 #Preview {
-    AppNavigation()
+    AppNavigation(navigationPath: .constant(NavigationPath()))
         .environmentObject(AuthViewModel())
         .environmentObject(ImageViewModel())
         .environmentObject(ProfileViewModel())

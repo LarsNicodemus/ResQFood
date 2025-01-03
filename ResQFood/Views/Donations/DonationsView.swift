@@ -11,10 +11,13 @@ struct DonationsView: View {
     @StateObject var mapVM: MapViewModel = MapViewModel()
 
     var body: some View {
-        VStack{
-            DonationMapView(mapVM: mapVM)
-            DonationListView(mapVM: mapVM)
-        }
+            VStack{
+                DonationMapView(mapVM: mapVM)
+                    .ignoresSafeArea(edges: .top)
+                DonationListView(mapVM: mapVM)
+            }
+            .navigationBarHidden(true)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 

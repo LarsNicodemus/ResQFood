@@ -21,7 +21,7 @@ enum MenuList : String, Identifiable, CaseIterable {
     }
     
     @ViewBuilder
-    var view: some View {
+    func view(navigationPath: Binding<NavigationPath>) -> some View {
             switch self {
             case .profil:
                 ProfileOverView()
@@ -36,7 +36,7 @@ enum MenuList : String, Identifiable, CaseIterable {
             case .recipes:
                 RecipesView()
             case .settings:
-                SettingsOverView()
+                SettingsOverView(navigationPath: navigationPath)
             case .partners:
                 PartnersView()
             }

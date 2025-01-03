@@ -30,18 +30,32 @@ struct GroceryAZView: View {
         VStack {
             VStack(alignment: .leading){
                 if !groceryAZ.groceryDetail {
-                    Text("Lebensmittel A-Z")
-                        .font(.system(size: 20, weight: .bold))
+                    ZStack{
+                        Text("Lebensmittel A-Z")
+                            .font(Fonts.title)
+                        Image("Strich")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 250)
+                            .offset(y: 18)
+                    }
                     Text("Das Lebensmittel-Lexikon bietet wertvolle Tipps zur optimalen Lagerung von Lebensmitteln. Zudem informieren wir über deren Haltbarkeit und teilen praktische Ratschläge, um Lebensmittelverschwendung effektiv zu reduzieren.")
                 }
-                TextField("Suche: ", text: $groceryAZ.searchInput)
-                    .focused($isFocused)
-                    .onChange(of: isFocused) { oldValue, newValue in
-                        if newValue {
-                            groceryAZ.groceryDetail = false
-                            groceryAZ.searchInput = ""
+                ZStack{
+                    TextField("Suche: ", text: $groceryAZ.searchInput)
+                        .focused($isFocused)
+                        .onChange(of: isFocused) { oldValue, newValue in
+                            if newValue {
+                                groceryAZ.groceryDetail = false
+                                groceryAZ.searchInput = ""
+                            }
                         }
-                    }
+                    Image("Strich")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 300)
+                        .offset(x: -35, y: 15)
+                }
             }
 
             if !groceryAZ.groceryDetail && isFocused {

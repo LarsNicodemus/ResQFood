@@ -12,22 +12,50 @@ struct AuthWrapper: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @StateObject var donVM: DonationViewModel = DonationViewModel()
     @StateObject var locVM: LocationViewModel = LocationViewModel()
-    
-    var body: some View {
-        NavigationStack {
-            if authVM.user != nil {
-                
-                    if authVM.appUser != nil {
-                        if authVM.appUser?.userProfileID != nil || !authVM.userNotAnonym {
-                            AppNavigation()
-                                .environmentObject(donVM)
-                                .environmentObject(locVM)
-                            
-                        } else {
-                            ProfileCreationView()
+    @State private var navigationPath = NavigationPath()
 
-                        }
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            if authVM.user != nil {
+                if authVM.appUser != nil {
+                    if authVM.appUser?.userProfileID != nil || !authVM.userNotAnonym {
+                        AppNavigation(navigationPath: $navigationPath)
+                            .environmentObject(donVM)
+                            .environmentObject(locVM)
+                            .navigationDestination(for: NavigationRoute.self) { route in
+                                switch route {
+                                case .settings:
+                                    SettingsOverView(navigationPath: $navigationPath)
+                                case .account:
+                                    AccountView(navigationPath: $navigationPath)
+                                case .profil:
+                                    ProfileOverView()
+                                case .rewards:
+                                    RewardsView()
+                                case .chat:
+                                    ChatView()
+                                case .community:
+                                    CommunityView()
+                                case .groceryAZ:
+                                    GroceryAZView()
+                                case .recipes:
+                                    RecipesView()
+                                case .partners:
+                                    PartnersView()
+                                case .about:
+                                    AboutResQFoodView()
+                                case .design:
+                                    DesignView()
+                                case .help:
+                                    HelpAndSettingsView()
+                                case .privacy:
+                                    PrivacyPolicyView()
+                                }
+                            }
+                    } else {
+                        ProfileCreationView()
                     }
+                }
             } else {
                 LoginView()
                     .padding()
@@ -36,6 +64,7 @@ struct AuthWrapper: View {
         .accentColor(Color("primaryAT"))
     }
 }
+
 
 #Preview {
     AuthWrapper()

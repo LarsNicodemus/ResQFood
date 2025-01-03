@@ -71,7 +71,7 @@ struct DonationMapView: View {
                 HStack {
                     TextField("Suche:", text: $mapVM.searchTerm)
                         .padding(8)
-                        .background(Color("primaryContainer"))
+                        .background(Color("primaryContainer").opacity(0.5))
                         .clipShape(
                             RoundedRectangle(cornerRadius: 10))
                         .overlay {
@@ -80,11 +80,14 @@ struct DonationMapView: View {
                                 
                         }
                     Button("Start") {
+                        mapVM.coordinates = nil
                         mapVM.getCoordinates()
                     }
                     .primaryButtonStyle()
                     Button {
+                        mapVM.coordinates = nil
                         mapVM.resetLocation()
+                        mapVM.searchTerm = ""
                     } label: {
                         Image(systemName: "location.fill")
                     }
@@ -110,7 +113,7 @@ struct DonationMapView: View {
                         .font(.system(size: 10))
                 }
             }
-            .padding(.top, 4)
+            .padding(.top, 64)
             .padding(.horizontal, 8)
         }
         .task {

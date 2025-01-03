@@ -14,19 +14,33 @@ struct RecipesView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if !mealVM.mealDetail {
-                Text("Rezepte")
-                    .font(.system(size: 20, weight: .bold))
+                ZStack{
+                    Text("Rezepte")
+                        .font(Fonts.title)
+                    Image("Strich")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 110)
+                        .offset(y: 18)
+                }
                 Text("Hier kannst du nach einer Zutat suchen die du zu Hause hast oder in den Spenden gefunden und dich inspirieren lassen, was damit alles gekocht werden kann. es kann nach einer Zutat gesucht werden. Wenn du mehrere hast, probier es gerne nacheinander aus ;)")
                 
             }
-            TextField("Suche: ", text: $mealVM.ingredient)
-                .focused($isFocused)
-                .onChange(of: isFocused) { oldValue, newValue in
-                    if newValue {
-                        mealVM.mealDetail = false
-                        mealVM.ingredient = ""
+            ZStack{
+                TextField("Suche: ", text: $mealVM.ingredient)
+                    .focused($isFocused)
+                    .onChange(of: isFocused) { oldValue, newValue in
+                        if newValue {
+                            mealVM.mealDetail = false
+                            mealVM.ingredient = ""
+                        }
                     }
-                }
+                Image("Strich")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 300)
+                    .offset(x: -35, y: 15)
+            }
             if !mealVM.mealDetail && isFocused {
                 ScrollView {
                     LazyVStack {

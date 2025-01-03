@@ -28,7 +28,8 @@ class AuthViewModel: ObservableObject {
     @Published var emailPasswordError = false
     @Published var errorMessage = ""
     @Published var isResetEmailSent = false
-
+    @Published var resetNavigation = false
+    
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
     private var listener: NSObjectProtocol?
@@ -113,6 +114,13 @@ class AuthViewModel: ObservableObject {
                 userListener = nil
                 try userRepo.logout()
                 appUser = nil
+                user = nil
+                resetNavigation = true     // Diese Zeile ist wichtig
+                
+                // Kleine Verzögerung hinzufügen
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.resetNavigation = false
+                }
             } catch {
                 print(error)
             }
@@ -125,6 +133,7 @@ class AuthViewModel: ObservableObject {
                 userListener = nil
                 try await userRepo.deleteUser()
                 appUser = nil
+                user = nil
             } catch {
                 print(error)
             }
