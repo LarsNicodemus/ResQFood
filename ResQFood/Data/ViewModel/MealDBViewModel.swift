@@ -16,7 +16,7 @@ class MealDBViewModel: ObservableObject {
     @Published var selectedRecipe: DetailedMeal?
     @Published var ingredients: [String] = []
     @Published var measures: [String] = []
-    
+
     func searchRecipies() {
         translateIngredient(ingredient) { translatedIngredient in
             Task {
@@ -217,5 +217,27 @@ class MealDBViewModel: ObservableObject {
         "Filet": "Filet",
         "Steak": "Steak",
         "Braten": "Roast",
+        "Fenchel": "Fennel",
+        "Spargel": "Asparagus",
+        "Runkelrübe": "Turnip",
+        "Rote Bete": "Beetroot",
+        "Sellerie": "Celery",
+        "Pak Choi": "Pak Choi",
+        "Mangold": "Chard",
+        "Wurzelpetersilie": "Parsnip",
+        "Topinambur": "Jerusalem artichoke",
+        "Amaranth": "Amaranth",
+        "Buchweizen": "Buckwheat",
+        "Pinienkerne": "Pine nuts",
+        "Macadamianuss": "Macadamia nut",
+        "Paranuss": "Brazil nut",
+        "Kümmel": "Caraway",
+        "Tofu": "Tofu",
+        "Tempeh": "Tempeh",
+        "Seitan": "Seitan",
+        "Hefe": "Yeast",
+        "Backpulver": "Baking powder",
+        "Natron": "Baking soda",
+
     ]
 }

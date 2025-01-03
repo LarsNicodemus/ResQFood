@@ -13,13 +13,15 @@ struct DonationListView: View {
     @EnvironmentObject var donVM: DonationViewModel
     var body: some View {
         if !mapVM.locationsInRadius.isEmpty {
-            List {
-                let donations = mapVM.locationsInRadius
-                ForEach(donations, id: \.id) { donation in
-
-                    DonationListItem(donation: donation)
+            ScrollView{
+                    let donations = mapVM.locationsInRadius
+                    ForEach(donations, id: \.id) { donation in
+                        NavigationLink(destination: DonationDetailView(donation: donation)) {
+                            DonationListItem(donation: donation)
+                        }
+                    }
                 }
-            }.listStyle(.plain)
+            .scrollIndicators(.hidden)
         } else {
             EmptyListPlaceholder()
         }
