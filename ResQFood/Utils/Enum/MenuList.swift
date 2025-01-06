@@ -28,7 +28,7 @@ enum MenuList : String, Identifiable, CaseIterable {
             case .rewards:
                 RewardsView()
             case .chat:
-                ChatView()
+                ChatListView()
             case .community:
                 CommunityView()
             case .groceryAZ:

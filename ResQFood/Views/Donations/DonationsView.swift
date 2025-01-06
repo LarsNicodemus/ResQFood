@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DonationsView: View {
     @StateObject var mapVM: MapViewModel = MapViewModel()
+    @EnvironmentObject var chatVM: ChatViewModel
 
     var body: some View {
             VStack{
@@ -24,4 +25,5 @@ struct DonationsView: View {
 #Preview {
     DonationsView()
         .environmentObject(DonationViewModel())
+        .environmentObject(ChatViewModel())
 }

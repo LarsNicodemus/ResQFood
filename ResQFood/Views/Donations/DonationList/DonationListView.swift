@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DonationListView: View {
     @ObservedObject var mapVM: MapViewModel
-
+    @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
     var body: some View {
         if !mapVM.locationsInRadius.isEmpty {
@@ -32,4 +32,6 @@ struct DonationListView: View {
 #Preview {
     DonationListView(mapVM: MapViewModel())
         .environmentObject(DonationViewModel())
+        .environmentObject(ChatViewModel())
+
 }

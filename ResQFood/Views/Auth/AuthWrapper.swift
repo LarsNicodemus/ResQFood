@@ -12,6 +12,7 @@ struct AuthWrapper: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @StateObject var donVM: DonationViewModel = DonationViewModel()
     @StateObject var locVM: LocationViewModel = LocationViewModel()
+    @StateObject var chatVM: ChatViewModel = ChatViewModel()
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
@@ -33,7 +34,7 @@ struct AuthWrapper: View {
                                 case .rewards:
                                     RewardsView()
                                 case .chat:
-                                    ChatView()
+                                    ChatListView()
                                 case .community:
                                     CommunityView()
                                 case .groceryAZ:
@@ -71,4 +72,5 @@ struct AuthWrapper: View {
         .environmentObject(AuthViewModel())
         .environmentObject(ProfileViewModel())
         .environmentObject(ImageViewModel())
+        .environmentObject(ChatViewModel())
 }
