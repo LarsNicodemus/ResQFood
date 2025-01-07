@@ -13,7 +13,7 @@ struct ChatDetailView: View {
     var body: some View {
         List(chatVM.messages) { message in
             let fromSelf = message.senderID == chatVM.currentUserID
-            MessageItem(content: message.content, fromSelf: fromSelf)
+            MessageItem(content: message.content, fromSelf: fromSelf, timestamp: message.timestamp)
                 .rotationEffect(Angle(degrees: -180))
             
         }.listStyle(.plain)
@@ -27,11 +27,12 @@ struct ChatDetailView: View {
             }
             .primaryButtonStyle()
         }
+        .padding(.horizontal)
     }
 }
 
 #Preview {
-    ChatDetailView(currentChatID: "1")
+    ChatDetailView(currentChatID: "51456C01-3EAB-4CF7-A639-F2F48E38A041")
         .environmentObject(ChatViewModel())
 
 }

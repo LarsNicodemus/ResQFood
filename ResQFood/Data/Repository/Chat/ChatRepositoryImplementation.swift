@@ -34,6 +34,49 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
     
+    func createChat2(name: String, userID: String, content: String) {
+        guard let id = fb.auth.currentUser?.uid else { return }
+        let chat = Chat(members: [id, userID], admin: id, name: name)
+        
+        do {
+                try fb.database.collection("chats")
+                    .document(chat.id)
+                    .setData(from: chat)
+            } catch {
+                print("Error creating Chat: \(error.localizedDescription)")
+                return
+            }
+            
+            updateChatIDs(for: [id, userID], chatID: chat.id)
+            
+            let message = Message(content: content, senderID: id)
+        
+            do {
+                try
+                fb.database.collection("chats").document(chat.id).collection("messages").addDocument(from: message) { error in
+                    if let error = error {
+                        print("Error adding initial message: \(error.localizedDescription)")
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        
+    }
+
+    func updateChatIDs(for userIDs: [String], chatID: String) {
+        for userID in userIDs {
+            fb.database.collection("users").document(userID).updateData([
+                "chatIDs": FieldValue.arrayUnion([chatID])
+            ]) { error in
+                if let error = error {
+                    print("Error updating chatIDs for user \(userID): \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    
     func createChatSentFirstMessage(name: String, userID: String, content: String) {
         guard let id = fb.auth.currentUser?.uid else { return }
         let chat = Chat(members: [id], admin: id, name: name)

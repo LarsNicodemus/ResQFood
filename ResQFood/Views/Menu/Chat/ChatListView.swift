@@ -30,7 +30,7 @@ struct ChatListView: View {
             HStack{
                 TextField("ChatName...", text: $testChatName)
                 Button("+") {
-                    chatVM.createChat(name: testChatName)
+//                    $chatVM.createChat(name: testChatName)
                     testChatName = ""
                 }
                 .primaryButtonStyle()

@@ -25,7 +25,9 @@ struct AppNavigation: View {
             TabView {
                 Tab("Home", systemImage: "house") {
                     HomeView()
-
+                        .onAppear{
+                            print("ProfilName: \(profileVM.userProfile?.username ?? "Kein Name verfügbar")")
+                        }
                 }
                 
                     Tab("Donation", systemImage: "document.badge.plus") {

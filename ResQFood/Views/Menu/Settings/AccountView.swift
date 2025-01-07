@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AccountView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var profileVM: ProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @Binding var navigationPath: NavigationPath
 
@@ -19,12 +20,13 @@ struct AccountView: View {
                     Button("Logout") {
                         navigationPath = NavigationPath()
                         authVM.logout()
+                        profileVM.logoutProfile()
                     }
                     .primaryButtonStyle()
         
                     Button("Delete User") {
+                        navigationPath = NavigationPath()
                         authVM.deleteUser()
-                        
                     }
                     .primaryButtonStyle()
                     Button("Show User"){
@@ -48,5 +50,6 @@ struct AccountView: View {
 #Preview {
     AccountView(navigationPath: .constant(NavigationPath()))
         .environmentObject(AuthViewModel())
+        .environmentObject(ProfileViewModel())
 
 }

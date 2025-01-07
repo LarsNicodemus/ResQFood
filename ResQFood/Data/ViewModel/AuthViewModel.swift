@@ -115,12 +115,6 @@ class AuthViewModel: ObservableObject {
                 try userRepo.logout()
                 appUser = nil
                 user = nil
-                resetNavigation = true     // Diese Zeile ist wichtig
-                
-                // Kleine Verzögerung hinzufügen
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.resetNavigation = false
-                }
             } catch {
                 print(error)
             }

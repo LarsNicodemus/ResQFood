@@ -125,7 +125,7 @@ struct DonationDetailView: View {
                             
                             Button(){
                                 if !chatVM.messageInput.isEmpty {
-                                    chatVM.sendFirstMessageCreateChat(name: donation.title, title: donation.title, userID: donation.creatorID)
+                                    chatVM.createChat3(name: donation.title, userID: donation.creatorID)
                                     withAnimation {
                                         showToast = true
                                     }

@@ -33,6 +33,11 @@ class ChatViewModel: ObservableObject {
     func createChat(name: String) {
         repo.createChat(name: name)
     }
+    
+    func createChat3(name: String, userID: String) {
+        repo.createChat2(name: name, userID: userID, content: messageInput)
+        messageInput = ""
+    }
 
     func sendMessage(chatID: String) {
         guard !messageInput.isEmpty else { return }
@@ -41,7 +46,7 @@ class ChatViewModel: ObservableObject {
     }
     func sendFirstMessage(
         name: String, title: String, userID: String
-    ) {
+    ) async {
         guard !messageInput.isEmpty else { return }
         repo.createChat(name: name)
         guard let chatID = chats.first(where: {
