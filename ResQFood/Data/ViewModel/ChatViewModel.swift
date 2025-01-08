@@ -12,6 +12,7 @@ class ChatViewModel: ObservableObject {
     @Published var chats: [Chat] = []
     @Published var messages: [Message] = []
     @Published var messageInput: String = ""
+    @Published var unreadMessagesCount: Int = 0
 
     var currentUserID: String {
         fb.userID ?? ""
@@ -26,6 +27,13 @@ class ChatViewModel: ObservableObject {
         listener = nil
     }
 
+    
+    func startUnreadMessagesListener() {
+            listener = repo.unreadMessagesCountListener(userID: currentUserID) { unreadCount in
+                self.unreadMessagesCount = unreadCount
+            }
+        }
+ 
     func changeAdmin(chatID: String) {
         repo.changeAdmin(chatID: chatID, newAdminID: currentUserID)
     }
@@ -33,7 +41,7 @@ class ChatViewModel: ObservableObject {
     func createChat(name: String) {
         repo.createChat(name: name)
     }
-    
+
     func createChat3(name: String, userID: String) {
         repo.createChat2(name: name, userID: userID, content: messageInput)
         messageInput = ""
@@ -49,7 +57,8 @@ class ChatViewModel: ObservableObject {
     ) async {
         guard !messageInput.isEmpty else { return }
         repo.createChat(name: name)
-        guard let chatID = chats.first(where: {
+        guard
+            let chatID = chats.first(where: {
                 $0.name == title
             })?.id
         else { return }
@@ -59,9 +68,11 @@ class ChatViewModel: ObservableObject {
             chatID: chatID, content: "Betreff: \(title) \n + \(messageInput)")
         messageInput = ""
     }
-    
-    func sendFirstMessageCreateChat(name: String, title: String, userID: String){
-        repo.createChatSentFirstMessage(name: name, userID: userID, content: messageInput)
+
+    func sendFirstMessageCreateChat(name: String, title: String, userID: String)
+    {
+        repo.createChatSentFirstMessage(
+            name: name, userID: userID, content: messageInput)
         messageInput = ""
     }
 
@@ -80,8 +91,9 @@ class ChatViewModel: ObservableObject {
     func addChatsSnapshotListener() {
         listener = repo.userChatsListener(userID: currentUserID) { chats in
             self.chats = chats.sorted(by: { c1, c2 in
-                c1.creationDate > c2.creationDate
-            })
+                c1.lastMessage > c2.lastMessage
+            }
+            )
         }
     }
 
@@ -97,4 +109,9 @@ class ChatViewModel: ObservableObject {
         }
     }
 
+    func markMessageAsRead(chatID: String, messageID: String) {
+        
+        repo.markMessageAsRead(chatID: chatID, messageID: messageID)
+    }
+    
 }

@@ -14,54 +14,59 @@ class ChatRepositoryImplementation: ChatRepository {
     func createChat(name: String) {
         guard let id = fb.auth.currentUser?.uid else { return }
         let chat = Chat(members: [id], admin: id, name: name)
-        
+
         do {
             try fb.database.collection("chats")
                 .document(chat.id)
                 .setData(from: chat)
-            
+
             fb.database.collection("users")
                 .document(id)
                 .updateData([
                     "chatIDs": FieldValue.arrayUnion([chat.id])
                 ]) { error in
                     if let error = error {
-                        print("Error updating user chatIDs: \(error.localizedDescription)")
+                        print(
+                            "Error updating user chatIDs: \(error.localizedDescription)"
+                        )
                     }
                 }
         } catch {
             print("Error creating Chat")
         }
     }
-    
+
     func createChat2(name: String, userID: String, content: String) {
         guard let id = fb.auth.currentUser?.uid else { return }
         let chat = Chat(members: [id, userID], admin: id, name: name)
-        
+
         do {
-                try fb.database.collection("chats")
-                    .document(chat.id)
-                    .setData(from: chat)
-            } catch {
-                print("Error creating Chat: \(error.localizedDescription)")
-                return
-            }
-            
-            updateChatIDs(for: [id, userID], chatID: chat.id)
-            
-            let message = Message(content: content, senderID: id)
-        
-            do {
-                try
-                fb.database.collection("chats").document(chat.id).collection("messages").addDocument(from: message) { error in
-                    if let error = error {
-                        print("Error adding initial message: \(error.localizedDescription)")
-                    }
+            try fb.database.collection("chats")
+                .document(chat.id)
+                .setData(from: chat)
+        } catch {
+            print("Error creating Chat: \(error.localizedDescription)")
+            return
+        }
+
+        updateChatIDs(for: [id, userID], chatID: chat.id)
+
+        let message = Message(content: content, senderID: id, isread: [id : true, userID : false])
+
+        do {
+            try fb.database.collection("chats").document(chat.id).collection(
+                "messages"
+            ).addDocument(from: message) { error in
+                if let error = error {
+                    print(
+                        "Error adding initial message: \(error.localizedDescription)"
+                    )
                 }
-            } catch {
-                print(error)
             }
-        
+        } catch {
+            print(error)
+        }
+
     }
 
     func updateChatIDs(for userIDs: [String], chatID: String) {
@@ -70,37 +75,42 @@ class ChatRepositoryImplementation: ChatRepository {
                 "chatIDs": FieldValue.arrayUnion([chatID])
             ]) { error in
                 if let error = error {
-                    print("Error updating chatIDs for user \(userID): \(error.localizedDescription)")
+                    print(
+                        "Error updating chatIDs for user \(userID): \(error.localizedDescription)"
+                    )
                 }
             }
         }
     }
-    
-    
-    func createChatSentFirstMessage(name: String, userID: String, content: String) {
+
+    func createChatSentFirstMessage(
+        name: String, userID: String, content: String
+    ) {
         guard let id = fb.auth.currentUser?.uid else { return }
         let chat = Chat(members: [id], admin: id, name: name)
-        
+
         do {
             try fb.database.collection("chats")
                 .document(chat.id)
                 .setData(from: chat)
-            
+
             fb.database.collection("users")
                 .document(id)
                 .updateData([
                     "chatIDs": FieldValue.arrayUnion([chat.id])
                 ]) { error in
                     if let error = error {
-                        print("Error updating user chatIDs: \(error.localizedDescription)")
+                        print(
+                            "Error updating user chatIDs: \(error.localizedDescription)"
+                        )
                     }
                 }
         } catch {
             print("Error creating Chat")
         }
-         fb.database.collection("chats")
-                .document(chat.id)
-                .updateData(["members": FieldValue.arrayUnion([userID])])
+        fb.database.collection("chats")
+            .document(chat.id)
+            .updateData(["members": FieldValue.arrayUnion([userID])])
         let message = Message(content: content, senderID: id)
         do {
             try fb.database.collection("chats")
@@ -123,18 +133,112 @@ class ChatRepositoryImplementation: ChatRepository {
     }
 
     func sendMessage(chatID: String, content: String) {
-        guard let id = fb.auth.currentUser?.uid else { return }
-        let message = Message(content: content, senderID: id)
-        do {
-            try fb.database.collection("chats")
-                .document(chatID)
-                .collection("messages")
-                .addDocument(from: message)
-        } catch {
-            print(error)
+        guard let senderID = fb.auth.currentUser?.uid else { return }
+
+        let chatRef = fb.database.collection("chats").document(chatID)
+
+        chatRef.getDocument { document, error in
+            if let document = document, document.exists {
+                let members = document.data()?["members"] as? [String] ?? []
+
+                var isread = [String: Bool]()
+                for member in members {
+                    isread[member] = (member == senderID)
+                }
+
+                let message = Message(content: content, senderID: senderID, isread: isread)
+
+                do {
+                    try self.fb.database.collection("chats")
+                        .document(chatID)
+                        .collection("messages")
+                        .addDocument(from: message)
+
+                    chatRef.updateData(["lastMessage": message.timestamp])
+                } catch {
+                    print("Error sending message: \(error)")
+                }
+            } else {
+                print("Error fetching chat document: \(error?.localizedDescription ?? "Unknown error")")
+            }
         }
     }
 
+    func markMessageAsRead(chatID: String, messageID: String) {
+        guard let id = fb.auth.currentUser?.uid else { return }
+
+        let messageRef = fb.database.collection("chats")
+            .document(chatID)
+            .collection("messages")
+            .document(messageID)
+
+        messageRef.getDocument { document, error in
+            if let document = document, document.exists {
+                var isread = document.data()?["isread"] as? [String: Bool] ?? [:]
+                isread[id] = true
+
+                messageRef.updateData(["isread": isread]) { error in
+                    if let error = error {
+                        print("Error updating document: \(error)")
+                    } else {
+                        print("Document successfully updated")
+                    }
+                }
+            } else {
+                print("Document does not exist")
+            }
+        }
+    }
+    
+    func unreadMessagesCountListener(userID: String, completion: @escaping (Int) -> Void) -> ListenerRegistration {
+        return db.collection("users")
+            .document(userID)
+            .addSnapshotListener { documentSnapshot, error in
+                if let error = error {
+                    print("Error fetching user: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let document = documentSnapshot,
+                      let data = document.data(),
+                      let chatIDs = data["chatIDs"] as? [String] else {
+                    print("No chatIDs found for user.")
+                    return
+                }
+                
+                var unreadCount = 0
+                for chatID in chatIDs {
+                    self.listenForUnreadMessages(chatID: chatID, userID: userID) { count in
+                        unreadCount += count
+                        completion(unreadCount)
+                    }
+                }
+            }
+    }
+    
+    private func listenForUnreadMessages(chatID: String, userID: String, completion: @escaping (Int) -> Void) {
+        db.collection("chats")
+            .document(chatID)
+            .collection("messages")
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    print("Error fetching messages for chat \(chatID): \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = querySnapshot?.documents else { return }
+                
+                let unreadMessages = documents.filter { document in
+                    if let message = try? document.data(as: Message.self) {
+                        return message.isread[userID] == false
+                    }
+                    return false
+                }
+                completion(unreadMessages.count)
+            }
+    }
+
+    
     func userChatsListener(
         userID: String, completion: @escaping ([Chat]) -> Void
     ) -> any ListenerRegistration {

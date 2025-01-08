@@ -11,6 +11,7 @@ struct AppNavigation: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
+    @EnvironmentObject var chatVM: ChatViewModel
     @Binding var navigationPath: NavigationPath
 
     //    @State private var selectedTab = 0
@@ -40,7 +41,15 @@ struct AppNavigation: View {
                 Tab("Menü", systemImage: "wrench") {
                     MenuView(navigationPath: $navigationPath)
                 }
+                .badge(chatVM.unreadMessagesCount > 0 ? chatVM.unreadMessagesCount : 0)
+                
 
+            }
+            .task {
+                if !chatVM.currentUserID.isEmpty {
+                    chatVM.startUnreadMessagesListener()
+                }
+                
             }
             .tint(Color("primaryAT"))
         } else {
@@ -53,6 +62,7 @@ struct AppNavigation: View {
                 Tab("Donations", systemImage: "list.star") {
                     DonationsView()
                 }
+                
                 Tab("Menü", systemImage: "wrench") {
                     MenuView(navigationPath: $navigationPath)
                 }
@@ -103,5 +113,6 @@ struct AppNavigation: View {
         .environmentObject(ProfileViewModel())
         .environmentObject(DonationViewModel())
         .environmentObject(LocationViewModel())
+        .environmentObject(ChatViewModel())
 
 }

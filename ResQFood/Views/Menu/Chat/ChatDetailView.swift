@@ -18,6 +18,16 @@ struct ChatDetailView: View {
             
         }.listStyle(.plain)
             .rotationEffect(Angle(degrees: 180))
+            .task {
+                for message in chatVM.messages {
+                    let fromSelf = message.senderID == chatVM.currentUserID
+
+                    if !fromSelf {
+                        chatVM.markMessageAsRead(chatID: currentChatID, messageID: message.id!)
+                    }
+                }
+                
+            }
         HStack{
             TextField("Nachricht...", text: $chatVM.messageInput)
             Button {

@@ -18,4 +18,5 @@ protocol ChatRepository {
     func loadMessages(chatID: String, onSuccess: @escaping ([Message]) -> Void)
     func loadChats(onSuccess: @escaping ([Chat]) -> Void)
     func changeAdmin(chatID: String, newAdminID: String)
+    func markMessageAsRead(chatID: String, messageID: String)
 }

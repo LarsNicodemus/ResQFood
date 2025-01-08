@@ -13,4 +13,5 @@ struct Message: Codable, Identifiable {
     var content: String
     var senderID: String
     var timestamp: Date = Date()
+    var isread: [String: Bool] = [:]
 }
