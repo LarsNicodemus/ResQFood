@@ -14,6 +14,7 @@ struct Chat: Codable, Identifiable {
 	var members: Set<String>
 	var admin: String
 	var name: String
+    var donationID: String?
     var creationDate: Date = Date()
 	var lastMessage: Date = Date()
 }

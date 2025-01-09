@@ -7,16 +7,11 @@
 import FirebaseFirestore
 
 protocol ChatRepository {
-    func createChat(name: String)
-    func createChat2(name: String, userID: String, content: String) 
-    func addUserToChat(chatID: String, userID: String)
+    func createChat(name: String, userID: String, content: String, donationID: String?)
     func removeUserFromChat(chatID: String, userID: String)
     func sendMessage(chatID: String, content: String)
     func userChatsListener(userID: String, completion: @escaping ([Chat]) -> Void) -> ListenerRegistration
     func chatListener(chatIDs: [String], completion: @escaping ([Chat]) -> Void)
     func addMessageSnapshotListener(chatID: String, onSuccess: @escaping ([Message]) -> Void) -> ListenerRegistration?
-    func loadMessages(chatID: String, onSuccess: @escaping ([Message]) -> Void)
-    func loadChats(onSuccess: @escaping ([Chat]) -> Void)
-    func changeAdmin(chatID: String, newAdminID: String)
     func markMessageAsRead(chatID: String, messageID: String)
 }

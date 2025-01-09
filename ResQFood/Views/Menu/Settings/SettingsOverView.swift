@@ -64,7 +64,7 @@ struct SettingsOverView: View {
 
             Spacer()
         }
-        
+        .customBackButton()
         .padding()
     }
 }

@@ -148,6 +148,8 @@ struct RecipesView: View {
                 print(newValue)
             }
         }
+        .customBackButton()
+
         .padding()
         .padding(.top, 72)
         Spacer()

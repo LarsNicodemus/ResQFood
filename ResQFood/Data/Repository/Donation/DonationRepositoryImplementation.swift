@@ -49,10 +49,15 @@ class DonationRepositoryImplementation: DonationRepository {
             ])
     }
     
-    func editDonation(id: String, title: String?, content: String?) {
+
+
+    func editDonation(id: String, updates: [DonationField: Any]) {
         var valuesToUpdate: [String: Any] = [:]
-        if let title {valuesToUpdate["title"] = title}
-        if let content {valuesToUpdate["content"] = content}
+        
+        for (field, value) in updates {
+                valuesToUpdate[field.rawValue] = value
+        }
+        
         guard !valuesToUpdate.isEmpty else { return }
         
         fb.database
@@ -60,6 +65,7 @@ class DonationRepositoryImplementation: DonationRepository {
             .document(id)
             .updateData(valuesToUpdate)
     }
+    
     
     func addDonationsListener(onChange: @escaping ([FoodDonation]) -> Void) -> any ListenerRegistration {
         return fb.database

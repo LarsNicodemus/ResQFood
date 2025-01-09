@@ -10,9 +10,9 @@ import SwiftUI
 struct AuthWrapper: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
-    @StateObject var donVM: DonationViewModel = DonationViewModel()
-    @StateObject var locVM: LocationViewModel = LocationViewModel()
-    @StateObject var chatVM: ChatViewModel = ChatViewModel()
+    @EnvironmentObject var donVM: DonationViewModel
+    @EnvironmentObject var locVM: LocationViewModel
+    @EnvironmentObject var chatVM: ChatViewModel
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
@@ -73,4 +73,6 @@ struct AuthWrapper: View {
         .environmentObject(ProfileViewModel())
         .environmentObject(ImageViewModel())
         .environmentObject(ChatViewModel())
+        .environmentObject(DonationViewModel())
+        .environmentObject(LocationViewModel())
 }

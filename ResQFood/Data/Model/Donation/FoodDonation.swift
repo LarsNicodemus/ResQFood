@@ -24,10 +24,7 @@ struct FoodDonation: Codable, Identifiable {
     var location: AppLocation
     var preferredTransfer: String
     var expiringDate: Date
-    
     var contactInfo: ContactInfo?
-    
-    var chatID: String?
     var pickedUp: Bool?
     var isReserved: Bool?
 }

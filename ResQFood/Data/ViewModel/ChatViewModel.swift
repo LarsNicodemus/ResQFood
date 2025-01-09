@@ -13,6 +13,7 @@ class ChatViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var messageInput: String = ""
     @Published var unreadMessagesCount: Int = 0
+    @Published var userProfile: UserProfile? = nil
 
     var currentUserID: String {
         fb.userID ?? ""
@@ -21,29 +22,31 @@ class ChatViewModel: ObservableObject {
     private let repo = ChatRepositoryImplementation()
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
+    private let userRepo = UserRepositoryImplementation()
 
+    
+    
     deinit {
         listener?.remove()
         listener = nil
+
     }
 
+    func getOtherUserByID(id: String) {
+        listener = userRepo.addProfileListener(userID: id) { profile in
+            print("Profile Listener Update: \(profile?.username ?? "nil")")
+            self.userProfile = profile
+        }
+        }
     
     func startUnreadMessagesListener() {
-            listener = repo.unreadMessagesCountListener(userID: currentUserID) { unreadCount in
+        listener = repo.unreadMessagesCountListener(userID: currentUserID) { unreadCount in
                 self.unreadMessagesCount = unreadCount
             }
         }
- 
-    func changeAdmin(chatID: String) {
-        repo.changeAdmin(chatID: chatID, newAdminID: currentUserID)
-    }
 
-    func createChat(name: String) {
-        repo.createChat(name: name)
-    }
-
-    func createChat3(name: String, userID: String) {
-        repo.createChat2(name: name, userID: userID, content: messageInput)
+    func createChat(name: String, userID: String, donationID: String?) {
+        repo.createChat(name: name, userID: userID, content: messageInput, donationID: donationID)
         messageInput = ""
     }
 
@@ -51,33 +54,6 @@ class ChatViewModel: ObservableObject {
         guard !messageInput.isEmpty else { return }
         repo.sendMessage(chatID: chatID, content: messageInput)
         messageInput = ""
-    }
-    func sendFirstMessage(
-        name: String, title: String, userID: String
-    ) async {
-        guard !messageInput.isEmpty else { return }
-        repo.createChat(name: name)
-        guard
-            let chatID = chats.first(where: {
-                $0.name == title
-            })?.id
-        else { return }
-
-        repo.addUserToChat(chatID: chatID, userID: userID)
-        repo.sendMessage(
-            chatID: chatID, content: "Betreff: \(title) \n + \(messageInput)")
-        messageInput = ""
-    }
-
-    func sendFirstMessageCreateChat(name: String, title: String, userID: String)
-    {
-        repo.createChatSentFirstMessage(
-            name: name, userID: userID, content: messageInput)
-        messageInput = ""
-    }
-
-    func addUserToChat(chatID: String, userID: String) {
-        repo.addUserToChat(chatID: chatID, userID: userID)
     }
 
     func addMessageSnapshotListener(chatID: String) {
@@ -97,20 +73,7 @@ class ChatViewModel: ObservableObject {
         }
     }
 
-    func loadChats() {
-        repo.loadChats { chats in
-            self.chats = chats
-        }
-    }
-
-    func loadMessages(chatID: String) {
-        repo.loadMessages(chatID: chatID) { messages in
-            self.messages = messages
-        }
-    }
-
     func markMessageAsRead(chatID: String, messageID: String) {
-        
         repo.markMessageAsRead(chatID: chatID, messageID: messageID)
     }
     

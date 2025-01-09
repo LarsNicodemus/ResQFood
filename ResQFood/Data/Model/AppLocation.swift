@@ -9,3 +9,12 @@ struct AppLocation: Codable {
     var lat: Double
     var long: Double
 }
+
+extension AppLocation {
+    func toDictionary() -> [String: Any] {
+        return [
+            "lat": lat,
+            "long": long
+        ]
+    }
+}

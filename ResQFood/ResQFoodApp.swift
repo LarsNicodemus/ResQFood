@@ -16,7 +16,8 @@ struct ResQFoodApp: App {
     @StateObject private var imageVM = ImageViewModel()
     @StateObject private var donVM = DonationViewModel()
     @StateObject private var locationVM = LocationViewModel()
-
+    @StateObject var chatVM: ChatViewModel = ChatViewModel()
+    
     var body: some Scene {
         WindowGroup {
             AuthWrapper()
@@ -25,6 +26,7 @@ struct ResQFoodApp: App {
                 .environmentObject(imageVM)
                 .environmentObject(donVM)
                 .environmentObject(locationVM)
+                .environmentObject(chatVM)
 
         }
     }

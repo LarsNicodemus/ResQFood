@@ -43,7 +43,8 @@ struct AccountView: View {
                             }
                         }
                     }
-                }
+                }        .customBackButton()
+
     }
 }
 

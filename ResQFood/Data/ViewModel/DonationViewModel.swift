@@ -116,11 +116,9 @@ class DonationViewModel: ObservableObject {
         }
     }
 
-    func editDonation(id: String) {
-        let titleToEdit = title.isEmpty ? nil : title
-        let contentToEdit = title.isEmpty ? nil : title
+    func editDonation(id: String, updates: [DonationField : Any]) {
         donationRepo.editDonation(
-            id: id, title: titleToEdit, content: contentToEdit)
+            id: id, updates: updates)
     }
 
     func deleteDonation(id: String) {

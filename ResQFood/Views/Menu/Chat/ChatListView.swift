@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ChatListView: View {
     @EnvironmentObject var chatVM: ChatViewModel
+    @EnvironmentObject var donVM: DonationViewModel
     @State var testChatName: String = ""
     var body: some View {
         VStack {
@@ -20,22 +21,13 @@ struct ChatListView: View {
                     NavigationLink(chat.name) {
                         
                         ChatDetailView(currentChatID: chat.id)
-                            .task {
-                                chatVM.addMessageSnapshotListener(chatID: chat.id)
-                            }
                     }
+                    .badge(chatVM.unreadMessagesCount > 0 ? chatVM.unreadMessagesCount : 0)
                 }
             }
-            Text("TestChat generieren")
-            HStack{
-                TextField("ChatName...", text: $testChatName)
-                Button("+") {
-//                    $chatVM.createChat(name: testChatName)
-                    testChatName = ""
-                }
-                .primaryButtonStyle()
-            }
-        }.task {
+        }
+        .customBackButton()
+        .task {
             chatVM.addChatsSnapshotListener()
         }
     }
@@ -44,4 +36,5 @@ struct ChatListView: View {
 #Preview {
     ChatListView()
         .environmentObject(ChatViewModel())
+        .environmentObject(DonationViewModel())
 }

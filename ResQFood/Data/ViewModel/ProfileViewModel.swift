@@ -71,6 +71,13 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
+    func getOtherUserByID(id: String) {
+        listener = userRepo.addProfileListener(userID: id) { profile in
+            print("Profile Listener Update: \(profile?.username ?? "nil")")
+            self.userProfile = profile
+        }
+        }
+    
 
     func setEmail() {
         guard let user = fb.auth.currentUser else { return }

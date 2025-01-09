@@ -12,6 +12,6 @@ protocol DonationRepository {
     func getDonations() async throws -> [FoodDonation]
     func addDonation(_ donation: FoodDonation) async throws
     func deleteDonation(_ id: String) async throws
-    func editDonation(id: String, title: String?, content: String?)
+    func editDonation(id: String, updates: [DonationField: Any])
     func addDonationsListener(onChange: @escaping([FoodDonation]) -> Void) -> any ListenerRegistration
 }

@@ -12,6 +12,8 @@ struct AppNavigation: View {
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var chatVM: ChatViewModel
+    @EnvironmentObject var donVM: DonationViewModel
+
     @Binding var navigationPath: NavigationPath
 
     //    @State private var selectedTab = 0

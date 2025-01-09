@@ -11,6 +11,8 @@ struct DonationDetailView: View {
     var donation: FoodDonation
     var geoManager: GeocodingManager = GeocodingManager.shared
     @EnvironmentObject var chatVM: ChatViewModel
+    @EnvironmentObject var donVM: DonationViewModel
+
     @State var showToast: Bool = false
     @State private var locationName: String = "Wird geladen..."
     var body: some View {
@@ -124,8 +126,9 @@ struct DonationDetailView: View {
                             .frame(width: .infinity, height: 200)
                             
                             Button(){
+                                
                                 if !chatVM.messageInput.isEmpty {
-                                    chatVM.createChat3(name: donation.title, userID: donation.creatorID)
+                                    chatVM.createChat(name: donation.title, userID: donation.creatorID, donationID: donation.id)
                                     withAnimation {
                                         showToast = true
                                     }
@@ -164,6 +167,8 @@ struct DonationDetailView: View {
             .foregroundStyle(Color("OnPrimaryContainer"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
+        .customBackButton()
+
     }
 }
 
@@ -171,4 +176,5 @@ struct DonationDetailView: View {
 #Preview {
     DonationDetailView(donation: FoodDonation(creatorID: "1212", creatorName: "Lars", creationDate: Date(), title: "TestDonation", description: "Lebensmittel", type: "Obst", weight: 100.0, weightUnit: "gramm", bbd: Date(), condition: "gut", picturesUrl: ["https://i.imgur.com/1ejoivh.jpeg"], location: AppLocation(lat: 50.23, long: 8.40), preferredTransfer: "zu Hause", expiringDate: Date(), contactInfo: ContactInfo(email: "test@test.de", number: "01234567891011")))
         .environmentObject(ChatViewModel())
+        .environmentObject(DonationViewModel())
 }

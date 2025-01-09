@@ -122,6 +122,8 @@ struct GroceryAZView: View {
         .onChange(of: groceryAZ.searchInput) { oldValue, newValue in
             groceryAZ.groceryDetail = false
         }
+        .customBackButton()
+
         .padding(.top, 72)
         Spacer()
     }
