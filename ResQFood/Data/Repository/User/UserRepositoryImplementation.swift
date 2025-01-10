@@ -100,6 +100,21 @@ class UserRepositoryImplementation: UserRepository {
             .document(id)
             .updateData(valuesToUpdate)
     }
+    
+    func editProfile(id: String, updates: [ProfileField: Any]) {
+        var valuesToUpdate: [String: Any] = [:]
+        
+        for (field, value) in updates {
+                valuesToUpdate[field.rawValue] = value
+        }
+        
+        guard !valuesToUpdate.isEmpty else { return }
+        
+        fb.database
+            .collection("profiles")
+            .document(id)
+            .updateData(valuesToUpdate)
+    }
 
     func addProfileListener(userID: String, onChange: @escaping (UserProfile?) -> Void) -> any ListenerRegistration {
         return fb.database

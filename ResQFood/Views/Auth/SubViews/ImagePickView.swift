@@ -28,8 +28,11 @@ struct ImagePickView: View {
                 ) {
                     ImageView(image: Image("placeholder"))
                 }
+                
             }
-
+            
+            
+            
             PhotosPicker(
                 selection: $imageVM.selectedItem,
                 matching: .images,

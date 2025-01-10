@@ -122,25 +122,11 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
-
-    func editProfile() {
+    
+    func editDonation(updates: [ProfileField : Any]) {
         guard let userID = fb.userID else { return }
-
-        let usernameUD = username.isEmpty ? nil : username
-        let birthDayUD = birthDay != Date() ? nil : birthDay
-        let genderUD = ((gender?.isEmpty) != nil) ? nil : gender
-        let locationUD = location != nil ? nil : location
-        let pictureUrlUD = ((pictureUrl?.isEmpty) != nil) ? nil : pictureUrl
-        let ratingUD = rating != nil ? nil : rating
-        let pointsUD = points != nil ? nil : points
-        let contactInfoUD = contactInfo != nil ? nil : contactInfo
-        let foodWasteSavedUD = foodWasteSaved != nil ? nil : foodWasteSaved
-
         userRepo.editProfile(
-            id: userID, username: usernameUD, birthday: birthDayUD,
-            gender: genderUD, location: locationUD, pictureURL: pictureUrlUD,
-            rating: ratingUD, points: pointsUD, contactInfo: contactInfoUD,
-            foodwasteSaved: foodWasteSavedUD)
+            id: userID, updates: updates)
     }
 
     func setLocation() {
