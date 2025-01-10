@@ -11,16 +11,23 @@ import PhotosUI
 struct ProfileOverView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var imageVM: ImageViewModel
-
+    @State var sheetPresent: Bool = false
     var body: some View {
         ScrollView {
             VStack {
                 if let user = profileVM.userProfile {
-                    Button{
+                    HStack{
+                        Spacer()
+                        Button{
+                            sheetPresent = true
+                        } label: {
+                            Image(systemName: "pencil.circle")
+                                .resizable()
+                                .frame(width: 32,height: 32)
+                                .tint(Color("primaryAT"))
+                        }
+                    }.padding(.trailing)
                         
-                    } label: {
-                        Image(systemName: "pencil.circle")
-                    }
                     PhotosPicker(
                         selection: $imageVM.selectedItem,
                         matching: .images,
@@ -28,60 +35,53 @@ struct ProfileOverView: View {
                     ) {
                         ProfileImageView(imageurl: user.pictureUrl)
                     }
-                    
-                    VStack(alignment: .leading, spacing: 16) {
+                    .padding(.bottom, 32)
+                    VStack(alignment: .leading, spacing: 20) {
 
                         HStack {
                             Image(systemName: "person.fill")
                             Text("Username: \(user.username)")
-                                .font(.headline)
+                                .bold()
                         }
 
                         HStack {
                             Image(systemName: "calendar")
                             Text(user.birthDay != nil ? "Geburtstag: \(user.birthDay!.formatted(Date.FormatStyle().year().month().day().locale(Locale(identifier: "de_DE"))))" : "Geburtstag: nicht angegeben.")
-                                .font(.subheadline)
                         }
 
                         HStack {
                             Image(systemName: "star.fill")
                             Text(user.rating != nil ? "Bewertung: \(user.rating!)" : "Bewertung: noch keine Einträge.")
-                                .font(.subheadline)
                         }
 
                         HStack {
                             Image(systemName: "point.3.connected.trianglepath.dotted")
                             Text("Gesammelte Punkte: \(user.points ?? 0)")
-                                .font(.subheadline)
                         }
 
                         HStack {
                             Image(systemName: "person.crop.circle")
                             Text(user.gender != nil ? "Geschlecht: \(user.gender!)" : "Geschlecht: nicht angegeben.")
-                                .font(.subheadline)
                         }
 
                         HStack {
                             Image(systemName: "envelope")
                             Text("E-Mail: \(user.contactInfo?.email ?? "Keine E-Mail")")
-                                .font(.subheadline)
                         }
 
                         HStack {
                             Image(systemName: "phone.fill")
                             Text("Telefonnummer: \(user.contactInfo?.number ?? "keine Telefonnummer")")
-                                .font(.subheadline)
                         }
 
-                        if let city = user.location?.city, let street = user.location?.Street, let number = user.location?.number, let zip = user.location?.zipCode {
+                        if let city = user.location?.city, let street = user.location?.street, let number = user.location?.number, let zip = user.location?.zipCode {
                             VStack(alignment: .leading) {
                                 HStack {
                                     Image(systemName: "house.fill")
                                     Text("Standort:")
-                                        .font(.headline)
                                 }
                                 Text("\(street) \(number), \(zip) \(city)")
-                                    .font(.subheadline)
+                                    .padding(.leading, 32)
                             }
                         }
                     }
@@ -93,14 +93,18 @@ struct ProfileOverView: View {
             }
             .padding()
         }
+        
         .customBackButton()
+        .sheet(isPresented: $sheetPresent, content: {
+            EditProfileView()
+        })
         .onChange(of: imageVM.selectedItem) { oldItems, newItems in
                     Task {
                         await imageVM.handleImageSelection(newItem: newItems)
                         if let _ = imageVM.selectedImage {
                             await imageVM.uploadImage()
                             profileVM.pictureUrl = imageVM.uploadedImage?.url
-                            profileVM.editDonation(updates: [.pictureUrl :  profileVM.pictureUrl as Any])
+                            profileVM.editProfile(updates: [.pictureUrl :  profileVM.pictureUrl as Any])
                         }
                     }
                 }

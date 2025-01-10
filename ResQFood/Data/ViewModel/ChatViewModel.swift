@@ -14,6 +14,7 @@ class ChatViewModel: ObservableObject {
     @Published var messageInput: String = ""
     @Published var unreadMessagesCount: Int = 0
     @Published var userProfile: UserProfile? = nil
+    @Published var unreadMessagesCounts: [String: Int] = [:]
 
     var currentUserID: String {
         fb.userID ?? ""
@@ -38,7 +39,12 @@ class ChatViewModel: ObservableObject {
             self.userProfile = profile
         }
         }
-    
+    func startUnreadMessagesListenerForChat(chatID: String) {
+        guard let currentID = fb.userID else {return}
+        repo.listenForUnreadMessages(chatID: chatID, userID: currentID) { [weak self] count in
+            self?.unreadMessagesCounts[chatID] = count
+        }
+    }
     func startUnreadMessagesListener() {
         listener = repo.unreadMessagesCountListener(userID: currentUserID) { unreadCount in
                 self.unreadMessagesCount = unreadCount

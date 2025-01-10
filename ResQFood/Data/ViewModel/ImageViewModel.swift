@@ -8,6 +8,7 @@
 import PhotosUI
 import SwiftUI
 
+@MainActor
 class ImageViewModel: ObservableObject {
 
     let imageRepository: ImageRepository = ImageRepositoryImplementation()

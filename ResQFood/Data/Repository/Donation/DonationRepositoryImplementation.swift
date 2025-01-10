@@ -66,6 +66,41 @@ class DonationRepositoryImplementation: DonationRepository {
             .updateData(valuesToUpdate)
     }
     
+    func updateUserDonations(userID: String, username: String?, contactInfo: ContactInfo?) async throws {
+        let donations = try await fb.database
+            .collection("donations")
+            .whereField("creatorID", isEqualTo: userID)
+            .getDocuments()
+            .documents
+        
+        for donation in donations {
+            var updates: [String: Any] = [:]
+            
+            if let username = username {
+                updates["creatorName"] = username
+            }
+            
+            if let contactInfo = contactInfo {
+                var contactData: [String: String] = [:]
+                if let email = contactInfo.email {
+                    contactData["email"] = email
+                }
+                if let number = contactInfo.number {
+                    contactData["number"] = number
+                }
+                if !contactData.isEmpty {
+                    updates["contactInfo"] = contactData
+                }
+            }
+            
+            if !updates.isEmpty {
+                try await fb.database
+                    .collection("donations")
+                    .document(donation.documentID)
+                    .updateData(updates)
+            }
+        }
+    }
     
     func addDonationsListener(onChange: @escaping ([FoodDonation]) -> Void) -> any ListenerRegistration {
         return fb.database
@@ -82,5 +117,23 @@ class DonationRepositoryImplementation: DonationRepository {
                                 }
             }
     }
+    
+    func addDonationsListenerForUser(userID: String, onChange: @escaping ([FoodDonation]) -> Void) -> any ListenerRegistration {
+        return fb.database
+            .collection("donations")
+            .whereField("creatorID", isEqualTo: userID)
+            .addSnapshotListener { querySnapshot, error in
+                guard let documents = querySnapshot?.documents else { return }
+                do {
+                                    let donations = try documents.compactMap { snapshot in
+                                        try snapshot.data(as: FoodDonation.self)
+                                    }
+                                    onChange(donations)
+                                } catch {
+                                    print(error)
+                                }
+            }
+    }
+    
     
 }

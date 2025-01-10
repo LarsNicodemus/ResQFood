@@ -22,11 +22,16 @@ struct ChatListView: View {
                         
                         ChatDetailView(currentChatID: chat.id)
                     }
-                    .badge(chatVM.unreadMessagesCount > 0 ? chatVM.unreadMessagesCount : 0)
+                    .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
                 }
             }
         }
         .customBackButton()
+        .onAppear {
+            for chat in chatVM.chats {
+                chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
+            }
+        }
         .task {
             chatVM.addChatsSnapshotListener()
         }

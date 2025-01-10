@@ -115,44 +115,74 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-    func unreadMessagesCountListener(
-        userID: String, completion: @escaping (Int) -> Void
-    ) -> ListenerRegistration {
+//    func unreadMessagesCountListener(
+//        userID: String, completion: @escaping (Int) -> Void
+//    ) -> ListenerRegistration {
+//        return db.collection("chats")
+//            .whereField("members", arrayContains: userID)
+//            .addSnapshotListener { querySnapshot, error in
+//                if let error = error {
+//                    print("Error fetching chats: \(error.localizedDescription)")
+//                    return
+//                }
+//                guard let documents = querySnapshot?.documents else { return }
+//                var totalUnreadCount = 0
+//                for chatDoc in documents {
+//                    self.db.collection("chats")
+//                        .document(chatDoc.documentID)
+//                        .collection("messages")
+//                        .whereField("isread.\(userID)", isEqualTo: false)
+//                        .addSnapshotListener { snapshot, error in
+//                            if let error = error {
+//                                print(
+//                                    "Error fetching messages: \(error.localizedDescription)"
+//                                )
+//                                return
+//                            }
+//                            totalUnreadCount = 0
+//                            documents.forEach { chatDoc in
+//                                if let messageCount = snapshot?.documents.count
+//                                {
+//                                    totalUnreadCount += messageCount
+//                                }
+//                            }
+//                            completion(totalUnreadCount)
+//                        }
+//                }
+//            }
+//    }
+    func unreadMessagesCountListener(userID: String, completion: @escaping (Int) -> Void) -> ListenerRegistration {
         return db.collection("chats")
             .whereField("members", arrayContains: userID)
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    print("Error fetching chats: \(error.localizedDescription)")
-                    return
-                }
+            .addSnapshotListener { [weak self] querySnapshot, error in
+                guard let self = self else { return }
                 guard let documents = querySnapshot?.documents else { return }
+                
                 var totalUnreadCount = 0
+                let group = DispatchGroup()
+                
                 for chatDoc in documents {
+                    group.enter()
                     self.db.collection("chats")
                         .document(chatDoc.documentID)
                         .collection("messages")
                         .whereField("isread.\(userID)", isEqualTo: false)
-                        .addSnapshotListener { snapshot, error in
-                            if let error = error {
-                                print(
-                                    "Error fetching messages: \(error.localizedDescription)"
-                                )
-                                return
+                        .getDocuments { snapshot, error in
+                            defer { group.leave() }
+                            if let count = snapshot?.documents.count {
+                                totalUnreadCount += count
                             }
-                            totalUnreadCount = 0
-                            documents.forEach { chatDoc in
-                                if let messageCount = snapshot?.documents.count
-                                {
-                                    totalUnreadCount += messageCount
-                                }
-                            }
-                            completion(totalUnreadCount)
                         }
+                }
+                
+                group.notify(queue: .main) {
+                    completion(totalUnreadCount)
                 }
             }
     }
-
-    private func listenForUnreadMessages(
+    
+    
+    func listenForUnreadMessages(
         chatID: String, userID: String, completion: @escaping (Int) -> Void
     ) {
         db.collection("chats")

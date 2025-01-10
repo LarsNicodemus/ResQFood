@@ -42,3 +42,30 @@ enum MenuList : String, Identifiable, CaseIterable {
             }
         }
 }
+
+
+enum MenuListAnonym : String, Identifiable, CaseIterable {
+    
+    case groceryAZ = "Lebensmittel A-Z"
+    case recipes = "Rezepte"
+    case settings = "Einstellungen"
+    case partners = "Partner"
+    
+    var id: String {
+        self.rawValue
+    }
+    
+    @ViewBuilder
+    func view(navigationPath: Binding<NavigationPath>) -> some View {
+            switch self {
+            case .groceryAZ:
+                GroceryAZView()
+            case .recipes:
+                RecipesView()
+            case .settings:
+                SettingsOverView(navigationPath: navigationPath)
+            case .partners:
+                PartnersView()
+            }
+        }
+}

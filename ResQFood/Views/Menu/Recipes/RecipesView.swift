@@ -83,7 +83,7 @@ struct RecipesView: View {
                                 } placeholder: {
                                     Color.gray
                                 }
-                                .frame(width: .infinity)
+                                .frame(maxWidth: .infinity)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             .padding(.bottom, 16)

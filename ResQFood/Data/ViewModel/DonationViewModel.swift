@@ -45,6 +45,7 @@ class DonationViewModel: ObservableObject {
     @Published var uploadSuccess = false
     @Published var uploadErrorMessage: String? = nil
     @Published var uploadSuccessMessage: String? = nil
+    @Published var isPresent: Bool = false
 
     @Published var userProfile: UserProfile? = nil
 
@@ -82,9 +83,16 @@ class DonationViewModel: ObservableObject {
 
         listener = donationRepo.addDonationsListener { donations in
                 self.donations = donations
-            for donation in donations {
-                print(donation.title)
             }
+    }
+    
+    func setupDonationsListenerForUser() {
+        listener?.remove()
+        listener = nil
+        guard let userID = fb.userID else { return }
+
+        listener = donationRepo.addDonationsListenerForUser(userID: userID ) { donations in
+                self.donations = donations
             }
     }
 
@@ -153,7 +161,7 @@ class DonationViewModel: ObservableObject {
         }
     }
 
-    func checkForDonationUpload() {
+    func checkForDonationUpload() -> Bool {
         checkTitle()
         checkDescription()
         checkWeight()
@@ -171,8 +179,10 @@ class DonationViewModel: ObservableObject {
 
         if allValid {
             addDonation()
+            return true
         } else {
             print("FEHLER!!")
+            return false
         }
     }
 

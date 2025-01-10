@@ -8,6 +8,8 @@ import SwiftUI
 
 
 struct EmptyListPlaceholder: View {
+    var firstText: String
+    var secondText: String
     var body: some View {
         VStack(spacing: 20) {
             Image("placeholderIG")
@@ -16,11 +18,11 @@ struct EmptyListPlaceholder: View {
                 .frame(width: 150, height: 150)
                 .foregroundColor(.gray)
             
-            Text("Keine Spenden verfügbar.")
+            Text(firstText)
                 .font(.title)
                 .foregroundColor(.gray)
             
-            Text("versuch vielleicht einen anderen Radius oder andere Filter.")
+            Text(secondText)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
@@ -29,5 +31,5 @@ struct EmptyListPlaceholder: View {
 }
 
 #Preview {
-    EmptyListPlaceholder()
+    EmptyListPlaceholder(firstText: "Keine Spenden verfügbar.", secondText: "versuch vielleicht einen anderen Radius oder andere Filter.")
 }

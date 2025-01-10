@@ -77,38 +77,25 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
     
-    func editProfile(
-        id: String, username: String?, birthday: Date?, gender: String?,
-        location: Adress?, pictureURL: String?, rating: Double?, points: Int?,
-        contactInfo: ContactInfo?, foodwasteSaved: Double?
-    ) {
-        var valuesToUpdate: [String: Any] = [:]
-        if let username { valuesToUpdate["username"] = username }
-        if let birthday { valuesToUpdate["birthday"] = birthday }
-        if let gender { valuesToUpdate["gender"] = gender }
-        if let location { valuesToUpdate["location"] = location }
-        if let pictureURL { valuesToUpdate["pictureURL"] = pictureURL }
-        if let rating { valuesToUpdate["rating"] = rating }
-        if let points { valuesToUpdate["points"] = points }
-        if let contactInfo { valuesToUpdate["contactInfo"] = contactInfo }
-        if let foodwasteSaved {
-            valuesToUpdate["foodwasteSaved"] = foodwasteSaved
-        }
-        guard !valuesToUpdate.isEmpty else { return }
-        fb.database
-            .collection("profiles")
-            .document(id)
-            .updateData(valuesToUpdate)
-    }
-    
     func editProfile(id: String, updates: [ProfileField: Any]) {
         var valuesToUpdate: [String: Any] = [:]
         
         for (field, value) in updates {
-                valuesToUpdate[field.rawValue] = value
-        }
-        
-        guard !valuesToUpdate.isEmpty else { return }
+                switch field {
+                case .location:
+                    if let locationDict = value as? [String: String] {
+                        valuesToUpdate[field.rawValue] = locationDict
+                    }
+                case .contactInfo:
+                    if let contactDict = value as? [String: String] {
+                        valuesToUpdate[field.rawValue] = contactDict
+                    }
+                default:
+                    valuesToUpdate[field.rawValue] = value
+                }
+            }
+            
+            guard !valuesToUpdate.isEmpty else { return }
         
         fb.database
             .collection("profiles")

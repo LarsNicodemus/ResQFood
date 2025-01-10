@@ -6,8 +6,8 @@
 //
 
 struct Adress: Codable {
-    var Street: String
-    var number: String
-    var city: String
-    var zipCode: String
+    var street: String?
+    var number: String?
+    var city: String?
+    var zipCode: String?
 }

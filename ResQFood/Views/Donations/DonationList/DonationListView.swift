@@ -23,7 +23,7 @@ struct DonationListView: View {
                 }
             .scrollIndicators(.hidden)
         } else {
-            EmptyListPlaceholder()
+            EmptyListPlaceholder(firstText: "Keine Spenden verfügbar.", secondText: "versuch vielleicht einen anderen Radius oder andere Filter.")
         }
 
     }

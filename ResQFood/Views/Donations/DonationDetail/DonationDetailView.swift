@@ -123,7 +123,8 @@ struct DonationDetailView: View {
                                     .padding(.leading, 4)
                                 }
                             }
-                            .frame(width: .infinity, height: 200)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
                             
                             Button(){
                                 
@@ -161,7 +162,7 @@ struct DonationDetailView: View {
             .task {
                 chatVM.addChatsSnapshotListener()
             }
-            .frame(width: .infinity)
+            .frame(maxWidth: .infinity)
             .padding()
             .background(Color("primaryContainer"))
             .foregroundStyle(Color("OnPrimaryContainer"))

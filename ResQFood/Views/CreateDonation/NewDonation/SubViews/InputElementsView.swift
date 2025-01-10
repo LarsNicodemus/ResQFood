@@ -10,6 +10,8 @@ import SwiftUI
 struct InputElementsView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var locVM: LocationViewModel
+    @State var showToast: Bool = false
+    @State var updateSuccess: Bool = false
     var proxy: ScrollViewProxy
     var body: some View {
         VStack(alignment: .leading) {
@@ -103,9 +105,9 @@ struct InputElementsView: View {
                     selection: $donVM.expiringDate,
                     displayedComponents: .date
                 ) {}
-                    .frame(width: 100, height: 30)
-                    .environment(\.locale, Locale(identifier: "de-DE"))
-                    .padding(.trailing, 18)
+                .frame(width: 100, height: 30)
+                .environment(\.locale, Locale(identifier: "de-DE"))
+                .padding(.trailing, 18)
             }
             HStack {
                 Text("Bevorzugter Treffpunkt:")
@@ -128,14 +130,33 @@ struct InputElementsView: View {
                 .background(.gray.opacity(0.2))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            HStack{
+            HStack {
                 Spacer()
                 Button("Spende erstellen") {
-                    donVM.checkForDonationUpload()
-                    locVM.address = ""
+                    let checkUpdate = donVM.checkForDonationUpload()
                     withAnimation {
-                        proxy.scrollTo("scrollContent")
+                        showToast = true
                     }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation {
+                            showToast = false
+                        }
+                    }
+                    if checkUpdate {
+                        updateSuccess = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                donVM.isPresent = false
+                            }
+                        }
+                    } else {
+                        updateSuccess = false
+                        withAnimation {
+                            proxy.scrollTo("scrollContent")
+                        }
+
+                    }
+
                 }
                 .primaryButtonStyle()
 
@@ -143,6 +164,22 @@ struct InputElementsView: View {
             }
             .padding(.bottom, 48)
         }
+        .overlay(
+            Group {
+                if showToast {
+                    if updateSuccess {
+                        ToastView(
+                            message: "Spende erstellt!"
+                        )
+                    } else {
+                        ToastView(
+                            message: "da fehlt noch etwas!"
+                        )
+                    }
+
+                }
+            }
+        )
         .onChange(of: donVM.uploadSuccess) { error, success in
             if success {
                 withAnimation {
@@ -173,4 +210,3 @@ struct InputElementsView: View {
         }
     }
 }
-

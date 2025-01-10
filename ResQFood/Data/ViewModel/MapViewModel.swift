@@ -93,9 +93,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
         listener = donationRepo.addDonationsListener { donations in
                 self.donations = donations
-            for donation in donations {
-                print(donation.title)
-            }
             }
     }
     

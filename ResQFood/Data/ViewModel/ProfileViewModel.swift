@@ -27,17 +27,18 @@ class ProfileViewModel: ObservableObject {
     @Published var foodWasteSaved: Double? = nil
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
+    private let donRepo = DonationRepositoryImplementation()
     private var listener: ListenerRegistration?
 
     init() {
         setupProfileListener()
-        setEmail()
         getUserByID()
     }
 
     deinit {
         listener?.remove()
         listener = nil
+        deinitUserProfile()
     }
 
     func setupProfileListener() {
@@ -51,12 +52,29 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    func deinitUserProfile(){
+        username = ""
+        birthDay = Date()
+        gender = nil
+        selectedGender = .female
+        location = nil
+        locationStreetInput = ""
+        locationCityInput = ""
+        rating = nil
+        points = nil
+        contactInfo = nil
+        contactEmailInput = ""
+        contactPhoneInput = ""
+        foodWasteSaved = nil
+    }
 
     func logoutProfile() {
         listener?.remove()
         listener = nil
         appUser = nil
         userProfile = nil
+        deinitUserProfile()
     }
 
     func getUserByID() {
@@ -78,11 +96,75 @@ class ProfileViewModel: ObservableObject {
         }
         }
     
+    func getUpdatedFields() -> [ProfileField: Any] {
+        var updates: [ProfileField: Any] = [:]
 
-    func setEmail() {
+        func updateIfChanged<T: Equatable>(_ key: ProfileField, newValue: T?, oldValue: T?) {
+            if let newValue = newValue, newValue != oldValue {
+                updates[key] = newValue
+            }
+        }
+
+        updateIfChanged(.username, newValue: username, oldValue: userProfile?.username)
+        updateIfChanged(.birthDay, newValue: birthDay, oldValue: userProfile?.birthDay)
+        updateIfChanged(.gender, newValue: selectedGender.rawValue, oldValue: userProfile?.gender)
+
+        if !locationCityInput.isEmpty || !locationStreetInput.isEmpty {
+            let currentLocation = userProfile?.location
+            let currentStreet = "\(currentLocation?.street ?? "") \(currentLocation?.number ?? "")"
+            let currentCity = "\(currentLocation?.zipCode ?? ""), \(currentLocation?.city ?? "")"
+            
+            if locationStreetInput != currentStreet || locationCityInput != currentCity {
+                var locationData: [String: String] = [:]
+                locationData["street"] = location?.street
+                locationData["number"] = location?.number
+                locationData["city"] = location?.city
+                locationData["zipCode"] = location?.zipCode
+                
+                updates[.location] = locationData.filter { !$0.value.isEmpty }
+            }
+        }
+        let contactChanged = contactEmailInput != userProfile?.contactInfo?.email ||
+                             contactPhoneInput != userProfile?.contactInfo?.number
+        if contactChanged {
+            var contactData: [String: String] = [:]
+            contactData["email"] = contactEmailInput
+            contactData["number"] = contactPhoneInput
+            
+            updates[.contactInfo] = contactData.filter { !$0.value.isEmpty }
+        }
+
+        return updates
+    }
+
+    func setProfileInfos() {
         guard let user = fb.auth.currentUser else { return }
         contactEmailInput = user.email ?? ""
+        if let username = userProfile?.username {
+            self.username = username
+        }
+        if let birthDay = userProfile?.birthDay {
+            self.birthDay = birthDay
+        }
+        if let gender = userProfile?.gender {
+            self.selectedGender = Gender.allCases.first(where: { rawgender in
+                rawgender.rawValue == gender
+            })!
+        }
+        if let street = userProfile?.location?.street, let number = userProfile?.location?.number {
+            locationStreetInput = street + " " + number
+        }
+        if let zipCode = userProfile?.location?.zipCode, let city = userProfile?.location?.city {
+            locationCityInput = zipCode + " " + city
+        }
+        if let email = userProfile?.contactInfo?.email {
+            contactEmailInput = email
+        }
+        if let phone = userProfile?.contactInfo?.number {
+            contactPhoneInput = phone
+        }
     }
+
     func addProfile() {
         guard let userID = fb.userID else { return }
         if userProfile == nil {
@@ -123,10 +205,20 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func editDonation(updates: [ProfileField : Any]) {
+    func editProfile(updates: [ProfileField : Any]) {
         guard let userID = fb.userID else { return }
-        userRepo.editProfile(
-            id: userID, updates: updates)
+        userRepo.editProfile(id: userID, updates: updates)
+        Task {
+                do {
+                    try await donRepo.updateUserDonations(
+                        userID: userID,
+                        username: username.isEmpty ? nil : username,
+                        contactInfo: contactInfo
+                    )
+                } catch {
+                    print("Error updating donations: \(error)")
+                }
+            }
     }
 
     func setLocation() {
@@ -210,7 +302,7 @@ class ProfileViewModel: ObservableObject {
             }
         }
         let adress = Adress(
-            Street: street, number: number, city: city, zipCode: zipCode)
+            street: street, number: number, city: city, zipCode: zipCode)
         location = adress
         print("Adresse erstellt: \(adress)")
     }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class MealDBViewModel: ObservableObject {
     let mealRepository: MealDBRepository = MealDBRepositoryImplementation()
     @Published var meals: [Meal] = []
@@ -25,14 +26,15 @@ class MealDBViewModel: ObservableObject {
                         let retrievedMeals = try await self.mealRepository
                             .searchRecipe(translatedIngredient)
                     else { return }
-                    self.meals = retrievedMeals
+                    DispatchQueue.main.async {
+                                        self.meals = retrievedMeals
+                                    }
                 } catch {
                     print("Error retrieving recipes: \(error)")
                 }
             }
         }
     }
-
     func getRecipeDetails() {
         Task {
             do {
@@ -132,7 +134,10 @@ class MealDBViewModel: ObservableObject {
         "Hummer": "Lobster",
         "Muschel": "Mussel",
         "Rindfleisch": "Beef",
+        "Rind": "Beef",
+        "Fleisch" : "meat",
         "Schweinefleisch": "Pork",
+        "Schwein": "Pork",
         "Hähnchen": "Chicken",
         "Huhn": "Chicken",
         "Hühnchen": "Chicken",
@@ -238,6 +243,63 @@ class MealDBViewModel: ObservableObject {
         "Hefe": "Yeast",
         "Backpulver": "Baking powder",
         "Natron": "Baking soda",
-
+        "Mehl": "Flour",
+        "Vollkornmehl": "Whole wheat flour",
+        "Stärke": "Starch",
+        "Maisstärke": "Cornstarch",
+        "Grieß": "Semolina",
+        "Meeresfrüchte": "Seafood",
+        "Kaninchen": "Rabbit",
+        "Ente": "Duck",
+        "Gans": "Goose",
+        "Wild": "Game",
+        "Leberwurst": "Liver sausage",
+        "Frischkäse": "Cream cheese",
+        "Schmelzkäse": "Processed cheese",
+        "Schmand": "Sour cream",
+        "Sauerrahm": "Sour cream",
+        "Kondensmilch": "Condensed milk",
+        "Kardamom": "Cardamom",
+        "Sternanis": "Star anise",
+        "Lorbeer": "Bay leaf",
+        "Kerbel": "Chervil",
+        "Anis": "Anise",
+        "Curry": "Curry",
+        "Safranfäden": "Saffron threads",
+        "Wasabi": "Wasabi",
+        "Miso": "Miso",
+        "Teriyaki": "Teriyaki",
+        "Sriracha": "Sriracha",
+        "Tahini": "Tahini",
+        "Harissa": "Harissa",
+        "Gochujang": "Gochujang",
+        "Weißwein": "White wine",
+        "Rotwein": "Red wine",
+        "Cognac": "Cognac",
+        "Brandy": "Brandy",
+        "Sherry": "Sherry",
+        "Portwein": "Port wine",
+        "Paniermehl": "Breadcrumbs",
+        "Semmelbrösel": "Breadcrumbs",
+        "Vanillezucker": "Vanilla sugar",
+        "Puderzucker": "Powdered sugar",
+        "Rohrzucker": "Cane sugar",
+        "Instantkaffee": "Instant coffee",
+        "Kakaopulver": "Cocoa powder",
+        "Blockschokolade": "Cooking chocolate",
+        "Marinieren": "Marinate",
+        "Würzen": "Season",
+        "Einlegen": "Pickle",
+        "Kneten": "Knead",
+        "Durchsieben": "Sift",
+        "Aufschlagen": "Whisk",
+        "Unterheben": "Fold in",
+        "Pfanne": "Pan",
+        "Topf": "Pot",
+        "Backblech": "Baking sheet",
+        "Auflaufform": "Casserole dish",
+        "Springform": "Springform pan",
+        "Sieb": "Sieve",
+        "Schneebesen": "Whisk",
     ]
 }
