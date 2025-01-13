@@ -87,7 +87,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         updateLocationsInRadius()
     }
     
-    private func setupDonationsListener() {
+    func setupDonationsListener() {
         listener?.remove()
         listener = nil
 

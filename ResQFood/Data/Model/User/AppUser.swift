@@ -14,5 +14,5 @@ struct AppUser: Codable, Identifiable {
     var registeredOn: Date  = Date()
     var donationIDs: Set<String> = []
     var chatIDs: Set<String> = []
-    var userProfileID: String? 
-}
+    var userProfileID: String?
+    }

@@ -17,11 +17,26 @@ struct CreateDonationListItem: View {
                     Text(donation.title)
                         .font(.system(size: 18,weight: .bold))
                     Spacer()
-                    Text("Zustand: \(donation.condition)")
-                        .font(.system(size: 10))
+                    VStack{
+                        Text("Zustand: \(donation.condition)")
+                            .font(.system(size: 10))
+                            .padding(.bottom, 8)
+                        let date = donation.expiringDate.formatted(.dateTime
+                            .locale(Locale(identifier: "de-DE"))
+                            .day()
+                            .month()
+                            .year()
+                        )
+                        Text("gültig bis: \(date)")
+                            
+                            .font(.system(size: 10))
+                            .frame(width: 100)
+                    }
+                    
                 }
                 .padding(.bottom, 8)
                 Text(donation.description)
+                    .font(.system(size: 12))
                     .lineLimit(2)
                     .padding(.bottom, 8)
             }
@@ -35,19 +50,27 @@ struct CreateDonationListItem: View {
                         .resizable()
                         .frame(width: 100, height: 100)
                 }
-                let date = donation.expiringDate.formatted(.dateTime
-                    .locale(Locale(identifier: "de-DE"))
-                    .day()
-                    .month()
-                    .year()
-                )
-                Text("gültig bis: \(date)")
-                    
-                    .font(.system(size: 10))
-                    .frame(width: 100)
+                
             }
         }
-        .padding()
+        .overlay(
+            ZStack {
+                if let pickedUp = donation.pickedUp, pickedUp {
+                    Text("ABGEHOLT")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(Color.gray)
+                        .rotationEffect(Angle(degrees: 15))
+                        .offset(x: -40)
+                } else if let reserved = donation.isReserved, reserved {
+                    Text("RESERVIERT")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(Color.gray)
+                        .rotationEffect(Angle(degrees: 15))
+                        .offset(x: -40)
+                }
+            }
+        )
+        .padding(8)
         .background(Color("primaryContainer"))
         .foregroundStyle(Color("OnPrimaryContainer"))
         .clipShape(RoundedRectangle(cornerRadius: 10))

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ChatListView: View {
     @EnvironmentObject var chatVM: ChatViewModel
-    @EnvironmentObject var donVM: DonationViewModel
     @State var testChatName: String = ""
     var body: some View {
         VStack {
@@ -18,12 +17,40 @@ struct ChatListView: View {
                 
             } else {
                 List(chatVM.chats) { chat in
-                    NavigationLink(chat.name) {
+                    NavigationLink {
                         
                         ChatDetailView(currentChatID: chat.id)
+                    } label: {
+                    
+                        VStack(alignment: .leading){
+                            if let username = chatVM.chatUsernames[chat.id] {
+                                Text(username)
+                                    .bold()
+                            }
+                            
+                            HStack{
+                                Text(chat.name)
+                                Spacer()
+                                Text(chat.lastMessage.formatted())
+                                    .font(.system(size: 10))
+                            }
+                            
+                        }.task{
+                            if let membersID = chat.members.first(where: { id in
+                                id != chatVM.currentUserID
+                            }){
+                                
+                                chatVM.getOtherUserByIDList(chatID: chat.id, id: membersID)}
+                            
+                            if let username = chatVM.userProfile?.username {
+                                chatVM.chatUsernames[chat.id] = username
+                            }
+                        }
+                        
                     }
                     .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
                 }
+                
             }
         }
         .customBackButton()
@@ -43,3 +70,39 @@ struct ChatListView: View {
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
 }
+//
+//struct ChatRowView: View {
+//    @EnvironmentObject var chatVM: ChatViewModel
+//    let chat: Chat
+//    
+//    var body: some View {
+//        NavigationLink {
+//            ChatDetailView(currentChatID: chat.id)
+//        } label: {
+//            ChatRowContent(chat: chat)
+//        }
+//        .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
+//    }
+//}
+//
+//struct ChatRowContent: View {
+//    @EnvironmentObject var chatVM: ChatViewModel
+//    let chat: Chat
+//    @State var username: String = ""
+//    var body: some View {
+//        VStack {
+//                Text(username)
+//                Text(chat.name)
+//                .task {
+//                    if let chatMemberID = chat.members.first(where: { userID in
+//                        userID != chatVM.currentUserID
+//                    }) {
+//                        chatVM.getOtherUserByID(id: chatMemberID)
+//                    }
+//                    if let memberName = chatVM.userProfile?.username {
+//                        username = memberName
+//                    }
+//                }
+//        }
+//    }
+//}

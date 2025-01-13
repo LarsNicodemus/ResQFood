@@ -129,6 +129,7 @@ struct DonationDetailView: View {
                             Button(){
                                 
                                 if !chatVM.messageInput.isEmpty {
+                                    
                                     chatVM.createChat(name: donation.title, userID: donation.creatorID, donationID: donation.id)
                                     withAnimation {
                                         showToast = true
@@ -175,7 +176,7 @@ struct DonationDetailView: View {
 
 
 #Preview {
-    DonationDetailView(donation: FoodDonation(creatorID: "1212", creatorName: "Lars", creationDate: Date(), title: "TestDonation", description: "Lebensmittel", type: "Obst", weight: 100.0, weightUnit: "gramm", bbd: Date(), condition: "gut", picturesUrl: ["https://i.imgur.com/1ejoivh.jpeg"], location: AppLocation(lat: 50.23, long: 8.40), preferredTransfer: "zu Hause", expiringDate: Date(), contactInfo: ContactInfo(email: "test@test.de", number: "01234567891011")))
+    DonationDetailView(donation: MockData.foodDonationMock)
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
 }

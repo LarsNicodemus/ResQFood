@@ -30,7 +30,7 @@ struct MockData {
             email: "donator@example.com",
             number: "123456789"
         ),
-        pickedUp: false,
-        isReserved: false
+        pickedUp: true,
+        isReserved: true
     )
 }

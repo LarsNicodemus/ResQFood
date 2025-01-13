@@ -15,44 +15,58 @@ class ChatViewModel: ObservableObject {
     @Published var unreadMessagesCount: Int = 0
     @Published var userProfile: UserProfile? = nil
     @Published var unreadMessagesCounts: [String: Int] = [:]
+    @Published var chatUsernames: [String: String] = [:]
 
     var currentUserID: String {
         fb.userID ?? ""
     }
 
     private let repo = ChatRepositoryImplementation()
+    private let userRepo = UserRepositoryImplementation()
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
-    private let userRepo = UserRepositoryImplementation()
+    private var memberListener: ListenerRegistration?
 
-    
-    
     deinit {
         listener?.remove()
         listener = nil
-
+        memberListener?.remove()
+        memberListener = nil
+        userProfile = nil
     }
 
     func getOtherUserByID(id: String) {
-        listener = userRepo.addProfileListener(userID: id) { profile in
-            print("Profile Listener Update: \(profile?.username ?? "nil")")
+        memberListener = userRepo.addProfileListener(userID: id) { profile in
+            print("Member Listener Update: \(profile?.username ?? "nil")")
             self.userProfile = profile
         }
+    }
+    func getOtherUserByIDList(chatID: String, id: String) {
+        memberListener = userRepo.addProfileListener(userID: id) { profile in
+            print("Member Listener Update: \(profile?.username ?? "nil")")
+            self.chatUsernames[chatID] = profile?.username
+            
         }
+    }
+
     func startUnreadMessagesListenerForChat(chatID: String) {
-        guard let currentID = fb.userID else {return}
-        repo.listenForUnreadMessages(chatID: chatID, userID: currentID) { [weak self] count in
+        guard let currentID = fb.userID else { return }
+        repo.listenForUnreadMessages(chatID: chatID, userID: currentID) {
+            [weak self] count in
             self?.unreadMessagesCounts[chatID] = count
         }
     }
     func startUnreadMessagesListener() {
-        listener = repo.unreadMessagesCountListener(userID: currentUserID) { unreadCount in
-                self.unreadMessagesCount = unreadCount
-            }
+        listener = repo.unreadMessagesCountListener(userID: currentUserID) {
+            unreadCount in
+            self.unreadMessagesCount = unreadCount
         }
+    }
 
     func createChat(name: String, userID: String, donationID: String?) {
-        repo.createChat(name: name, userID: userID, content: messageInput, donationID: donationID)
+        repo.createChat(
+            name: name, userID: userID, content: messageInput,
+            donationID: donationID)
         messageInput = ""
     }
 
@@ -82,5 +96,5 @@ class ChatViewModel: ObservableObject {
     func markMessageAsRead(chatID: String, messageID: String) {
         repo.markMessageAsRead(chatID: chatID, messageID: messageID)
     }
-    
+
 }

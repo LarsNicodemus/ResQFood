@@ -56,6 +56,23 @@ struct DonationListItem: View {
                     .frame(width: 100)
             }
         }
+        .overlay(
+            ZStack {
+                if let pickedUp = donation.pickedUp, pickedUp {
+                    Text("ABGEHOLT")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(Color.gray)
+                        .rotationEffect(Angle(degrees: 15))
+                        .offset(x: -40)
+                } else if let reserved = donation.isReserved, reserved {
+                    Text("RESERVIERT")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(Color.gray)
+                        .rotationEffect(Angle(degrees: 15))
+                        .offset(x: -40)
+                }
+            }
+        )
         .padding()
         .background(Color("primaryContainer"))
         .foregroundStyle(Color("OnPrimaryContainer"))

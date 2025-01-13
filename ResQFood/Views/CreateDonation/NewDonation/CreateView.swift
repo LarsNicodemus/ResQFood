@@ -8,27 +8,67 @@
 import PhotosUI
 import SwiftUI
 
+
 struct CreateView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var locVM: LocationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
 
+    
     var body: some View {
-        VStack{
-            
-            ScrollView {
-                
+        VStack {
+
+            List {
 
                 if let donations = donVM.donations {
+
                     ForEach(donations, id: \.id) { donation in
                         CreateDonationListItem(donation: donation)
+                            .listRowSeparator(.hidden)
+                            
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    donVM.deleteDonation(id: donation.id!)
+                                    
+                                    print("delete")
+                                } label: {
+                                    Label("Löschen", systemImage: "trash")
+                                        .tint(Color("error"))
+                                }
+                                .containerShape(RoundedRectangle(cornerRadius: 15))
+                                Button {
+                                    let newValue = (donation.isReserved ?? false) == true ? false : true
+                                        donVM.editDonation(id: donation.id!, updates: [.isReserved: newValue])
+                                    print("reserved")
+                                } label: {
+                                    Label("Reserviert", systemImage: "bookmark.fill")
+                                }
+                                .tint(Color("primaryAT"))
+
+                                Button {
+                                    let newValue = (donation.pickedUp ?? false) == true ? false : true
+                                        donVM.editDonation(id: donation.id!, updates: [.pickedUp: newValue])
+                                    if donation.isReserved != nil && donation.isReserved == true {
+                                        donVM.editDonation(id: donation.id!, updates: [.isReserved : false])
+                                    }
+                                    print("given")
+                                } label: {
+                                    Label("Vergeben", systemImage: "hand.raised.square")
+                                }
+                                .tint(Color("tertiary"))
+                            }
+                            
                     }
+
                 } else {
-                    EmptyListPlaceholder(firstText: "keine aktiven Spenden", secondText: "erstell gerne eine Spende ;)")
+                    EmptyListPlaceholder(
+                        firstText: "keine aktiven Spenden",
+                        secondText: "erstell gerne eine Spende ;)")
                 }
-               
+
             }
-            
+            .listStyle(.plain)
+
         }
         .overlay {
             ZStack {
@@ -79,24 +119,3 @@ struct CreateView: View {
         .environmentObject(LocationViewModel())
         .environmentObject(ImageViewModel())
 }
-
-//@ObservedObject var mapVM: MapViewModel
-//@EnvironmentObject var chatVM: ChatViewModel
-//@EnvironmentObject var donVM: DonationViewModel
-//var body: some View {
-//    if !mapVM.locationsInRadius.isEmpty {
-//        ScrollView{
-//                let donations = mapVM.locationsInRadius
-//                ForEach(donations, id: \.id) { donation in
-//                    NavigationLink(destination: DonationDetailView(donation: donation)) {
-//                        DonationListItem(donation: donation)
-//                    }
-//                }
-//            }
-//        .scrollIndicators(.hidden)
-//    } else {
-//        EmptyListPlaceholder()
-//    }
-//
-//}
-//}

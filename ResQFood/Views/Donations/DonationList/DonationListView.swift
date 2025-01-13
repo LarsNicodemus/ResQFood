@@ -14,13 +14,23 @@ struct DonationListView: View {
     var body: some View {
         if !mapVM.locationsInRadius.isEmpty {
             ScrollView{
-                    let donations = mapVM.locationsInRadius
-                    ForEach(donations, id: \.id) { donation in
-                        NavigationLink(destination: DonationDetailView(donation: donation)) {
-                            DonationListItem(donation: donation)
-                        }
-                    }
-                }
+                let donations = mapVM.locationsInRadius
+                                ForEach(donations, id: \.id) { donation in
+                                    if let isReserved = donation.isReserved, isReserved {
+                                        DonationListItem(donation: donation)
+                                    } else if let pickedUp = donation.pickedUp, pickedUp {
+                                        DonationListItem(donation: donation)
+                                    } else {
+                                        NavigationLink(destination: DonationDetailView(donation: donation)) {
+                                            DonationListItem(donation: donation)
+                                        }
+                                    }
+                                }
+                            }
+            .task {
+                mapVM.setupDonationsListener()
+                mapVM.updateLocationsInRadius()
+            }
             .scrollIndicators(.hidden)
         } else {
             EmptyListPlaceholder(firstText: "Keine Spenden verfügbar.", secondText: "versuch vielleicht einen anderen Radius oder andere Filter.")

@@ -10,8 +10,8 @@ import SwiftUI
 struct ChatDetailView: View {
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
-    @State var title = "kein Titel"
-    @State var creator = "kein Name"
+    @State var title = ""
+    @State var creator = ""
     var currentChatID: String
     var body: some View {
         VStack {
@@ -53,6 +53,9 @@ struct ChatDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Text(creator)
                     .foregroundStyle(Color("primaryAT"))
+                    .onChange(of: chatVM.userProfile?.username ?? "") { oldValue, newValue in
+                        creator = newValue
+                    }
             }
         }
         .customBackButton()
@@ -65,8 +68,10 @@ struct ChatDetailView: View {
             let donation = donVM.donations?.first(where: { donation in
                 donation.id == chat?.donationID
             })
-            if let creatorID = donation?.creatorID {
-                chatVM.getOtherUserByID(id: creatorID)
+            if let chatMemberID = chat?.members.first(where: { userID in
+                userID != chatVM.currentUserID
+            }) {
+                chatVM.getOtherUserByID(id: chatMemberID)
             }
             if let creator = chatVM.userProfile?.username {
                 self.creator = creator
@@ -77,7 +82,6 @@ struct ChatDetailView: View {
         }
         
     }
-    
 }
 
 #Preview {
