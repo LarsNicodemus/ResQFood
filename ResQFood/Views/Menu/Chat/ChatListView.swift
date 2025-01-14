@@ -10,58 +10,52 @@ import SwiftUI
 struct ChatListView: View {
     @EnvironmentObject var chatVM: ChatViewModel
     @State var testChatName: String = ""
+    
     var body: some View {
         VStack {
             if chatVM.chats.isEmpty {
                 EmptyChatListPlaceholder()
-                
             } else {
                 List(chatVM.chats) { chat in
                     NavigationLink {
-                        
                         ChatDetailView(currentChatID: chat.id)
                     } label: {
-                    
-                        VStack(alignment: .leading){
+                        VStack(alignment: .leading) {
                             if let username = chatVM.chatUsernames[chat.id] {
                                 Text(username)
                                     .bold()
                             }
                             
-                            HStack{
+                            HStack {
                                 Text(chat.name)
                                 Spacer()
                                 Text(chat.lastMessage.formatted())
                                     .font(.system(size: 10))
                             }
-                            
-                        }.task{
+                        }
+                        .task {
                             if let membersID = chat.members.first(where: { id in
                                 id != chatVM.currentUserID
-                            }){
-                                
-                                chatVM.getOtherUserByIDList(chatID: chat.id, id: membersID)}
+                            }) {
+                                chatVM.getOtherUserByIDList(chatID: chat.id, id: membersID)
+                            }
                             
                             if let username = chatVM.userProfile?.username {
                                 chatVM.chatUsernames[chat.id] = username
                             }
                         }
-                        
                     }
                     .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
+                    .onAppear {
+                                            chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
+                                        }
                 }
-                
             }
         }
         .customBackButton()
         .onAppear {
-            for chat in chatVM.chats {
-                chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
-            }
-        }
-        .task {
-            chatVM.addChatsSnapshotListener()
-        }
+                   chatVM.addChatsSnapshotListener()
+               }
     }
 }
 

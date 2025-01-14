@@ -102,6 +102,45 @@ class UserRepositoryImplementation: UserRepository {
             .document(id)
             .updateData(valuesToUpdate)
     }
+    
+    func editUserInfos(userID: String, donationID: String, to status: DonationStatus, completion: @escaping (Result<String, DonationUpdateError>) -> Void) {
+        
+        fb.database.collection("users").document(userID).getDocument { [self] document, error in
+            guard let document = document,
+                  var user = try? document.data(as: AppUser.self) else {
+                completion(.failure(.documentError))
+                return
+            }
+            
+            switch status {
+            case .reserved:
+                if user.reservedDonationIDs.contains(donationID) {
+                    completion(.failure(.alreadyReserved))
+                    return
+                }
+                if user.collectedDonationIDs.contains(donationID) {
+                    completion(.failure(.alreadyCollected))
+                    return
+                }
+                user.reservedDonationIDs.insert(donationID)
+                
+            case .collected:
+                if user.collectedDonationIDs.contains(donationID) {
+                    completion(.failure(.alreadyCollected))
+                    return
+                }
+                user.reservedDonationIDs.remove(donationID)
+                user.collectedDonationIDs.insert(donationID)
+            }
+            
+            do {
+                try self.fb.database.collection("users").document(userID).setData(from: user)
+                completion(.success("Update erfolgreich"))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
+    }
 
     func addProfileListener(userID: String, onChange: @escaping (UserProfile?) -> Void) -> any ListenerRegistration {
         return fb.database
@@ -152,5 +191,7 @@ class UserRepositoryImplementation: UserRepository {
             .document(id)
             .getDocument(as: UserProfile.self)
     }
+    
+    
 
 }

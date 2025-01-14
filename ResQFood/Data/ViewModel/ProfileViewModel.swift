@@ -47,13 +47,24 @@ class ProfileViewModel: ObservableObject {
         getUserByID()
         if let userID = fb.userID {
             listener = userRepo.addProfileListener(userID: userID) { profile in
-                print("Profile Listener Update: \(profile?.username ?? "nil")")  
+                print("Profile Listener Update: \(profile?.username ?? "nil")")
                 self.userProfile = profile
             }
         }
     }
-    
-    func deinitUserProfile(){
+    func setupOtherProfileListener(userID: String) {
+        listener?.remove()
+        listener = nil
+        getOtherUserByID(id: userID)
+
+        listener = userRepo.addProfileListener(userID: userID) { profile in
+            print("Profile Listener Update: \(profile?.username ?? "nil")")
+            self.userProfile = profile
+        }
+
+    }
+
+    func deinitUserProfile() {
         username = ""
         birthDay = Date()
         gender = nil
@@ -94,43 +105,54 @@ class ProfileViewModel: ObservableObject {
             print("Profile Listener Update: \(profile?.username ?? "nil")")
             self.userProfile = profile
         }
-        }
-    
+    }
+
     func getUpdatedFields() -> [ProfileField: Any] {
         var updates: [ProfileField: Any] = [:]
 
-        func updateIfChanged<T: Equatable>(_ key: ProfileField, newValue: T?, oldValue: T?) {
+        func updateIfChanged<T: Equatable>(
+            _ key: ProfileField, newValue: T?, oldValue: T?
+        ) {
             if let newValue = newValue, newValue != oldValue {
                 updates[key] = newValue
             }
         }
 
-        updateIfChanged(.username, newValue: username, oldValue: userProfile?.username)
-        updateIfChanged(.birthDay, newValue: birthDay, oldValue: userProfile?.birthDay)
-        updateIfChanged(.gender, newValue: selectedGender.rawValue, oldValue: userProfile?.gender)
+        updateIfChanged(
+            .username, newValue: username, oldValue: userProfile?.username)
+        updateIfChanged(
+            .birthDay, newValue: birthDay, oldValue: userProfile?.birthDay)
+        updateIfChanged(
+            .gender, newValue: selectedGender.rawValue,
+            oldValue: userProfile?.gender)
 
         if !locationCityInput.isEmpty || !locationStreetInput.isEmpty {
             let currentLocation = userProfile?.location
-            let currentStreet = "\(currentLocation?.street ?? "") \(currentLocation?.number ?? "")"
-            let currentCity = "\(currentLocation?.zipCode ?? ""), \(currentLocation?.city ?? "")"
-            
-            if locationStreetInput != currentStreet || locationCityInput != currentCity {
+            let currentStreet =
+                "\(currentLocation?.street ?? "") \(currentLocation?.number ?? "")"
+            let currentCity =
+                "\(currentLocation?.zipCode ?? ""), \(currentLocation?.city ?? "")"
+
+            if locationStreetInput != currentStreet
+                || locationCityInput != currentCity
+            {
                 var locationData: [String: String] = [:]
                 locationData["street"] = location?.street
                 locationData["number"] = location?.number
                 locationData["city"] = location?.city
                 locationData["zipCode"] = location?.zipCode
-                
+
                 updates[.location] = locationData.filter { !$0.value.isEmpty }
             }
         }
-        let contactChanged = contactEmailInput != userProfile?.contactInfo?.email ||
-                             contactPhoneInput != userProfile?.contactInfo?.number
+        let contactChanged =
+            contactEmailInput != userProfile?.contactInfo?.email
+            || contactPhoneInput != userProfile?.contactInfo?.number
         if contactChanged {
             var contactData: [String: String] = [:]
             contactData["email"] = contactEmailInput
             contactData["number"] = contactPhoneInput
-            
+
             updates[.contactInfo] = contactData.filter { !$0.value.isEmpty }
         }
 
@@ -151,10 +173,14 @@ class ProfileViewModel: ObservableObject {
                 rawgender.rawValue == gender
             })!
         }
-        if let street = userProfile?.location?.street, let number = userProfile?.location?.number {
+        if let street = userProfile?.location?.street,
+            let number = userProfile?.location?.number
+        {
             locationStreetInput = street + " " + number
         }
-        if let zipCode = userProfile?.location?.zipCode, let city = userProfile?.location?.city {
+        if let zipCode = userProfile?.location?.zipCode,
+            let city = userProfile?.location?.city
+        {
             locationCityInput = zipCode + " " + city
         }
         if let email = userProfile?.contactInfo?.email {
@@ -204,21 +230,21 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
-    
-    func editProfile(updates: [ProfileField : Any]) {
+
+    func editProfile(updates: [ProfileField: Any]) {
         guard let userID = fb.userID else { return }
         userRepo.editProfile(id: userID, updates: updates)
         Task {
-                do {
-                    try await donRepo.updateUserDonations(
-                        userID: userID,
-                        username: username.isEmpty ? nil : username,
-                        contactInfo: contactInfo
-                    )
-                } catch {
-                    print("Error updating donations: \(error)")
-                }
+            do {
+                try await donRepo.updateUserDonations(
+                    userID: userID,
+                    username: username.isEmpty ? nil : username,
+                    contactInfo: contactInfo
+                )
+            } catch {
+                print("Error updating donations: \(error)")
             }
+        }
     }
 
     func setLocation() {

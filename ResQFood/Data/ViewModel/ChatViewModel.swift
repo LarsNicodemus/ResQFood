@@ -26,6 +26,7 @@ class ChatViewModel: ObservableObject {
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
     private var memberListener: ListenerRegistration?
+    private var chatListeners: [String: ListenerRegistration] = [:]
 
     deinit {
         listener?.remove()
@@ -33,6 +34,8 @@ class ChatViewModel: ObservableObject {
         memberListener?.remove()
         memberListener = nil
         userProfile = nil
+        chatListeners.values.forEach { $0.remove() }
+            chatListeners.removeAll()
     }
 
     func getOtherUserByID(id: String) {
@@ -51,10 +54,12 @@ class ChatViewModel: ObservableObject {
 
     func startUnreadMessagesListenerForChat(chatID: String) {
         guard let currentID = fb.userID else { return }
-        repo.listenForUnreadMessages(chatID: chatID, userID: currentID) {
-            [weak self] count in
-            self?.unreadMessagesCounts[chatID] = count
-        }
+        chatListeners[chatID]?.remove()
+        chatListeners[chatID] = repo.listenForUnreadMessages(chatID: chatID, userID: currentID) { [weak self] count in
+                DispatchQueue.main.async {
+                    self?.unreadMessagesCounts[chatID] = count
+                }
+            }
     }
     func startUnreadMessagesListener() {
         listener = repo.unreadMessagesCountListener(userID: currentUserID) {

@@ -15,4 +15,6 @@ struct AppUser: Codable, Identifiable {
     var donationIDs: Set<String> = []
     var chatIDs: Set<String> = []
     var userProfileID: String?
+    var collectedDonationIDs: Set<String> = []
+    var reservedDonationIDs: Set<String> = []
     }

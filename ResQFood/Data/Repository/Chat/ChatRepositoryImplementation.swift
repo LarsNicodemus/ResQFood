@@ -183,9 +183,11 @@ class ChatRepositoryImplementation: ChatRepository {
     
     
     func listenForUnreadMessages(
-        chatID: String, userID: String, completion: @escaping (Int) -> Void
-    ) {
-        db.collection("chats")
+        chatID: String,
+        userID: String,
+        completion: @escaping (Int) -> Void
+    ) -> ListenerRegistration {
+        return db.collection("chats")
             .document(chatID)
             .collection("messages")
             .addSnapshotListener { querySnapshot, error in

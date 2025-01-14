@@ -21,6 +21,10 @@ struct CustomBackButton: ViewModifier {
                     }) {
                         HStack {
                             Image(systemName: "chevron.left")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14)
+                                .tint(Color("primaryAT"))
                         }
                     }
                 }

@@ -49,6 +49,17 @@ class DonationRepositoryImplementation: DonationRepository {
             ])
     }
     
+    func fetchUserIdByDonationID(_ id: String) async throws -> String {
+        let snapshot = try await fb.database.collection("users")
+            .whereField("reservedDonationIDs", arrayContains: id)
+            .getDocuments()
+        
+        guard let document = snapshot.documents.first else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Keine User-ID für diese Donation-ID gefunden"])
+        }
+        
+        return document.documentID
+    }
 
 
     func editDonation(id: String, updates: [DonationField: Any]) {

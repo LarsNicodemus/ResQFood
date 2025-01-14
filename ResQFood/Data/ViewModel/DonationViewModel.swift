@@ -74,9 +74,11 @@ class DonationViewModel: ObservableObject {
                     print("appUser not created \(error)")
                 }
             }
-        
-
     }
+    func getUserIdByDonationID(_ id: String) async throws -> String {
+        return try await donationRepo.fetchUserIdByDonationID(id)
+    }
+    
     private func setupDonationsListener() {
         listener?.remove()
         listener = nil
@@ -127,6 +129,9 @@ class DonationViewModel: ObservableObject {
     func editDonation(id: String, updates: [DonationField : Any]) {
         donationRepo.editDonation(
             id: id, updates: updates)
+    }
+    func editUserInfos(userID: String, donationID: String, to status: DonationStatus, completion: @escaping (Result<String, DonationUpdateError>) -> Void) {
+        profileRepo.editUserInfos(userID: userID, donationID: donationID, to: status, completion: completion)
     }
 
     func deleteDonation(id: String) {
