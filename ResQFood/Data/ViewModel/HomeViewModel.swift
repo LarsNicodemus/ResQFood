@@ -5,14 +5,49 @@
 //  Created by Lars Nicodemus on 07.01.25.
 //
 
-import Foundation
+import FirebaseAuth
+import FirebaseFirestore
+import SwiftUI
 
 class HomeViewModel: ObservableObject {
     
+    @Published var totalFoodWaste: Double? = nil
+    @Published var foodWasteforID: Double? = nil
     
+    private let fb = FirebaseService.shared
+    private let userRepo = UserRepositoryImplementation()
+    private let donRepo = DonationRepositoryImplementation()
+    private let homeRepo = HomeRepositoryImplementation()
+    private var listener: ListenerRegistration?
+    private var listenerforID: ListenerRegistration?
+    
+    init(){
+        getFoodWasteCountListener()
+        getFoodWasteCountListenerForID()
+    }
+    
+    deinit{
+        listener?.remove()
+        listener = nil
+        listenerforID?.remove()
+        listenerforID = nil
+    }
+    
+    func getFoodWasteCountListener() {
+        listener = homeRepo.getFoodWasteCountListener(completion: { totalFoodWaste in
+            self.totalFoodWaste = totalFoodWaste
+        })
+    }
+    func getFoodWasteCountListenerForID() {
+        guard let userID = fb.userID else {return}
+        listenerforID = homeRepo.getFoodWasteCountListenerForID(userID: userID) { foodWaste in
+            self.foodWasteforID = foodWaste
+        }
+    }
+
     func getTimeBasedGreeting(name: String?) -> String {
         let hour = Calendar.current.component(.hour, from: Date())
-        
+
         if name == nil {
             switch hour {
             case 5..<12:
@@ -36,6 +71,6 @@ class HomeViewModel: ObservableObject {
                 return "Gute Nacht, \(name!)"
             }
         }
-        
+
     }
 }

@@ -115,42 +115,6 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-//    func unreadMessagesCountListener(
-//        userID: String, completion: @escaping (Int) -> Void
-//    ) -> ListenerRegistration {
-//        return db.collection("chats")
-//            .whereField("members", arrayContains: userID)
-//            .addSnapshotListener { querySnapshot, error in
-//                if let error = error {
-//                    print("Error fetching chats: \(error.localizedDescription)")
-//                    return
-//                }
-//                guard let documents = querySnapshot?.documents else { return }
-//                var totalUnreadCount = 0
-//                for chatDoc in documents {
-//                    self.db.collection("chats")
-//                        .document(chatDoc.documentID)
-//                        .collection("messages")
-//                        .whereField("isread.\(userID)", isEqualTo: false)
-//                        .addSnapshotListener { snapshot, error in
-//                            if let error = error {
-//                                print(
-//                                    "Error fetching messages: \(error.localizedDescription)"
-//                                )
-//                                return
-//                            }
-//                            totalUnreadCount = 0
-//                            documents.forEach { chatDoc in
-//                                if let messageCount = snapshot?.documents.count
-//                                {
-//                                    totalUnreadCount += messageCount
-//                                }
-//                            }
-//                            completion(totalUnreadCount)
-//                        }
-//                }
-//            }
-//    }
     func unreadMessagesCountListener(userID: String, completion: @escaping (Int) -> Void) -> ListenerRegistration {
         return db.collection("chats")
             .whereField("members", arrayContains: userID)

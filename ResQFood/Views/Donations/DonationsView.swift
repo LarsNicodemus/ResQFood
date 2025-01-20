@@ -15,7 +15,7 @@ struct DonationsView: View {
             VStack{
                 DonationMapView(mapVM: mapVM)
                     .ignoresSafeArea(edges: .top)
-                DonationListView(mapVM: mapVM)
+               
             }
             .navigationBarHidden(true)
             .ignoresSafeArea(.keyboard, edges: .bottom)

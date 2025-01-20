@@ -12,75 +12,33 @@ struct CreateView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var locVM: LocationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
-    @State var userid: String? = nil
     
-    // Extrahierte Funktionen für die Button-Aktionen
-    private func handlePickedUpAction(donation: FoodDonation) async {
-        let newValue = (donation.pickedUp ?? false) == true ? false : true
-        donVM.editDonation(id: donation.id!, updates: [.pickedUp: newValue])
+    
+    var filteredDonations: (active: [FoodDonation], reserved: [FoodDonation], pickedUp: [FoodDonation]) {
+        guard let donations = donVM.donations else { return ([], [], []) }
         
-        if donation.isReserved == true {
-            donVM.editDonation(id: donation.id!, updates: [.isReserved: false])
+        let active = donations.filter { donation in
+            !(donation.isReserved ?? false) && !(donation.pickedUp ?? false)
         }
         
-        do {
-            let userID = try await donVM.getUserIdByDonationID(donation.id!)
-            userid = userID
-            
-            donVM.editUserInfos(userID: userID, donationID: donation.id!, to: .collected) { result in
-                switch result {
-                case .success(let message):
-                    print(message)
-                case .failure(let error):
-                    print(error.message)
-                }
-            }
-        } catch {
-            print("Fehler beim Abrufen der UserID: \(error.localizedDescription)")
+        let reserved = donations.filter { donation in
+            donation.isReserved ?? false && !(donation.pickedUp ?? false)
         }
-    }
-    
-    private func handleReservedAction(donation: FoodDonation) {
-        let newValue = (donation.isReserved ?? false) == true ? false : true
-        donVM.editDonation(id: donation.id!, updates: [.isReserved: newValue])
+        
+        let pickedUp = donations.filter { donation in
+            donation.pickedUp ?? false
+        }
+        
+        return (active, reserved, pickedUp)
     }
     
     var body: some View {
         VStack {
             List {
-                if let donations = donVM.donations {
-                    ForEach(donations, id: \.id) { donation in
-                        CreateDonationListItem(donation: donation)
-                            .listRowSeparator(.hidden)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                // Delete Button
-                                Button {
-                                    donVM.deleteDonation(id: donation.id!)
-                                } label: {
-                                    Label("Löschen", systemImage: "trash")
-                                        .tint(Color("error"))
-                                }
-                                .containerShape(RoundedRectangle(cornerRadius: 15))
-                                
-                                // Reserve Button
-                                Button {
-                                    handleReservedAction(donation: donation)
-                                } label: {
-                                    Label("Reserviert", systemImage: "bookmark.fill")
-                                }
-                                .tint(Color("primaryAT"))
-                                
-                                // Picked Up Button
-                                Button {
-                                    Task {
-                                        await handlePickedUpAction(donation: donation)
-                                    }
-                                } label: {
-                                    Label("Vergeben", systemImage: "hand.raised.square")
-                                }
-                                .tint(Color("tertiary"))
-                            }
-                    }
+                if let donations = donVM.donations, !donations.isEmpty {
+                    DonationSection(title: "Aktive Spenden", donations: filteredDonations.active)
+                    DonationSection(title: "Reservierte Spenden", donations: filteredDonations.reserved)
+                    DonationSection(title: "Abgeholte Spenden", donations: filteredDonations.pickedUp)
                 } else {
                     EmptyListPlaceholder(
                         firstText: "keine aktiven Spenden",
@@ -88,8 +46,15 @@ struct CreateView: View {
                 }
             }
             .listStyle(.plain)
-
         }
+        .overlay(
+            Group {
+                if donVM.showToast {
+                    ToastView(
+                        message: "Erfolgreich abgeschlossen, Punkte gutgeschrieben! Gerettete Lebensmittel aktualisiert!")
+                }
+            }
+        )
         .overlay {
             ZStack {
                 Button {
@@ -118,15 +83,7 @@ struct CreateView: View {
                         .padding()
                 }
             }
-            .overlay(
-                Group {
-                    if donVM.showToast {
-                        ToastView(
-                            message: donVM.uploadSuccessMessage
-                                ?? "Etwas ist schief gelaufen!")
-                    }
-                }
-            )
+            
             .foregroundStyle(Color("primaryAT"))
         }
 
@@ -139,3 +96,5 @@ struct CreateView: View {
         .environmentObject(LocationViewModel())
         .environmentObject(ImageViewModel())
 }
+
+

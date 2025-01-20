@@ -10,6 +10,7 @@ import FirebaseFirestore
 class UserRepositoryImplementation: UserRepository {
 
     private let fb = FirebaseService.shared
+    private let db = FirebaseService.shared.database
 
     func getUserByID(_ id: String) async throws -> AppUser {
         return try await fb.database
@@ -103,6 +104,40 @@ class UserRepositoryImplementation: UserRepository {
             .updateData(valuesToUpdate)
     }
     
+    func updateUserPoints(userID: String, additionalPoints: Int, completion: @escaping (Error?) -> Void) {
+            let profileRef = db.collection("profiles").document(userID)
+            
+            profileRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let currentPoints = document.data()?["points"] as? Int ?? 0
+                    let updatedPoints = currentPoints + additionalPoints
+                    
+                    profileRef.updateData(["points": updatedPoints]) { error in
+                        completion(error)
+                    }
+                } else {
+                    completion(error)
+                }
+            }
+        }
+    
+    func updateFoodWasteSaved(userID: String, foodWasteGramm: Double, completion: @escaping (Error?) -> Void) {
+            let profileRef = db.collection("profiles").document(userID)
+            
+            profileRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let currentWasteSaved = document.data()?["foodWasteSaved"] as? Double ?? 0.0
+                    let updatedWasteSaved = currentWasteSaved + foodWasteGramm
+                    
+                    profileRef.updateData(["foodWasteSaved": updatedWasteSaved]) { error in
+                        completion(error)
+                    }
+                } else {
+                    completion(error)
+                }
+            }
+        }
+    
     func editUserInfos(userID: String, donationID: String, to status: DonationStatus, completion: @escaping (Result<String, DonationUpdateError>) -> Void) {
         
         fb.database.collection("users").document(userID).getDocument { [self] document, error in
@@ -125,12 +160,13 @@ class UserRepositoryImplementation: UserRepository {
                 user.reservedDonationIDs.insert(donationID)
                 
             case .collected:
-                if user.collectedDonationIDs.contains(donationID) {
-                    completion(.failure(.alreadyCollected))
-                    return
-                }
                 user.reservedDonationIDs.remove(donationID)
                 user.collectedDonationIDs.insert(donationID)
+                
+                
+            case .available:
+                user.collectedDonationIDs.remove(donationID)
+                user.reservedDonationIDs.remove(donationID)
             }
             
             do {

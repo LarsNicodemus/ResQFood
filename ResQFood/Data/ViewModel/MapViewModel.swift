@@ -18,7 +18,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var searchRadius: Double = 1000
     @Published var locationsInRadius: [FoodDonation] = []
     @Published var donations: [FoodDonation]? = nil
-    
+    @Published var startPressed: Bool = false
 
     private var listener: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()

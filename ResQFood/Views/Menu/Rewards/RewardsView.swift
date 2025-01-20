@@ -8,8 +8,17 @@
 import SwiftUI
 
 struct RewardsView: View {
+    @EnvironmentObject var profileVM: ProfileViewModel
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Text("100 - 500 Punkte")
+            Text("500 - 1000 Punkte")
+            Text("1000 - 1500 Punkte")
+            Text("1500 - 2000 Punkte")
+            Text("2000 - 2500 Punkte")
+            Text("2500 - 3000 Punkte")
+        }
+        .frame(maxWidth: .infinity)
             .customBackButton()
 
     }
@@ -17,4 +26,5 @@ struct RewardsView: View {
 
 #Preview {
     RewardsView()
+        .environmentObject(ProfileViewModel())
 }

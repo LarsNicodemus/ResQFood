@@ -82,10 +82,12 @@ struct DonationMapView: View {
                     Button("Start") {
                         mapVM.coordinates = nil
                         mapVM.getCoordinates()
+                        mapVM.startPressed = true
                     }
                     .primaryButtonStyle()
                     Button {
                         mapVM.coordinates = nil
+                        mapVM.startPressed = false
                         mapVM.resetLocation()
                         mapVM.searchTerm = ""
                     } label: {
@@ -93,7 +95,6 @@ struct DonationMapView: View {
                     }
                     .primaryButtonStyle()
                 }
-                Spacer()
                 VStack {
                     HStack {
                         Text("100 M")
@@ -112,6 +113,15 @@ struct DonationMapView: View {
                     Text("\(Int(mapVM.searchRadius)) M")
                         .font(.system(size: 10))
                 }
+                Spacer()
+                    VStack{
+                        
+                        DonationListView(mapVM: mapVM)
+                            .frame(minHeight: 0, maxHeight: 350, alignment: .bottom)
+                    }
+                    
+                
+                
             }
             .padding(.top, 64)
             .padding(.horizontal, 8)

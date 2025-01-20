@@ -8,4 +8,5 @@
 enum DonationStatus {
     case reserved
     case collected
+    case available
 }

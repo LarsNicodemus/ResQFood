@@ -5,47 +5,50 @@
 //  Created by Lars Nicodemus on 14.01.25.
 //
 
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
+    @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var chatVM: ChatViewModel
     var userID: String
     var fromChat: Bool
     @State var sheetPresent: Bool = false
     @State var report: Bool = false
+
     var body: some View {
         ScrollView {
+
             VStack {
                 if let user = chatVM.userProfile {
-                    HStack{
+                    HStack {
                         Spacer()
-                        VStack{
-                            Button{
+                        VStack {
+                            Button {
                                 sheetPresent = true
                                 report = true
                             } label: {
                                 Image(systemName: "exclamationmark.bubble.fill")
                                     .resizable()
-                                    .frame(width: 32,height: 32)
+                                    .frame(width: 32, height: 32)
                                     .tint(Color("primaryAT"))
                             }
                             if !fromChat {
-                                Button{
+                                Button {
                                     sheetPresent = true
                                 } label: {
                                     Image(systemName: "ellipsis.message")
                                         .resizable()
-                                        .frame(width: 32,height: 32)
+                                        .frame(width: 32, height: 32)
                                         .tint(Color("primaryAT"))
                                 }
                             }
                         }
                     }.padding(.trailing)
-                        ProfileImageView(imageurl: user.pictureUrl)
-                    .padding(.bottom, 32)
+                    ProfileImageView(imageurl: user.pictureUrl)
+                        .padding(.bottom, 32)
                     VStack(alignment: .leading, spacing: 20) {
 
                         HStack {
@@ -56,20 +59,30 @@ struct ProfileView: View {
 
                         HStack {
                             Image(systemName: "star.fill")
-                            Text(user.rating != nil ? "Bewertung: \(user.rating!)" : "Bewertung: noch keine Einträge.")
+                            Text(
+                                user.rating != nil
+                                    ? "Bewertung: \(user.rating!)"
+                                    : "Bewertung: noch keine Einträge.")
                         }
 
                         HStack {
-                            Image(systemName: "point.3.connected.trianglepath.dotted")
+                            Image(
+                                systemName:
+                                    "point.3.connected.trianglepath.dotted")
                             Text("Gesammelte Punkte: \(user.points ?? 0)")
                         }
 
                         HStack {
                             Image(systemName: "person.crop.circle")
-                            Text(user.gender != nil ? "Geschlecht: \(user.gender!)" : "Geschlecht: nicht angegeben.")
+                            Text(
+                                user.gender != nil
+                                    ? "Geschlecht: \(user.gender!)"
+                                    : "Geschlecht: nicht angegeben.")
                         }
 
-                        if let city = user.location?.city, let zip = user.location?.zipCode {
+                        if let city = user.location?.city,
+                            let zip = user.location?.zipCode
+                        {
                             VStack(alignment: .leading) {
                                 HStack {
                                     Image(systemName: "house.fill")
@@ -81,35 +94,71 @@ struct ProfileView: View {
                         }
                     }
                     .padding()
-                    .background(RoundedRectangle(cornerRadius: 15).fill(Color("primaryContainer")))
+                    .background(
+                        RoundedRectangle(cornerRadius: 15).fill(
+                            Color("primaryContainer"))
+                    )
                     .shadow(radius: 5)
                     .applyTextColor(Color("OnPrimaryContainer"))
                 }
             }
             .padding()
-        }
-        
-        .customBackButton()
-        .sheet(isPresented: $sheetPresent, content: {
-            if report {
-                ReportSheet(sheetPresent: $sheetPresent, report: $report)
-            } else {
-                MessageSheet(sheetPresent: $sheetPresent)
-            }
-        })
-        .onAppear{
-            chatVM.getOtherUserByID(id: userID)
-        }
-        .onChange(of: imageVM.selectedItem) { oldItems, newItems in
-                    Task {
-                        await imageVM.handleImageSelection(newItem: newItems)
-                        if let _ = imageVM.selectedImage {
-                            await imageVM.uploadImage()
-                            profileVM.pictureUrl = imageVM.uploadedImage?.url
-                            profileVM.editProfile(updates: [.pictureUrl :  profileVM.pictureUrl as Any])
+            VStack {
+                Text("Weitere Inserate des Anbieters: ")
+                if let donations = donVM.donations {
+                    ForEach(donations, id: \.id) { donation in
+                        Group {
+
+                            if let isReserved = donation.isReserved, isReserved
+                            {
+                                DonationListItem(donation: donation)
+                            } else if let pickedUp = donation.pickedUp, pickedUp
+                            {
+                                DonationListItem(donation: donation)
+                            } else {
+                                NavigationLink(
+                                    destination: DonationDetailView(
+                                        donation: donation)
+                                ) {
+                                    DonationListItem(donation: donation)
+                                }
+                            }
                         }
+                        .padding(.horizontal)
                     }
                 }
+            }
+
+        }
+
+        .customBackButton()
+        .sheet(
+            isPresented: $sheetPresent,
+            content: {
+                if report {
+                    ReportSheet(sheetPresent: $sheetPresent, report: $report)
+                } else {
+                    MessageSheet(sheetPresent: $sheetPresent)
+                }
+            }
+        )
+        .onAppear {
+            donVM.setupDonationsListenerForOtherUser(userID: userID)
+            chatVM.getOtherUserByID(id: userID)
+
+        }
+        .onChange(of: imageVM.selectedItem) { oldItems, newItems in
+            Task {
+                await imageVM.handleImageSelection(newItem: newItems)
+                if imageVM.selectedImage != nil {
+                    await imageVM.uploadImage()
+                    profileVM.pictureUrl = imageVM.uploadedImage?.url
+                    profileVM.editProfile(updates: [
+                        .pictureUrl: profileVM.pictureUrl as Any
+                    ])
+                }
+            }
+        }
     }
 }
 
@@ -118,4 +167,5 @@ struct ProfileView: View {
         .environmentObject(ProfileViewModel())
         .environmentObject(ImageViewModel())
         .environmentObject(ChatViewModel())
+        .environmentObject(DonationViewModel())
 }

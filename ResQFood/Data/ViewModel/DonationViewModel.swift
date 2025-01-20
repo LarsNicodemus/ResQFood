@@ -42,18 +42,21 @@ class DonationViewModel: ObservableObject {
     @Published var picturesError: String? = nil
     @Published var locationError: String? = nil
     @Published var showToast: Bool = false
+    @Published var showToastPickedUp: Bool = false
     @Published var uploadSuccess = false
     @Published var uploadErrorMessage: String? = nil
     @Published var uploadSuccessMessage: String? = nil
     @Published var isPresent: Bool = false
-
+    @Published var donUserNames: [String: String] = [:]
     @Published var userProfile: UserProfile? = nil
 
     
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
+    private var listenerOtherUser: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()
     private let profileRepo = UserRepositoryImplementation()
+    private var memberListener: ListenerRegistration?
 
     
     
@@ -64,6 +67,10 @@ class DonationViewModel: ObservableObject {
     deinit {
             listener?.remove()
             listener = nil
+            memberListener?.remove()
+            memberListener = nil
+            listenerOtherUser?.remove()
+            listenerOtherUser = nil
         }
     
     private func getUserProfileByID(userID: String) {
@@ -75,6 +82,30 @@ class DonationViewModel: ObservableObject {
                 }
             }
     }
+    
+    func getUserProfileByIDwithReturn(userID: String, completion: @escaping (UserProfile?) -> Void) {
+        Task {
+            do {
+                let profile = try await profileRepo.getUProfileByID(userID)
+                await MainActor.run {
+                    completion(profile)
+                }
+            } catch {
+                print("appUser not created \(error)")
+                await MainActor.run {
+                    completion(nil)
+                }
+            }
+        }
+    }
+    func getOtherUserByIDList(donID: String, id: String) {
+        memberListener = profileRepo.addProfileListener(userID: id) { profile in
+            print("Member Listener Update: \(profile?.username ?? "nil")")
+            self.donUserNames[donID] = profile?.username
+            
+        }
+    }
+    
     func getUserIdByDonationID(_ id: String) async throws -> String {
         return try await donationRepo.fetchUserIdByDonationID(id)
     }
@@ -97,7 +128,26 @@ class DonationViewModel: ObservableObject {
                 self.donations = donations
             }
     }
+    func setupDonationsListenerForOtherUser(userID: String) {
+        listenerOtherUser?.remove()
+        listenerOtherUser = nil
 
+        listenerOtherUser = donationRepo.addDonationsListenerForUser(userID: userID ) { donations in
+                self.donations = donations
+            }
+    }
+    
+    func getUserProfileByDonation(_ donID: String) {
+        Task {
+            do {
+                let userID = try await getUserIdByDonationID(donID)
+                getUserProfileByID(userID: userID)
+            } catch {
+                print("Fehler beim Abrufen des UserProfiles: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     func addDonation() {
         guard let userID = fb.userID else { return }
         getUserProfileByID(userID: userID)
@@ -125,7 +175,35 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
-
+    func handlePickedUpAction(donation: FoodDonation) async {
+        let newValue = (donation.pickedUp ?? false) == true ? false : true
+        editDonation(id: donation.id!, updates: [.pickedUp: newValue])
+        
+        if donation.isReserved == true {
+            editDonation(id: donation.id!, updates: [.isReserved: false])
+        }
+        
+        do {
+            let userID = try await getUserIdByDonationID(donation.id!)
+            let status: DonationStatus = newValue ? .collected : .available
+            editUserInfos(userID: userID, donationID: donation.id!, to: status) { result in
+                switch result {
+                case .success(let message):
+                    print(message)
+                case .failure(let error):
+                    print(error.message)
+                }
+            }
+        } catch {
+            print("Fehler beim Abrufen der UserID: \(error.localizedDescription)")
+        }
+    }
+    
+    func handleReservedAction(donation: FoodDonation) {
+        let newValue = (donation.isReserved ?? false) == true ? false : true
+        editDonation(id: donation.id!, updates: [.isReserved: newValue])
+    }
+    
     func editDonation(id: String, updates: [DonationField : Any]) {
         donationRepo.editDonation(
             id: id, updates: updates)
@@ -133,7 +211,63 @@ class DonationViewModel: ObservableObject {
     func editUserInfos(userID: String, donationID: String, to status: DonationStatus, completion: @escaping (Result<String, DonationUpdateError>) -> Void) {
         profileRepo.editUserInfos(userID: userID, donationID: donationID, to: status, completion: completion)
     }
+    
+    func setUserPoints(otherUserID: String) {
+        guard let userID = fb.userID else { return }
+        
+        profileRepo.updateUserPoints(userID: userID, additionalPoints: 10) { error in
+            if let error = error {
+                print("Fehler beim Aktualisieren der eigenen Punkte: \(error)")
+            } else {
+                print("Eigene Punkte erfolgreich aktualisiert.")
+            }
+        }
+        
+        profileRepo.updateUserPoints(userID: otherUserID, additionalPoints: 5) { error in
+            if let error = error {
+                print("Fehler beim Aktualisieren der Punkte des anderen Benutzers: \(error)")
+            } else {
+                print("Punkte des anderen Benutzers erfolgreich aktualisiert.")
+            }
+        }
+    }
+    func convertToGrams(weight: Double, unit: WeightUnit) -> Double {
+        return weight * unit.toGramsConversionFactor()
+    }
+    
+    func checkAndConvertWeightToGrams(donation: FoodDonation) -> Double {
+        guard let weightUnit = WeightUnit(rawValue: donation.weightUnit) else {
+            print("Unbekannte Einheit, Rückgabe des ursprünglichen Gewichts.")
+            return donation.weight
+        }
+        
+        if weightUnit != .gram {
+            return convertToGrams(weight: donation.weight, unit: weightUnit)
+        } else {
+            return donation.weight
+        }
+    }
 
+    func setFoodWasteSaved(otherUserID: String, foodWasteGramm: Double) {
+        guard let userID = fb.userID else { return }
+        
+        profileRepo.updateFoodWasteSaved(userID: userID, foodWasteGramm: foodWasteGramm) { error in
+            if let error = error {
+                print("Fehler beim Aktualisieren der eigenen Punkte: \(error)")
+            } else {
+                print("Eigene Punkte erfolgreich aktualisiert.")
+            }
+        }
+        
+        profileRepo.updateFoodWasteSaved(userID: otherUserID, foodWasteGramm: foodWasteGramm) { error in
+            if let error = error {
+                print("Fehler beim Aktualisieren der Punkte des anderen Benutzers: \(error)")
+            } else {
+                print("Punkte des anderen Benutzers erfolgreich aktualisiert.")
+            }
+        }
+    }
+    
     func deleteDonation(id: String) {
         Task {
             do {

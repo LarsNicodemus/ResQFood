@@ -102,7 +102,7 @@ struct ChatDetailView: View {
         .overlay(
             Group {
                 if details {
-                    if userCreator {
+                    if let donation = donationForTitle, donation.creatorID == chatVM.currentUserID {
                         ZStackView1(showToast: $showToast, chatMemberID: chatMemberID, donationID: donationID, details: $details, toastMessage: $toastMessage)
                     } else {
                         ZStackView2(chatMemberID: chatMemberID, details: $details)
