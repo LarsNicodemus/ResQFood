@@ -105,6 +105,7 @@ struct DonationDetailView: View {
 //                    }
 //                } else
 //                    {
+                
                         VStack{
                             ZStack{
                                 
@@ -148,6 +149,8 @@ struct DonationDetailView: View {
                             .padding(.bottom)
                             .padding(.bottom)
                         }
+                
+                
 //                    }
                 
             }

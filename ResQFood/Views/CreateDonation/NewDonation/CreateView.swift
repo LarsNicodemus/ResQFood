@@ -34,18 +34,22 @@ struct CreateView: View {
     
     var body: some View {
         VStack {
+            if let donations = donVM.donations, !donations.isEmpty {
             List {
-                if let donations = donVM.donations, !donations.isEmpty {
                     DonationSection(title: "Aktive Spenden", donations: filteredDonations.active)
                     DonationSection(title: "Reservierte Spenden", donations: filteredDonations.reserved)
                     DonationSection(title: "Abgeholte Spenden", donations: filteredDonations.pickedUp)
-                } else {
-                    EmptyListPlaceholder(
-                        firstText: "keine aktiven Spenden",
-                        secondText: "erstell gerne eine Spende ;)")
-                }
+                }.listStyle(.plain)
             }
-            .listStyle(.plain)
+            else {
+                EmptyListPlaceholder(
+                    firstText: "keine aktiven Spenden",
+                    secondText: "erstell gerne eine Spende ;)")
+                .frame(
+                    maxWidth: .infinity, maxHeight: .infinity
+                )
+            }
+            
         }
         .overlay(
             Group {

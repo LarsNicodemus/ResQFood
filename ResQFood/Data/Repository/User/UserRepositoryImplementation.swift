@@ -120,6 +120,22 @@ class UserRepositoryImplementation: UserRepository {
                 }
             }
         }
+    func updateUserPointsDown(userID: String, subtractPoints: Int, completion: @escaping (Error?) -> Void) {
+            let profileRef = db.collection("profiles").document(userID)
+            
+            profileRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let currentPoints = document.data()?["points"] as? Int ?? 0
+                    let updatedPoints = currentPoints - subtractPoints
+                    
+                    profileRef.updateData(["points": updatedPoints]) { error in
+                        completion(error)
+                    }
+                } else {
+                    completion(error)
+                }
+            }
+        }
     
     func updateFoodWasteSaved(userID: String, foodWasteGramm: Double, completion: @escaping (Error?) -> Void) {
             let profileRef = db.collection("profiles").document(userID)

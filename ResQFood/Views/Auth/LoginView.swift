@@ -66,7 +66,7 @@ struct LoginView: View {
                     .padding(.bottom, 16)
             }
             HStack {
-                Text("Sie haben noch keinen Zugang? ")
+                Text("Noch keinen Zugang? ")
                 NavigationLink(
                     "Jetzt registrieren",
                     destination: {
