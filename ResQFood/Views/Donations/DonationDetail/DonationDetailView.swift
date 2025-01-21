@@ -82,29 +82,29 @@ struct DonationDetailView: View {
                         locationName = await geoManager.getLocationName(latitude: donation.location.lat, longitude: donation.location.long)
                                 }
                 
-//                if let chatID = chatVM.chats.first (where: {
-//                    $0.members.contains(chatVM.currentUserID)
-//                    && $0.name == donation.title
-//                })?.id {
-//                    HStack{
-//                        Spacer()
-//                        VStack(spacing: 20) {
-//                            Image("placeholderIG")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 150, height: 150)
-//                                .foregroundColor(.gray)
-//                            
-//                            Text("Anbieter \nbereits kontaktiert.")
-//                                .font(.title)
-//                                .foregroundColor(.gray)
-//                            
-//                        }
-//                        .padding()
-//                        Spacer()
-//                    }
-//                } else
-//                    {
+                if (chatVM.chats.first (where: {
+                    $0.members.contains(chatVM.currentUserID)
+                    && $0.name == donation.title
+                })?.id) != nil {
+                    HStack{
+                        Spacer()
+                        VStack(spacing: 20) {
+                            Image("placeholderIG")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 150, height: 150)
+                                .foregroundColor(.gray)
+                            
+                            Text("Anbieter \nbereits kontaktiert.")
+                                .font(.title)
+                                .foregroundColor(.gray)
+                            
+                        }
+                        .padding()
+                        Spacer()
+                    }
+                } else
+                    {
                 
                         VStack{
                             ZStack{
@@ -151,7 +151,7 @@ struct DonationDetailView: View {
                         }
                 
                 
-//                    }
+                    }
                 
             }
             .overlay(

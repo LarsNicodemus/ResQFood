@@ -147,4 +147,61 @@ class ImageViewModel: ObservableObject {
         }
         isLoading = false
     }
+    
+    func resetFields() {
+        selectedImages = []
+        selectedItems = []
+        uploadedImages  = []
+    }
+    
+    func processAndUploadImages(items: [PhotosPickerItem]) async {
+        isLoading = true
+        var newImages: [UIImage] = []
+        var uploadedUrls: [AppImage] = []
+        
+        await withTaskGroup(of: UIImage?.self) { group in
+            for item in items {
+                group.addTask {
+                    if let data = try? await item.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        return uiImage
+                    }
+                    return nil
+                }
+            }
+            
+            for await image in group {
+                if let image = image {
+                    newImages.append(image)
+                }
+            }
+        }
+        await withTaskGroup(of: AppImage?.self) { group in
+            for image in newImages {
+                group.addTask {
+                    do {
+                        let uploadedImageData = try await self.imageRepository.uploadImage(image)
+                        return AppImage(
+                            id: uploadedImageData.id,
+                            deletehash: uploadedImageData.deletehash,
+                            url: uploadedImageData.link
+                        )
+                    } catch {
+                        print("Upload Error: \(error.localizedDescription)")
+                        return nil
+                    }
+                }
+            }
+            
+            for await result in group {
+                if let uploadedImage = result {
+                    uploadedUrls.append(uploadedImage)
+                }
+            }
+        }
+        self.selectedImages = newImages
+        self.uploadedImages = uploadedUrls
+        self.isLoading = false
+    }
+    
 }

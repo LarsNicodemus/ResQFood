@@ -11,7 +11,6 @@ struct AuthWrapper: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var donVM: DonationViewModel
-    @EnvironmentObject var locVM: LocationViewModel
     @EnvironmentObject var chatVM: ChatViewModel
     @State private var navigationPath = NavigationPath()
 
@@ -22,7 +21,6 @@ struct AuthWrapper: View {
                     if authVM.appUser?.userProfileID != nil || !authVM.userNotAnonym {
                         AppNavigation(navigationPath: $navigationPath)
                             .environmentObject(donVM)
-                            .environmentObject(locVM)
                             .navigationDestination(for: NavigationRoute.self) { route in
                                 switch route {
                                 case .settings:
@@ -74,5 +72,4 @@ struct AuthWrapper: View {
         .environmentObject(ImageViewModel())
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
-        .environmentObject(LocationViewModel())
 }

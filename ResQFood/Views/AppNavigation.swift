@@ -114,7 +114,6 @@ struct AppNavigation: View {
         .environmentObject(ImageViewModel())
         .environmentObject(ProfileViewModel())
         .environmentObject(DonationViewModel())
-        .environmentObject(LocationViewModel())
         .environmentObject(ChatViewModel())
 
 }

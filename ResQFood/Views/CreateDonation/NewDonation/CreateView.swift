@@ -10,7 +10,6 @@ import SwiftUI
 
 struct CreateView: View {
     @EnvironmentObject var donVM: DonationViewModel
-    @EnvironmentObject var locVM: LocationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     
     
@@ -97,7 +96,6 @@ struct CreateView: View {
 #Preview {
     CreateView()
         .environmentObject(DonationViewModel())
-        .environmentObject(LocationViewModel())
         .environmentObject(ImageViewModel())
 }
 

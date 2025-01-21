@@ -9,7 +9,8 @@ import SwiftUI
 
 struct InputElementsView: View {
     @EnvironmentObject var donVM: DonationViewModel
-    @EnvironmentObject var locVM: LocationViewModel
+    @EnvironmentObject var imageVM: ImageViewModel
+
     @State var showToast: Bool = false
     @State var updateSuccess: Bool = false
     var proxy: ScrollViewProxy
@@ -21,12 +22,22 @@ struct InputElementsView: View {
                     .id("scrollContent")
                 Spacer()
             }
-            TextField("Titel", text: $donVM.title)
-                .frame(height: 30)
-                .padding(8)
-                .background(.gray.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
+            if let titleError = donVM.titleError {
+                Text(titleError)
+                    .font(.caption)
+                    .foregroundStyle(Color("error"))
+            }
+                TextField("Titel", text: $donVM.title)
+                    .frame(height: 30)
+                    .padding(8)
+                    .background(.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            if let descriptionError = donVM.descriptionError {
+                Text(descriptionError)
+                    .font(.caption)
+                    .foregroundStyle(Color("error"))
+            }
             TextField("Beschreibung", text: $donVM.description)
                 .frame(height: 30)
                 .padding(8)
@@ -47,14 +58,21 @@ struct InputElementsView: View {
                 .frame(width: 220, height: 100)
             }
             HStack {
-                TextField(
-                    "Gewicht / Volumen", text: $donVM.weightInputText
-                )
-                .frame(width: 180, height: 30)
-                .padding(8)
-                .background(.gray.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .keyboardType(.decimalPad)
+                VStack{
+                    if let weightError = donVM.weightError {
+                        Text(weightError)
+                            .font(.caption)
+                            .foregroundStyle(Color("error"))
+                    }
+                    TextField(
+                        "Gewicht / Volumen", text: $donVM.weightInputText
+                    )
+                    .frame(width: 180, height: 30)
+                    .padding(8)
+                    .background(.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .keyboardType(.decimalPad)
+                }
                 Picker(
                     "Einheit auswählen",
                     selection: $donVM.selectedWeightUnit
@@ -124,7 +142,12 @@ struct InputElementsView: View {
                 .pickerStyle(.inline)
                 .frame(width: 120, height: 100)
             }
-            TextField("Adresse:", text: $locVM.address)
+            if let locationError = donVM.locationError {
+                Text(locationError)
+                    .font(.caption)
+                    .foregroundStyle(Color("error"))
+            }
+            TextField("Adresse:", text: $donVM.address)
                 .frame(height: 30)
                 .padding(8)
                 .background(.gray.opacity(0.2))
@@ -133,30 +156,35 @@ struct InputElementsView: View {
             HStack {
                 Spacer()
                 Button("Spende erstellen") {
-                    let checkUpdate = donVM.checkForDonationUpload()
-                    withAnimation {
-                        showToast = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation {
-                            showToast = false
-                        }
-                    }
-                    if checkUpdate {
-                        updateSuccess = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    Task {
+                        let checkUpdate = await donVM.checkForDonationUpload()
+                        if checkUpdate {                            
+                            updateSuccess = true
                             withAnimation {
-                                donVM.isPresent = false
+                                showToast = true
+                            }
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showToast = false
+                                    donVM.resetDonationFields()
+                                    imageVM.resetFields()
+//                                    donVM.isPresent = false
+                                }
+                            }
+                        } else {
+                            updateSuccess = false
+                            withAnimation {
+                                showToast = true
+                                proxy.scrollTo("scrollContent")
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showToast = false
+                                }
                             }
                         }
-                    } else {
-                        updateSuccess = false
-                        withAnimation {
-                            proxy.scrollTo("scrollContent")
-                        }
-
                     }
-
                 }
                 .primaryButtonStyle()
 
@@ -173,30 +201,22 @@ struct InputElementsView: View {
                         )
                     } else {
                         ToastView(
-                            message: "da fehlt noch etwas!"
+                            message: "Da fehlt noch etwas!"
                         )
                     }
 
                 }
             }
         )
-        .onChange(of: donVM.uploadSuccess) { error, success in
-            if success {
-                withAnimation {
-                    donVM.showToast = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation {
-                        donVM.showToast = false
-                    }
-                }
-
+        .onAppear{
+            Task {
+                await donVM.getUserProfileByID()
             }
         }
-        .onChange(of: locVM.address) { old, new in
-            locVM.fetchCoordinates()
-            if let lat = locVM.geoCodingM.latitude,
-                let long = locVM.geoCodingM.longitude
+        .onChange(of: donVM.address) { old, new in
+            donVM.fetchCoordinates()
+            if let lat = donVM.geoCodingM.latitude,
+                let long = donVM.geoCodingM.longitude
             {
                 donVM.location.lat = lat
                 donVM.location.long = long

@@ -9,7 +9,6 @@ import PhotosUI
 
 struct ImagePickUploadView: View {
     @EnvironmentObject var donVM: DonationViewModel
-    @EnvironmentObject var locVM: LocationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
 
     var body: some View {
@@ -43,24 +42,27 @@ struct ImagePickUploadView: View {
 
             }
             .primaryButtonStyle()
-            
-            Button("Bilder hochladen") {
-                Task {
-                    await imageVM.uploadImages()
-                    for image in imageVM.uploadedImages {
-                        donVM.picturesUrl.append(image.url)
+
+            if let picturesError = donVM.picturesError {
+                Text(picturesError)
+                    .font(.caption)
+                    .foregroundStyle(Color("error"))
+            }
+        }
+        .onChange(of: imageVM.selectedItems) { _, newItems in
+                    Task {
+                        await imageVM.processAndUploadImages(items: newItems)
+                        if !imageVM.uploadedImages.isEmpty {
+                            donVM.picturesUrl = imageVM.uploadedImages.map(\.url)
+                        }
                     }
                 }
-            }
-            .primaryButtonStyle()
-        }
-        .onChange(of: imageVM.selectedItems) {
-            oldItems, newItems in
-            Task {
-                await imageVM.handleImageSelection(
-                    newItems: newItems)
-            }
-        }
+        .overlay {
+                    if imageVM.isLoading {
+                        ProgressView()
+                            .background(Color.black.opacity(0.4))
+                    }
+                }
     }
 }
 

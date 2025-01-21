@@ -127,7 +127,12 @@ struct DonationMapView: View {
             .padding(.horizontal, 8)
         }
         .task {
+            
             mapVM.requestLocation()
+            
+        }
+        .onAppear{
+            
         }
 
     }
