@@ -12,6 +12,8 @@ struct AuthWrapper: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var chatVM: ChatViewModel
+    @EnvironmentObject var mapVM: MapViewModel
+
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
@@ -72,4 +74,5 @@ struct AuthWrapper: View {
         .environmentObject(ImageViewModel())
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
+        .environmentObject(MapViewModel())
 }

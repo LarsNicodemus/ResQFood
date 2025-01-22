@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct DonationsView: View {
-    @StateObject var mapVM: MapViewModel = MapViewModel()
+    @EnvironmentObject var mapVM: MapViewModel
     @EnvironmentObject var chatVM: ChatViewModel
 
     var body: some View {
             VStack{
-                DonationMapView(mapVM: mapVM)
+                DonationMapView()
                     .ignoresSafeArea(edges: .top)
                
             }
@@ -26,4 +26,5 @@ struct DonationsView: View {
     DonationsView()
         .environmentObject(DonationViewModel())
         .environmentObject(ChatViewModel())
+        .environmentObject(MapViewModel())
 }

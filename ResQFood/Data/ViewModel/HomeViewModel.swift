@@ -13,17 +13,19 @@ class HomeViewModel: ObservableObject {
     
     @Published var totalFoodWaste: Double? = nil
     @Published var foodWasteforID: Double? = nil
-    
+    @Published var reservedDonations: [FoodDonation]? = nil
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
     private let donRepo = DonationRepositoryImplementation()
     private let homeRepo = HomeRepositoryImplementation()
     private var listener: ListenerRegistration?
     private var listenerforID: ListenerRegistration?
-    
+    private var reservedListener: ListenerRegistration?
+
     init(){
         getFoodWasteCountListener()
         getFoodWasteCountListenerForID()
+        setupDonationsListener()
     }
     
     deinit{
@@ -31,7 +33,20 @@ class HomeViewModel: ObservableObject {
         listener = nil
         listenerforID?.remove()
         listenerforID = nil
+        reservedListener?.remove()
+        reservedListener = nil
+        reservedDonations = nil
     }
+    
+    func setupDonationsListener() {
+        reservedListener?.remove()
+        reservedListener = nil
+        guard let userID = fb.userID else {return}
+        reservedListener = donRepo.addReservedDonationsListener(forUserID: userID, onChange: { donations in
+            self.reservedDonations = donations
+        })
+    }
+
     
     func getFoodWasteCountListener() {
         listener = homeRepo.getFoodWasteCountListener(completion: { totalFoodWaste in

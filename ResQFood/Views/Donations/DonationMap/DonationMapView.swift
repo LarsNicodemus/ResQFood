@@ -9,7 +9,7 @@ import MapKit
 import SwiftUI
 
 struct DonationMapView: View {
-    @ObservedObject var mapVM: MapViewModel
+    @EnvironmentObject var mapVM: MapViewModel
 
     var body: some View {
         ZStack {
@@ -77,14 +77,11 @@ struct DonationMapView: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color("primaryAT"),lineWidth: 1)
-                                
                         }
-                    Button("Start") {
-                        mapVM.coordinates = nil
-                        mapVM.getCoordinates()
-                        mapVM.startPressed = true
-                    }
-                    .primaryButtonStyle()
+                        .onSubmit {
+                                        mapVM.updateSearchResults()
+                                    }
+                      
                     Button {
                         mapVM.coordinates = nil
                         mapVM.startPressed = false
@@ -131,15 +128,24 @@ struct DonationMapView: View {
             mapVM.requestLocation()
             
         }
-        .onAppear{
-            
+        .onChange(of: mapVM.searchRadius) { oldValue, newValue in
+            if let coordinates = mapVM.coordinates {
+                withAnimation {
+                    mapVM.position = .region(MKCoordinateRegion(
+                        center: coordinates,
+                        latitudinalMeters: newValue * 2,
+                        longitudinalMeters: newValue * 2
+                    ))
+                }
+            }
         }
 
     }
 }
 
 #Preview {
-    DonationMapView(mapVM: MapViewModel())
+    DonationMapView()
+        .environmentObject(MapViewModel())
 }
 
 

@@ -50,9 +50,7 @@ class DonationViewModel: ObservableObject {
     @Published var donUserNames: [String: String] = [:]
     @Published var userProfile: UserProfile? = nil
     @Published var address: String = ""
-    
-    var locationM = LocationManager.shared
-    var geoCodingM = GeocodingManager.shared
+
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
     private var listenerOtherUser: ListenerRegistration?
@@ -442,9 +440,5 @@ class DonationViewModel: ObservableObject {
         expiringDate = Date()
         address = ""
     }
-    
-    func fetchCoordinates(){
-        geoCodingM.fetchCoordinates(for: address)
-    }
-    
+
 }

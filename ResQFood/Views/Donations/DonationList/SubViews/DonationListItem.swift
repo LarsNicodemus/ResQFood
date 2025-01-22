@@ -9,8 +9,8 @@ import SwiftUI
 
 struct DonationListItem: View {
     var donation: FoodDonation
-    var geoManager: GeocodingManager = GeocodingManager.shared
-    @State private var locationName: String = "Wird geladen..."
+    @EnvironmentObject var mapVM: MapViewModel
+    @State var locationName: String = "Wird geladen..."
     var body: some View {
         HStack{
             VStack(alignment: . leading){
@@ -30,7 +30,7 @@ struct DonationListItem: View {
                 }
                 Text("Ort: \(locationName)")
                     .task {
-                        locationName = await geoManager.getLocationName(latitude: donation.location.lat, longitude: donation.location.long)
+                        locationName = await mapVM.getAddressFromCoordinates(latitude: donation.location.lat, longitude: donation.location.long)
                                 }
                 
             }

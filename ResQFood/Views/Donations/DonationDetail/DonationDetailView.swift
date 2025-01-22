@@ -9,12 +9,12 @@ import SwiftUI
 
 struct DonationDetailView: View {
     var donation: FoodDonation
-    var geoManager: GeocodingManager = GeocodingManager.shared
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
+    @EnvironmentObject var mapVM: MapViewModel
 
     @State var showToast: Bool = false
-    @State private var locationName: String = "Wird geladen..."
+    @State var locationName: String = "Wird geladen..."
     var body: some View {
         
         ScrollView{
@@ -79,7 +79,7 @@ struct DonationDetailView: View {
                 Text("Wo? \(donation.preferredTransfer)")
                 Text("Ort: \(locationName)")
                     .task {
-                        locationName = await geoManager.getLocationName(latitude: donation.location.lat, longitude: donation.location.long)
+                        locationName = await mapVM.getAddressFromCoordinates(latitude: donation.location.lat, longitude: donation.location.long)
                                 }
                 
                 if (chatVM.chats.first (where: {
@@ -182,4 +182,5 @@ struct DonationDetailView: View {
     DonationDetailView(donation: MockData.foodDonationMock)
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
+        .environmentObject(MapViewModel())
 }

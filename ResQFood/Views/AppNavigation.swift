@@ -13,6 +13,7 @@ struct AppNavigation: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
+    @EnvironmentObject var mapVM: MapViewModel
 
     @Binding var navigationPath: NavigationPath
 
@@ -27,7 +28,7 @@ struct AppNavigation: View {
         if authVM.userNotAnonym {
             TabView {
                 Tab("Home", systemImage: "house") {
-                    HomeView()
+                    HomeView(navigationPath: $navigationPath)
                         .onAppear{
                             print("ProfilName: \(profileVM.userProfile?.username ?? "Kein Name verfügbar")")
                         }
@@ -57,7 +58,7 @@ struct AppNavigation: View {
         } else {
             TabView {
                 Tab("Home", systemImage: "house") {
-                    HomeView()
+                    HomeView(navigationPath: $navigationPath)
 
                 }
                 
@@ -115,5 +116,6 @@ struct AppNavigation: View {
         .environmentObject(ProfileViewModel())
         .environmentObject(DonationViewModel())
         .environmentObject(ChatViewModel())
+        .environmentObject(MapViewModel())
 
 }

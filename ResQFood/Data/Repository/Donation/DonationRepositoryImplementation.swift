@@ -150,5 +150,43 @@ class DonationRepositoryImplementation: DonationRepository {
             }
     }
     
+    func addReservedDonationsListener(forUserID userID: String, onChange: @escaping ([FoodDonation]) -> Void) -> any ListenerRegistration {
+        return fb.database
+            .collection("users")
+            .document(userID)
+            .addSnapshotListener { documentSnapshot, error in
+                guard let document = documentSnapshot,
+                      let reservedIDs = document.data()?["reservedDonationIDs"] as? [String] else {
+                    onChange([])
+                    return
+                }
+                
+                guard !reservedIDs.isEmpty else {
+                    onChange([])
+                    return
+                }
+                
+                self.fb.database
+                    .collection("donations")
+                    .whereField(FieldPath.documentID(), in: reservedIDs)
+                    .getDocuments { (donationSnapshot, error) in
+                        guard let donationDocuments = donationSnapshot?.documents else {
+                            onChange([])
+                            return
+                        }
+                        
+                        do {
+                            let donations = try donationDocuments.compactMap { snapshot in
+                                try snapshot.data(as: FoodDonation.self)
+                            }
+                            onChange(donations)
+                        } catch {
+                            print("Error decoding donations: \(error)")
+                            onChange([])
+                        }
+                    }
+            }
+    }
+    
     
 }

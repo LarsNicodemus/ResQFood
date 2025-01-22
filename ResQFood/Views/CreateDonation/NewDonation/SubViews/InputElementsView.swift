@@ -10,6 +10,7 @@ import SwiftUI
 struct InputElementsView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
+    @EnvironmentObject var mapVM: MapViewModel
 
     @State var showToast: Bool = false
     @State var updateSuccess: Bool = false
@@ -214,17 +215,13 @@ struct InputElementsView: View {
             }
         }
         .onChange(of: donVM.address) { old, new in
-            donVM.fetchCoordinates()
-            if let lat = donVM.geoCodingM.latitude,
-                let long = donVM.geoCodingM.longitude
-            {
-                donVM.location.lat = lat
-                donVM.location.long = long
-                print(String(lat))
-                print(String(long))
+                Task {
+                    if let coordinates = await mapVM.getCoordinatesFromAddress(new) {
+                        donVM.location.lat = coordinates.latitude
+                        donVM.location.long = coordinates.longitude
+                    }
+                }
             }
-
-        }
         .onChange(of: donVM.weightInputText) { old, new in
             donVM.weight = donVM.convertWeight(donVM.weightInputText)
         }

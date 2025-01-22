@@ -21,7 +21,7 @@ struct SettingsOverView: View {
                 Image("Strich")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200)
+                    .frame(width: 220)
                     .offset(y: 18)
             }
             VStack{
@@ -44,15 +44,16 @@ struct SettingsOverView: View {
                                 } label: {
                                     ZStack {
                                         Text(settingItem.rawValue)
+                                            .font(Fonts.title3)
                                             .lineLimit(nil)
                                             .multilineTextAlignment(.leading)
-                                            .frame(width: 200, alignment: .leading)
+                                            .frame(width: 150, alignment: .leading)
                                             .foregroundStyle(Color("primaryAT"))
                                         Image("Strich")
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 130, alignment: .leading)
-                                            .offset(x: -35, y: 15)
+                                            .frame(width: 160, alignment: .leading)
+                                            .offset(y: 18)
                                     }
                                     .padding(.vertical, 8)
                                 }

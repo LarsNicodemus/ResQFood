@@ -23,7 +23,7 @@ struct MenuView: View {
                 Image("Strich")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 80)
+                    .frame(width: 100)
                     .offset(y: 18)
             }
             if authVM.userNotAnonym {
@@ -54,9 +54,10 @@ struct MenuView: View {
                                     if menuItem == .chat {
                                         ZStack {
                                                 Text(menuItem.rawValue)
+                                                    .font(Fonts.title3)
                                                     .lineLimit(nil)
                                                     .multilineTextAlignment(.leading)
-                                                    .frame(width: 200, alignment: .leading)
+                                                    .frame(width: 170, alignment: .leading)
                                                     .foregroundStyle(Color("primaryAT"))
                                             if chatVM.unreadMessagesCount > 0 {
                                                 Text("\(chatVM.unreadMessagesCount)")
@@ -66,22 +67,23 @@ struct MenuView: View {
                                             Image("Strich")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 135, alignment: .leading)
-                                                .offset(x: -35, y: 15)
+                                                .frame(width: 180, alignment: .leading)
+                                                .offset(x: 0, y: 15)
                                         }
                                         .padding(.vertical, 8)
                                     } else {
                                         ZStack {
                                             Text(menuItem.rawValue)
+                                                .font(Fonts.title3)
                                                 .lineLimit(nil)
                                                 .multilineTextAlignment(.leading)
-                                                .frame(width: 200, alignment: .leading)
+                                                .frame(width: 170, alignment: .leading)
                                                 .foregroundStyle(Color("primaryAT"))
                                             Image("Strich")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 135, alignment: .leading)
-                                                .offset(x: -35, y: 15)
+                                                .frame(width: 180, alignment: .leading)
+                                                .offset(x: 0, y: 18)
                                         }
                                         .padding(.vertical, 8)
                                     }
@@ -115,15 +117,16 @@ struct MenuView: View {
                                 } label: {
                                         ZStack {
                                             Text(menuItem.rawValue)
+                                                .font(Fonts.title3)
                                                 .lineLimit(nil)
                                                 .multilineTextAlignment(.leading)
-                                                .frame(width: 200, alignment: .leading)
+                                                .frame(width: 170, alignment: .leading)
                                                 .foregroundStyle(Color("primaryAT"))
                                             Image("Strich")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 135, alignment: .leading)
-                                                .offset(x: -35, y: 15)
+                                                .frame(width: 180, alignment: .leading)
+                                                .offset(y: 15)
                                         }
                                         .padding(.vertical, 8)
                                 }

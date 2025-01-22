@@ -8,6 +8,7 @@ import SwiftUI
 import MapKit
 import FirebaseFirestore
 
+@MainActor
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private var locationManager = CLLocationManager()
@@ -19,6 +20,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var locationsInRadius: [FoodDonation] = []
     @Published var donations: [FoodDonation]? = nil
     @Published var startPressed: Bool = false
+    @Published var cameraPosition: MapCameraPosition = .automatic
 
     private var listener: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()
@@ -35,23 +37,74 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         listener = nil
     }
     
-    @MainActor
     func requestLocation() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     }
     
+    
+    func updateSearchResults() {
+        guard !searchTerm.isEmpty else {
+            locationsInRadius = []
+            return
+        }
+
+        Task {
+            do {
+                if let placeMark = try await CLGeocoder().geocodeAddressString(searchTerm).first,
+                   let location = placeMark.location?.coordinate {
+                    await MainActor.run {
+                        self.coordinates = location
+                        withAnimation {
+                            self.position = .region(MKCoordinateRegion(
+                                center: location,
+                                latitudinalMeters: self.searchRadius * 2,
+                                longitudinalMeters: self.searchRadius * 2
+                            ))
+                        }
+                        updateLocationsInRadius()
+                    }
+                }
+            } catch {
+                print("Error updating search results: \(error)")
+            }
+        }
+    }
+    
     func resetLocation() {
         locationManager.stopUpdatingLocation()
         locationManager.startUpdatingLocation()
+        
+        if let coordinates = coordinates {
+            withAnimation {
+                position = .region(MKCoordinateRegion(
+                    center: coordinates,
+                    latitudinalMeters: searchRadius * 2,
+                    longitudinalMeters: searchRadius * 2
+                ))
+            }
+        }
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        self.coordinates = locations.last?.coordinate
-        updateLocationsInRadius()
+    
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last?.coordinate else { return }
+        
+        Task { @MainActor in
+            self.coordinates = location
+            
+            withAnimation {
+                self.position = .region(MKCoordinateRegion(
+                    center: location,
+                    latitudinalMeters: self.searchRadius * 2,
+                    longitudinalMeters: self.searchRadius * 2
+                ))
+            }
+            updateLocationsInRadius()
+        }
     }
     
-    @MainActor
+    
     func getCoordinates() {
         Task {
             do {
@@ -95,5 +148,33 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 self.donations = donations
             }
     }
+    
+    
+        func getCoordinatesFromAddress(_ address: String) async -> (latitude: Double, longitude: Double)? {
+            do {
+                if let placeMark = try await CLGeocoder().geocodeAddressString(address).first,
+                   let location = placeMark.location?.coordinate {
+                    return (location.latitude, location.longitude)
+                }
+            } catch {
+                print("Geocoding error: \(error)")
+            }
+            return nil
+        }
+        
+        func getAddressFromCoordinates(latitude: Double, longitude: Double) async -> String {
+            do {
+                let location = CLLocation(latitude: latitude, longitude: longitude)
+                let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+                if let placemark = placemarks.first {
+                    let city = placemark.locality ?? ""
+                    let postalCode = placemark.postalCode ?? ""
+                    return "\(postalCode), \(city)".trimmingCharacters(in: .whitespaces)
+                }
+            } catch {
+                print("Reverse geocoding error: \(error)")
+            }
+            return "Ort nicht gefunden"
+        }
     
 }
