@@ -12,38 +12,94 @@ struct AccountView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @Binding var navigationPath: NavigationPath
-
+    @State private var currentPassword: String = ""
+    @State private var newPassword: String = ""
     @State var showUser = false
 
     var body: some View {
                 VStack{
-                    Button("Logout") {
+                    Button{
                         navigationPath = NavigationPath()
                         authVM.logout()
                         profileVM.logoutProfile()
+                    }label: {
+                    ZStack {
+                        Text("Logout")
+                            .font(Fonts.title2)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 150, alignment: .center)
+                            .foregroundStyle(Color("primaryAT"))
+                        Image("Strich")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, alignment: .leading)
+                            .offset(y: 18)
                     }
-                    .primaryButtonStyle()
-        
-                    Button("Delete User") {
+                    .padding(.vertical, 8)}
+                
+                    Button{
                         navigationPath = NavigationPath()
                         authVM.deleteUser()
+                    }label: {
+                    ZStack {
+                        Text("Delete User")
+                            .font(Fonts.title2)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 150, alignment: .center)
+                            .foregroundStyle(Color("primaryAT"))
+                        Image("Strich")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, alignment: .leading)
+                            .offset(y: 18)
                     }
-                    .primaryButtonStyle()
-                    Button("Show User"){
+                    .padding(.vertical, 8)}
+                    
+                    Button{
                         showUser.toggle()
+                    }label: {
+                    ZStack {
+                        Text("Passwort ändern")
+                            .font(Fonts.title2)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 220, alignment: .center)
+                            .foregroundStyle(Color("primaryAT"))
+                        Image("Strich")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 230, alignment: .leading)
+                            .offset(y: 18)
                     }
-                    .primaryButtonStyle()
-        
+                    .padding(.vertical, 8)}
                     if showUser {
                         if showUser {
-                            if let profileID = authVM.appUser?.userProfileID, !profileID.isEmpty {
-                                Text("Profile ID: \(profileID)")
-                            } else {
-                                Text("No valid Profile ID")
-                            }
+                            VStack {
+                                   SecureField("Aktuelles Passwort", text: $currentPassword)
+                                       .textFieldStyle(RoundedBorderTextFieldStyle())
+                                   
+                                   SecureField("Neues Passwort", text: $newPassword)
+                                       .textFieldStyle(RoundedBorderTextFieldStyle())
+                                   
+                                   Button("Passwort ändern") {
+                                       authVM.changePassword(currentPassword: currentPassword, newPassword: newPassword)
+                                   }
+                                   .primaryButtonStyle()
+                                   
+                                   if !authVM.errorMessage.isEmpty {
+                                       Text(authVM.errorMessage)
+                                           .foregroundColor(authVM.errorMessage.contains("erfolgreich") ? .green : .red)
+                                           .padding()
+                                   }
+                               }
+                               .padding()
                         }
                     }
-                }        .customBackButton()
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color("secondaryContainer"))
+                .customBackButton()
 
     }
 }

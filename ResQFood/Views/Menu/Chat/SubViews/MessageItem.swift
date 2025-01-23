@@ -24,23 +24,24 @@ struct MessageItem: View {
                     .multilineTextAlignment(.leading)
                     .padding(.bottom, 8)
             }
-            .frame(minWidth: 80, alignment: .leading)
+            .frame(minWidth: 42, alignment: .leading)
             .padding(12)
+            .padding(.bottom, 6)
             .overlay(content: {
                 ZStack {
                     VStack {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text(timestamp.formatted())
-                                .font(.system(size: 10))
+                            Text(formatTimestamp(timestamp))
+                                .font(.system(size: 8))
                                 .foregroundColor(.gray)
                                 .frame(alignment: .bottomTrailing)
                         }
                     }
                 }
-                .padding(8)
-                .padding(.trailing, 4)
+                .padding(4)
+                
             })
             .background(fromSelf ? Color("primaryAT") : Color("tertiary"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -53,12 +54,25 @@ struct MessageItem: View {
             }
         }.listRowSeparator(.hidden)
     }
+    private func formatTimestamp(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let isToday = calendar.isDateInToday(date)
+        let formatter = DateFormatter()
+
+        if isToday {
+            formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+        } else {
+            formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+        }
+
+        return formatter.string(from: date)
+    }
 }
 
 #Preview {
     MessageItem(
         content:
-            "tsfasdgsdsdsdsd",
+            "Ich kann nicht glauben, dass du so einen schatz verkaufen willst wie kommt es denn dazu?",
         fromSelf: false,
         timestamp: Date()
     )

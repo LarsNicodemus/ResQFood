@@ -67,6 +67,8 @@ struct SettingsOverView: View {
         }
         .customBackButton()
         .padding()
+        .background(Color("secondaryContainer"))
+
     }
 }
 

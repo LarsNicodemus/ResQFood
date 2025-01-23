@@ -15,41 +15,14 @@ struct ChatListView: View {
         VStack {
             if chatVM.chats.isEmpty {
                 EmptyChatListPlaceholder()
+                    
             } else {
-                List(chatVM.chats) { chat in
-                    NavigationLink {
-                        ChatDetailView(currentChatID: chat.id)
-                    } label: {
-                        VStack(alignment: .leading) {
-                            if let username = chatVM.chatUsernames[chat.id] {
-                                Text(username)
-                                    .bold()
-                            }
-                            
-                            HStack {
-                                Text(chat.name)
-                                Spacer()
-                                Text(chat.lastMessage.formatted())
-                                    .font(.system(size: 10))
-                            }
-                        }
-                        .task {
-                            if let membersID = chat.members.first(where: { id in
-                                id != chatVM.currentUserID
-                            }) {
-                                chatVM.getOtherUserByIDList(chatID: chat.id, id: membersID)
-                            }
-                            
-                            if let username = chatVM.userProfile?.username {
-                                chatVM.chatUsernames[chat.id] = username
-                            }
-                        }
+                ScrollView{
+                    ForEach(chatVM.chats) { chat in
+                        ChatRowView(chat: chat)
                     }
-                    .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
-                    .onAppear {
-                                            chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
-                                        }
                 }
+                .padding()
             }
         }
         .customBackButton()
@@ -64,39 +37,92 @@ struct ChatListView: View {
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
 }
-//
-//struct ChatRowView: View {
-//    @EnvironmentObject var chatVM: ChatViewModel
-//    let chat: Chat
-//    
-//    var body: some View {
-//        NavigationLink {
-//            ChatDetailView(currentChatID: chat.id)
-//        } label: {
-//            ChatRowContent(chat: chat)
-//        }
-//        .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
-//    }
-//}
-//
-//struct ChatRowContent: View {
-//    @EnvironmentObject var chatVM: ChatViewModel
-//    let chat: Chat
-//    @State var username: String = ""
-//    var body: some View {
-//        VStack {
-//                Text(username)
-//                Text(chat.name)
-//                .task {
-//                    if let chatMemberID = chat.members.first(where: { userID in
-//                        userID != chatVM.currentUserID
-//                    }) {
-//                        chatVM.getOtherUserByID(id: chatMemberID)
-//                    }
-//                    if let memberName = chatVM.userProfile?.username {
-//                        username = memberName
-//                    }
-//                }
-//        }
-//    }
-//}
+
+struct ChatRowView: View {
+    @EnvironmentObject var chatVM: ChatViewModel
+    let chat: Chat
+    
+    var body: some View {
+        NavigationLink {
+            ChatDetailView(currentChatID: chat.id)
+        } label: {
+            ChatRowContent(chat: chat)
+        }
+        .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
+        .onAppear {
+                                chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
+                            }
+    }
+}
+
+struct ChatRowContent: View {
+    @EnvironmentObject var chatVM: ChatViewModel
+    let chat: Chat
+    @State var username: String = ""
+    var body: some View {
+        ZStack{
+            
+            VStack(alignment: .leading) {
+                
+                
+                
+                HStack {
+                    Text("Betreff: \(chat.name)")
+                        .foregroundStyle(Color("OnSecondaryContainer"))
+                        .bold()
+                    
+                    Spacer()
+                    Text(chat.lastMessage.formatted())
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color("OnSecondaryContainer"))
+
+                }
+                if let username = chatVM.chatUsernames[chat.id] {
+                    Text("Von: \(username)")
+                        .foregroundStyle(Color("OnSecondaryContainer"))
+
+                }
+                if let lastMessageContent = chatVM.lastMessagesContent[chat.id] {
+                                Text(lastMessageContent)
+                                    .font(.body)
+                                    .lineLimit(1)
+                                    .italic()
+                                    .foregroundStyle(chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 ? Color("tertiary") : Color("OnSecondaryContainer"))
+                            } else {
+                                Text("Lade Nachrichten...")
+                                    .font(.body)
+                                    .foregroundStyle(Color("OnSecondaryContainer"))
+                            }
+            }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color("secondaryContainer"))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+            if chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0{
+                ZStack{
+                    Circle()
+                        .fill(Color("tertiary").opacity(0.4))
+                        .frame(width: 40, height: 40)
+                    Text("\(chatVM.unreadMessagesCounts[chat.id] ?? 0)").foregroundStyle(Color("tertiary"))
+                        .bold()
+                }
+                .offset(x:155,y:-30)
+            }
+        }
+        .padding(.top)
+        .task {
+            if let membersID = chat.members.first(where: { id in
+                id != chatVM.currentUserID
+            }) {
+                chatVM.getOtherUserByIDList(chatID: chat.id, id: membersID)
+            }
+            
+            if let username = chatVM.userProfile?.username {
+                chatVM.chatUsernames[chat.id] = username
+            }
+        }
+        .onAppear {
+                    chatVM.addMessageSnapshotListener(chatID: chat.id)
+                }
+    }
+}

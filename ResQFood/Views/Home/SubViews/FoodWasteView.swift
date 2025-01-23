@@ -11,19 +11,16 @@ struct FoodWasteView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Header
                 Text("Lebensmittelverschwendung")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.horizontal)
                 
-                // Introduction
                 Text("In Deutschland landen jährlich 11 Millionen Tonnen Lebensmittel im Müll. Über die Hälfte davon – etwa 6,5 Millionen Tonnen – stammen aus privaten Haushalten. Das müssen wir ändern!")
                     .font(.body)
                     .padding(.horizontal)
                     .multilineTextAlignment(.leading)
                 
-                // Reasons Section
                 VStack(alignment: .leading, spacing: 15) {
                     Text("Hauptgründe für Lebensmittelverschwendung")
                         .font(.headline)
@@ -40,7 +37,6 @@ struct FoodWasteView: View {
                     }
                 }
                 
-                // Tips Section
                 VStack(alignment: .leading, spacing: 15) {
                     Text("Tipps zur Vermeidung")
                         .font(.headline)
@@ -57,18 +53,24 @@ struct FoodWasteView: View {
                     }
                 }
                 
-                // Closing Note
                 Text("Gemeinsam können wir Lebensmittelverschwendung reduzieren und Ressourcen schonen. Jeder Beitrag zählt!")
                     .font(.callout)
                     .italic()
                     .padding(.horizontal)
                     .multilineTextAlignment(.center)
             }
+            .foregroundStyle(Color("OnPrimaryContainer"))
             .padding(.vertical)
-        }.scrollIndicators(.hidden)
+        }
+        .background(Color("primaryContainer").opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("primaryAT"),lineWidth: 1)
+        }
+        .scrollIndicators(.hidden)
     }
     
-    // Sample Data
     let reasons = [
         "Fehlende Einkaufsplanung führt zu Übermengen.",
         "Falsche Lagerung verkürzt die Haltbarkeit.",

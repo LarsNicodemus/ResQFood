@@ -15,8 +15,10 @@ struct UserProfile: Codable {
     var gender: String?
     var location: Adress?
     var pictureUrl: String?
-    var rating: Double?
+    var rating: Int?
+    var ratings: [Int]?
     var points: Int?
     var contactInfo: ContactInfo?
     var foodWasteSaved: Double?
+    var ratedBy: Set<String> = []
 }

@@ -41,26 +41,12 @@ struct RecipesView: View {
                     .frame(width: 300)
                     .offset(x: -35, y: 15)
             }
+            Spacer()
             if !mealVM.mealDetail && isFocused {
                 ScrollView {
-                    LazyVStack {
+                    VStack {
                         ForEach(mealVM.meals, id: \.idMeal) { meal in
-                            HStack {
-                                AsyncImage(url: URL(string: meal.strMealThumb))
-                                { image in
-                                    image.resizable().scaledToFit()
-                                } placeholder: {
-                                    Color.gray
-                                }
-                                .frame(width: 50, height: 50)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                Text(meal.strMeal)
-                                    .padding()
-                                    .background(Color("primaryContainer"))
-                                    .clipShape(
-                                        RoundedRectangle(cornerRadius: 10))
-                                Spacer()
-                            }
+                            RecipeListView(meal: meal)
                             .padding(.vertical, 4)
                             .onTapGesture {
                                 mealVM.mealDetail = true
@@ -74,67 +60,7 @@ struct RecipesView: View {
             }
             else {
                 if let recipe = mealVM.selectedRecipe {
-                    ScrollView{
-                        VStack(alignment: .leading) {
-                            HStack{
-                                AsyncImage(url: URL(string: recipe.strMealThumb))
-                                { image in
-                                    image.resizable().scaledToFit()
-                                } placeholder: {
-                                    Color.gray
-                                }
-                                .frame(maxWidth: .infinity)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                            .padding(.bottom, 16)
-                                Text(recipe.strMeal)
-                                    .font(.system(size: 20, weight: .bold))
-                            .padding(.bottom, 4)
-                            VStack{
-                                HStack{
-                                    Text("Herkunft: ")
-                                    Text(recipe.strArea)
-                                        .lineLimit(nil)
-                                        .multilineTextAlignment(.leading)
-                                    Spacer()
-                                }
-                                HStack{
-                                    Text("Kategorie: ")
-                                    Text(recipe.strCategory)
-                                        .lineLimit(nil)
-                                        .multilineTextAlignment(.leading)
-                                    Spacer()
-                                }
-                            }
-                            .padding(.bottom, 16)
-
-                            Text("Zutaten:")
-                                .font(.system(size: 16, weight: .semibold))
-                            VStack(alignment: .leading){
-                                ForEach(recipe.ingredientsWithMeasures, id: \.ingredient) { ingredient, measure in
-                                    HStack{
-                                        Text(ingredient)
-                                        Text(measure)
-                                    }
-                                    .lineLimit(nil)
-                                    .multilineTextAlignment(.leading)
-                                }
-                            }
-                            .padding(.bottom, 16)
-                            Text("Zubereitung:")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text(recipe.strInstructions)
-                                .lineLimit(nil)
-                                .multilineTextAlignment(.leading)
-                            
-                            
-                            
-                        }
-                        .padding()
-                        .padding(.bottom, 16)
-                        .background(Color("primaryContainer"))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
+                    RecipeDetailView(recipe: recipe)
                 }
                 
             }
@@ -149,10 +75,9 @@ struct RecipesView: View {
             }
         }
         .customBackButton()
-
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
-        .padding(.top, 72)
-        Spacer()
+        .background(Color("secondaryContainer"))
     }
 }
 

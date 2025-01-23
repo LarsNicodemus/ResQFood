@@ -33,7 +33,7 @@ struct HomeView: View {
                 
             ScrollView {
                     FoodWasteView()
-                        .frame(maxWidth: .infinity, maxHeight: 300)
+                        .frame(maxWidth: .infinity, maxHeight: 360)
                     
                     VStack {
                         if authVM.userNotAnonym {
@@ -125,9 +125,10 @@ struct HomeView: View {
                         Text("Für dich reservierte Spenden: ")
                         ForEach(donations, id: \.id) { donation in
                             NavigationLink{
-                                DonationDetailView(donation: donation)
+                                DonationDetailView(donation: donation, showChat: true)
                             } label: {
                                 HomeDonationListItem(donation: donation)
+                                    .padding(.horizontal)
                             }
                         }
                         
@@ -136,6 +137,8 @@ struct HomeView: View {
             .scrollIndicators(.hidden)
 
             }
+            .padding()
+            .background(Color("secondaryContainer"))
             .onAppear {
                 homeVM.setupDonationsListener()
             }

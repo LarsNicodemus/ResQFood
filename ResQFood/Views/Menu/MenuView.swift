@@ -138,8 +138,9 @@ struct MenuView: View {
                 }
             }
         }
-
         .padding()
+        .background(Color("secondaryContainer"))
+
     }
 }
 

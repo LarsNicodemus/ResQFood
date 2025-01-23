@@ -31,7 +31,7 @@ struct DonationListView: View {
                                 DonationListItem(donation: donation)
                             } else {
                                 NavigationLink(
-                                    destination: DonationDetailView(donation: donation)
+                                    destination: DonationDetailView(donation: donation, showChat: false)
                                 ) {
                                     DonationListItem(donation: donation)
                                 }

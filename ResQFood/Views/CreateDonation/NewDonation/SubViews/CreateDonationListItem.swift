@@ -75,10 +75,13 @@ struct CreateDonationListItem: View {
                 }
             )
             .padding(8)
-            .background(Color("primaryContainer"))
+            .background(Color("primaryContainer").opacity(0.5))
             .foregroundStyle(Color("OnPrimaryContainer"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
-            
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color("primaryAT"),lineWidth: 1)
+            }
             HStack{
                 if let username = donVM.donUserNames[donation.id!] {
                     if let pickedUp = donation.pickedUp, pickedUp {Text("Abgeholt durch: \(username)").foregroundStyle(Color("primaryAT"))}
@@ -87,6 +90,7 @@ struct CreateDonationListItem: View {
                 Spacer()
             }
         }
+        .background(Color.clear)
     }
 }
 

@@ -115,9 +115,9 @@ struct PrivacyPolicyView: View {
                 }
                 .padding(.bottom)
             }
-            .foregroundStyle(Color("OnPrimaryContainer"))
+            .foregroundStyle(Color("OnSecondaryContainer"))
             .padding()
-            .background(Color("primaryContainer"))
+            .background(Color("secondaryContainer"))
             .padding(.bottom)
 
             VStack(alignment: .leading, spacing: 16) {
@@ -237,11 +237,11 @@ struct PrivacyPolicyView: View {
                 }
                 .padding(.bottom)
             }
-            .foregroundStyle(Color("OnPrimaryContainer"))
+            .foregroundStyle(Color("OnSecondaryContainer"))
             .padding()
-            .background(Color("primaryContainer"))
+            .background(Color("secondaryContainer"))
         }
-        .background(Color("primaryContainer"))
+        .background(Color("secondaryContainer"))
         .customBackButton()
 
     }

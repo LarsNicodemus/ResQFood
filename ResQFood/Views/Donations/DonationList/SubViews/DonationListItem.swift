@@ -74,9 +74,14 @@ struct DonationListItem: View {
             }
         )
         .padding()
-        .background(Color("primaryContainer"))
-        .foregroundStyle(Color("OnPrimaryContainer"))
+        .background(Color("secondaryContainer"))
+        .foregroundStyle(Color("OnSecondaryContainer"))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("primaryAT"),lineWidth: 1)
+        }
+        
         
     }
 }

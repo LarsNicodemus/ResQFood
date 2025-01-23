@@ -55,9 +55,13 @@ struct HomeDonationListItem: View {
             }
             
             .padding(8)
-            .background(Color("primaryContainer"))
+            .background(Color("primaryContainer").opacity(0.5))
             .foregroundStyle(Color("OnPrimaryContainer"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color("primaryAT"),lineWidth: 1)
+            }
             
         }
     }

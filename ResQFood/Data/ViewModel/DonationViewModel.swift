@@ -5,10 +5,10 @@
 //  Created by Lars Nicodemus on 16.12.24.
 //
 
+import CoreLocation
 import Firebase
 import FirebaseAuth
 import SwiftUI
-import CoreLocation
 
 @MainActor
 class DonationViewModel: ObservableObject {
@@ -71,6 +71,11 @@ class DonationViewModel: ObservableObject {
         listenerOtherUser = nil
     }
 
+    func getuserID() -> String? {
+        guard let userID = fb.userID else { return nil }
+        return userID
+    }
+
     private func getUserProfileByID(userID: String) async {
         Task {
             do {
@@ -81,7 +86,7 @@ class DonationViewModel: ObservableObject {
         }
     }
     func getUserProfileByID() async {
-        guard  let userID = fb.userID else { return }
+        guard let userID = fb.userID else { return }
         Task {
             do {
                 userProfile = try await profileRepo.getUProfileByID(userID)
@@ -164,15 +169,20 @@ class DonationViewModel: ObservableObject {
     }
 
     func addDonation() async {
-        guard let userID = fb.userID else { print("Fehler UserID"); return }
+        guard let userID = fb.userID else {
+            print("Fehler UserID")
+            return
+        }
         if userProfile != nil {
             guard !title.isEmpty, !description.isEmpty, weight != 0.0 else {
-                print("Fehler Titel, Beschreibung, Gewicht"); return
+                print("Fehler Titel, Beschreibung, Gewicht")
+                return
             }
             let donation = FoodDonation(
                 creatorID: userID,
                 creatorName: userProfile?.username,
-                title: title, description: description, type: selectedType.rawValue,
+                title: title, description: description,
+                type: selectedType.rawValue,
                 weight: weight,
                 weightUnit: selectedWeightUnit.rawValue, bbd: bbd,
                 condition: selectedItemCondition.rawValue,
@@ -184,7 +194,7 @@ class DonationViewModel: ObservableObject {
                 try await donationRepo.addDonation(donation)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     withAnimation {
-                        
+
                         self.isPresent = false
                     }
                 }
@@ -195,12 +205,14 @@ class DonationViewModel: ObservableObject {
             await getUserProfileByID()
             if let userProfile = userProfile {
                 guard !title.isEmpty, !description.isEmpty, weight != 0.0 else {
-                    print("Fehler Titel, Beschreibung, Gewicht"); return
+                    print("Fehler Titel, Beschreibung, Gewicht")
+                    return
                 }
                 let donation = FoodDonation(
                     creatorID: userID,
                     creatorName: userProfile.username,
-                    title: title, description: description, type: selectedType.rawValue,
+                    title: title, description: description,
+                    type: selectedType.rawValue,
                     weight: weight,
                     weightUnit: selectedWeightUnit.rawValue, bbd: bbd,
                     condition: selectedItemCondition.rawValue,
@@ -212,7 +224,7 @@ class DonationViewModel: ObservableObject {
                     try await donationRepo.addDonation(donation)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                         withAnimation {
-                            
+
                             self.isPresent = false
                         }
                     }
@@ -221,10 +233,9 @@ class DonationViewModel: ObservableObject {
                 }
             }
         }
-         
-        
+
     }
-    
+
     func handlePickedUpAction(donation: FoodDonation) async {
         let newValue = (donation.pickedUp ?? false) == true ? false : true
         editDonation(id: donation.id!, updates: [.pickedUp: newValue])
@@ -416,7 +427,8 @@ class DonationViewModel: ObservableObject {
     }
     func checkLocation() {
         if location.lat == 0.0
-            && location.long == 0.0 || location.lat == 0.0 || location.long == 0.0
+            && location.long == 0.0 || location.lat == 0.0
+            || location.long == 0.0
         {
             locationError = "Bitte geben Sie einen Abholadresse ein."
         } else {
@@ -441,4 +453,34 @@ class DonationViewModel: ObservableObject {
         address = ""
     }
 
+    func setDetailInput(donation: FoodDonation, adress: String) {
+        self.title = donation.title
+        self.description = donation.description
+        if let type = GroceryType(rawValue: donation.type) {
+            selectedType = type
+        }
+        self.weight = donation.weight
+        self.weightInputText = String(donation.weight)
+        if let unit = WeightUnit(rawValue: donation.weightUnit) {
+            selectedWeightUnit = unit
+        }
+        self.bbd = donation.bbd
+        if let condition = ItemCondition(rawValue: donation.condition) {
+            selectedItemCondition = condition
+        }
+        if let picturesUlr = donation.picturesUrl {
+            self.picturesUrl = picturesUlr
+        }
+        
+        self.location.lat = location.lat
+        self.location.long = location.long
+        if let transfer = PreferredTransfer(
+            rawValue: donation.preferredTransfer)
+        {
+            selectedPreferredTransfer = transfer
+        }
+        self.expiringDate = donation.expiringDate
+        
+        self.address = adress
+    }
 }

@@ -8,6 +8,48 @@
 import PhotosUI
 import SwiftUI
 
+struct StarRatingView: View {
+    @EnvironmentObject var profileVM: ProfileViewModel
+    var maximumRating = 5
+    var onRatingChange: ((Int) -> Void)?
+    @State private var showAlertAlreadyRated = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            
+            ForEach(1...maximumRating, id: \.self) { index in
+                Image(systemName: index <= profileVM.rating ?? 0 ? "star.fill" : "star")
+                    .foregroundColor(index <= profileVM.rating ?? 0 ? .yellow : .gray)
+                    .onTapGesture {
+                        if let userID = profileVM.currentUserID() {
+                            if let profile = profileVM.otherUserProfile {
+                                if !profile.ratedBy.contains(userID) {
+                                    profileVM.rating = index
+                                    profileVM.updateRating(rating: index)
+                                    onRatingChange?(index)
+                                } else {
+                                    showAlertAlreadyRated = true
+                                }
+                            }
+                        }
+                    }
+                   
+            }
+        }
+        .alert("Bewertung ändern", isPresented: $showAlertAlreadyRated) {
+            Button("Bewertung löschen", role: .destructive) {
+                profileVM.removeRating()
+            }
+            Button("Abbrechen", role: .cancel) {}
+        } message: {
+            Text(
+                "Du hast diesen Nutzer bereits bewertet. Möchtest du deine Bewertung löschen?"
+            )
+        }
+    }
+
+}
+
 struct ProfileView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @EnvironmentObject var donVM: DonationViewModel
@@ -22,7 +64,7 @@ struct ProfileView: View {
         ScrollView {
 
             VStack {
-                if let user = chatVM.userProfile {
+                if let user = profileVM.otherUserProfile {
                     HStack {
                         Spacer()
                         VStack {
@@ -49,6 +91,13 @@ struct ProfileView: View {
                     }.padding(.trailing)
                     ProfileImageView(imageurl: user.pictureUrl)
                         .padding(.bottom, 32)
+
+                    VStack {
+                        StarRatingView()
+                        let count = profileVM.ratedUsers.count
+                        Text("Bewertungen: \(count)")
+                    }
+
                     VStack(alignment: .leading, spacing: 20) {
 
                         HStack {
@@ -105,20 +154,21 @@ struct ProfileView: View {
             .padding()
             VStack {
                 Text("Weitere Inserate des Anbieters: ")
+
                 if let donations = donVM.donations {
-                    ForEach(donations, id: \.id) { donation in
+                    let filteredDonations = donations.filter { donation in
+                        donation.pickedUp != true
+                    }
+                    ForEach(filteredDonations, id: \.id) { donation in
                         Group {
 
                             if let isReserved = donation.isReserved, isReserved
                             {
                                 DonationListItem(donation: donation)
-                            } else if let pickedUp = donation.pickedUp, pickedUp
-                            {
-                                DonationListItem(donation: donation)
                             } else {
                                 NavigationLink(
                                     destination: DonationDetailView(
-                                        donation: donation)
+                                        donation: donation, showChat: fromChat)
                                 ) {
                                     DonationListItem(donation: donation)
                                 }
@@ -145,8 +195,10 @@ struct ProfileView: View {
         .onAppear {
             donVM.setupDonationsListenerForOtherUser(userID: userID)
             chatVM.getOtherUserByID(id: userID)
+            profileVM.getOtherUserByIDList(id: userID)
 
         }
+
         .onChange(of: imageVM.selectedItem) { oldItems, newItems in
             Task {
                 await imageVM.handleImageSelection(newItem: newItems)
@@ -163,9 +215,10 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: "Y146c6TahWgGnDALyw7DGgHhzfZ2", fromChat: false)
+    ProfileView(userID: "6WallALqOfVNtT78Ym5Bqd94Dw12", fromChat: false)
         .environmentObject(ProfileViewModel())
         .environmentObject(ImageViewModel())
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
+        .environmentObject(MapViewModel())
 }

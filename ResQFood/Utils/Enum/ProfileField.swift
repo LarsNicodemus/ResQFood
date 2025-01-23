@@ -12,7 +12,9 @@ enum ProfileField: String {
     case location
     case pictureUrl
     case rating
+    case ratings
     case points
     case contactInfo
     case foodWasteSaved
+    case ratedBy
 }

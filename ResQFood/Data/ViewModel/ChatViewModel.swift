@@ -16,6 +16,7 @@ class ChatViewModel: ObservableObject {
     @Published var userProfile: UserProfile? = nil
     @Published var unreadMessagesCounts: [String: Int] = [:]
     @Published var chatUsernames: [String: String] = [:]
+    @Published var lastMessagesContent: [String: String] = [:]
 
     var currentUserID: String {
         fb.userID ?? ""
@@ -86,6 +87,11 @@ class ChatViewModel: ObservableObject {
             self.messages = messages.sorted { m1, m2 in
                 m1.timestamp > m2.timestamp
             }
+            if let lastMessage = self.messages.first {
+                        self.lastMessagesContent[chatID] = lastMessage.content
+                    } else {
+                        self.lastMessagesContent[chatID] = "Keine Nachrichten verfügbar"
+                    }
         }
     }
 

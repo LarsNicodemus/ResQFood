@@ -39,7 +39,7 @@ struct ChatDetailView: View {
                 Spacer()
                 NavigationLink(title) {
                     if let donation = donationForTitle {
-                        DonationDetailView(donation: donation)
+                        DonationDetailView(donation: donation, showChat: true)
                     }
                 }
                 .bold()
@@ -89,6 +89,17 @@ struct ChatDetailView: View {
 
             HStack {
                 TextField("Nachricht...", text: $chatVM.messageInput)
+                    .padding(8)
+                    .background(Color("primaryContainer").opacity(0.1))
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 10))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color("primaryAT"),lineWidth: 1)
+                    }
+                    .onSubmit {
+                        chatVM.sendMessage(chatID: currentChatID)
+                                }
                 Button {
                     chatVM.sendMessage(chatID: currentChatID)
                 } label: {
@@ -98,7 +109,6 @@ struct ChatDetailView: View {
             }
             .padding(.horizontal)
         }
-
         .overlay(
             Group {
                 if details {

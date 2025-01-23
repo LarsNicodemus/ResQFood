@@ -1,3 +1,4 @@
+import PhotosUI
 //
 //  ImageUpload.swift
 //  ResQFood
@@ -5,7 +6,6 @@
 //  Created by Lars Nicodemus on 11.12.24.
 //
 import SwiftUI
-import PhotosUI
 
 struct ImagePickUploadView: View {
     @EnvironmentObject var donVM: DonationViewModel
@@ -20,6 +20,16 @@ struct ImagePickUploadView: View {
                             imageVM.selectedImages, id: \.self
                         ) { image in
                             ImageView(image: Image(uiImage: image))
+                        }
+                    }
+                }
+            } else if !donVM.picturesUrl.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(
+                            donVM.picturesUrl, id: \.self
+                        ) { image in
+                            ImageViewURL(image: image)
                         }
                     }
                 }
@@ -50,19 +60,18 @@ struct ImagePickUploadView: View {
             }
         }
         .onChange(of: imageVM.selectedItems) { _, newItems in
-                    Task {
-                        await imageVM.processAndUploadImages(items: newItems)
-                        if !imageVM.uploadedImages.isEmpty {
-                            donVM.picturesUrl = imageVM.uploadedImages.map(\.url)
-                        }
-                    }
+            Task {
+                await imageVM.processAndUploadImages(items: newItems)
+                if !imageVM.uploadedImages.isEmpty {
+                    donVM.picturesUrl = imageVM.uploadedImages.map(\.url)
                 }
+            }
+        }
         .overlay {
-                    if imageVM.isLoading {
-                        ProgressView()
-                            .background(Color.black.opacity(0.4))
-                    }
-                }
+            if imageVM.isLoading {
+                ProgressView()
+                    .background(Color.black.opacity(0.4))
+            }
+        }
     }
 }
-

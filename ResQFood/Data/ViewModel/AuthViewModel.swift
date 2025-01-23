@@ -9,6 +9,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import Foundation
 
+@MainActor
 class AuthViewModel: ObservableObject {
 
     @Published var appUser: AppUser?
@@ -79,7 +80,7 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.login(email: email, password: password)
-                await resetEmailPassword()
+                resetEmailPassword()
             } catch {
                 print(error)
             }
@@ -101,9 +102,46 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await userRepo.register(email: email, password: password)
-                await resetEmailPassword()
+                resetEmailPassword()
             } catch {
                 print(error)
+            }
+        }
+    }
+    func reauthenticateUser(currentPassword: String, completion: @escaping (Bool, String?) -> Void) {
+        guard let user = fb.auth.currentUser, let email = user.email else {
+            completion(false, "Benutzer ist nicht eingeloggt.")
+            return
+        }
+        
+        let credential = EmailAuthProvider.credential(withEmail: email, password: currentPassword)
+        
+        user.reauthenticate(with: credential) { result, error in
+            if let error = error {
+                completion(false, "Re-Authentifizierung fehlgeschlagen: \(error.localizedDescription)")
+            } else {
+                completion(true, nil)
+            }
+        }
+    }
+    
+    func changePassword(currentPassword: String, newPassword: String) {
+        reauthenticateUser(currentPassword: currentPassword) { [weak self] success, errorMessage in
+            guard success else {
+                DispatchQueue.main.async {
+                    self?.errorMessage = errorMessage ?? "Unbekannter Fehler."
+                }
+                return
+            }
+            
+            self?.fb.auth.currentUser?.updatePassword(to: newPassword) { error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self?.errorMessage = "Fehler beim Aktualisieren des Passworts: \(error.localizedDescription)"
+                    } else {
+                        self?.errorMessage = "Passwort wurde erfolgreich geändert."
+                    }
+                }
             }
         }
     }
@@ -220,7 +258,6 @@ class AuthViewModel: ObservableObject {
         return emailPred.evaluate(with: email)
     }
     
-    @MainActor
     func resetEmailPassword(){
         email = ""
         password = ""

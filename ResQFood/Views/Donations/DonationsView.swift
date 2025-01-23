@@ -17,6 +17,9 @@ struct DonationsView: View {
                     .ignoresSafeArea(edges: .top)
                
             }
+            .background(Color("secondaryContainer"))
+            .toolbarBackground(Color("secondaryContainer"), for: .tabBar)
+//            .toolbarBackground(.hidden, for: .tabBar)
             .navigationBarHidden(true)
             .ignoresSafeArea(.keyboard, edges: .bottom)
     }

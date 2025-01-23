@@ -28,7 +28,10 @@ struct CustomBackButton: ViewModifier {
                         }
                     }
                 }
-            }
+                
+            }.toolbarBackground(Color.clear, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
+
     }
 }
 

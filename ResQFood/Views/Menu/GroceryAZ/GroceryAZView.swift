@@ -57,19 +57,12 @@ struct GroceryAZView: View {
                         .offset(x: -35, y: 15)
                 }
             }
-
+            Spacer()
             if !groceryAZ.groceryDetail && isFocused {
                 ScrollView {
                     LazyVStack {
                         ForEach(filteredGroceries, id: \.id) { grocery in
-                            HStack {
-                                Text(grocery.name)
-                                    .padding()
-                                    .background(Color("primaryContainer"))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
+                            GroceryListItem(grocery: grocery)
                             .onTapGesture {
                                 groceryAZ.groceryDetail = true
                                 groceryAZ.selectedGrocery = grocery.id ?? ""
@@ -83,49 +76,18 @@ struct GroceryAZView: View {
                 if let grocery = filteredGroceries.first(where: {
                     $0.id == groceryAZ.selectedGrocery
                 }) {
-                    VStack(alignment: .leading) {
-                        Text("Haltbarkeitstipps für \(grocery.name)")
-                            .font(.system(size: 18, weight: .bold))
-                        Text("Haltbarkeit:")
-                            .padding(.top, 4)
-                            .fontWeight(.semibold)
-                        Text(grocery.shelflife)
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                        Text("Lagerung:")
-                            .padding(.top, 4)
-                            .fontWeight(.semibold)
-                        Text(grocery.storage)
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                        Text("Verwendung:")
-                            .padding(.top, 4)
-                            .fontWeight(.semibold)
-                        Text(grocery.usage)
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                        Text("Resteverwertung:")
-                            .fontWeight(.semibold)
-                            .padding(.top, 4)
-                        Text(grocery.wastereduction)
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                    }
-                    .padding()
-                    .background(Color("primaryContainer"))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    GroceryDetailView(grocery: grocery)
                 }
                 
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .background(Color("secondaryContainer"))
         .onChange(of: groceryAZ.searchInput) { oldValue, newValue in
             groceryAZ.groceryDetail = false
         }
         .customBackButton()
-
-        .padding(.top, 72)
-        Spacer()
     }
 }
 
@@ -133,11 +95,5 @@ struct GroceryAZView: View {
     GroceryAZView()
 }
 
-struct GroceryListItem: View {
-    var grocery: GroceryModel
-    var body: some View {
-        Text(grocery.name)
 
-    }
-}
 

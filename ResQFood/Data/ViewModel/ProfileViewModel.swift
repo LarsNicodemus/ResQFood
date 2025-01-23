@@ -12,6 +12,7 @@ class ProfileViewModel: ObservableObject {
     @Published var pictureUrl: String? = nil
     @Published var appUser: AppUser? = nil
     @Published var userProfile: UserProfile? = nil
+    @Published var otherUserProfile: UserProfile? = nil
     @Published var username: String = ""
     @Published var birthDay: Date = Date()
     @Published var gender: String? = nil
@@ -19,16 +20,19 @@ class ProfileViewModel: ObservableObject {
     @Published var location: Adress? = nil
     @Published var locationStreetInput: String = ""
     @Published var locationCityInput: String = ""
-    @Published var rating: Double? = nil
+    @Published var rating: Int? = nil
     @Published var points: Int? = nil
     @Published var contactInfo: ContactInfo? = nil
     @Published var contactEmailInput: String = ""
     @Published var contactPhoneInput: String = ""
     @Published var foodWasteSaved: Double? = nil
+    @Published var ratedUsers: Set<String> = []
+    
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
     private let donRepo = DonationRepositoryImplementation()
     private var listener: ListenerRegistration?
+    private var listenerOtherUser: ListenerRegistration?
 
     init() {
         setupProfileListener()
@@ -38,7 +42,11 @@ class ProfileViewModel: ObservableObject {
     deinit {
         listener?.remove()
         listener = nil
+        listenerOtherUser?.remove()
+        listenerOtherUser = nil
         deinitUserProfile()
+        userProfile = nil
+        otherUserProfile = nil
     }
 
     func setupProfileListener() {
@@ -52,18 +60,49 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    func currentUserID() -> String? {
+        guard let userID = fb.userID else {return nil}
+        return userID
+    }
+    
+    
+    func getOtherUserByIDList(id: String) {
+        listenerOtherUser = userRepo.addProfileListener(userID: id) { profile in
+            print("Member Listener Update: \(profile?.username ?? "nil")")
+            self.otherUserProfile = profile
+            self.rating = profile?.rating
+            if let ratedUsers = profile?.ratedBy {
+                self.ratedUsers = ratedUsers
+            }
+            
+        }
+    }
     func setupOtherProfileListener(userID: String) {
-        listener?.remove()
-        listener = nil
+        listenerOtherUser?.remove()
+        listenerOtherUser = nil
         getOtherUserByID(id: userID)
-
-        listener = userRepo.addProfileListener(userID: userID) { profile in
-            print("Profile Listener Update: \(profile?.username ?? "nil")")
-            self.userProfile = profile
+        listenerOtherUser = userRepo.addProfileListener(userID: userID) { profile in
+            print("Other Profile Listener Update: \(profile?.username ?? "nil")")
+            self.otherUserProfile = profile
+            if let ratedUsers = profile?.ratedBy {
+                self.ratedUsers = ratedUsers
+            }
+            if let ratings = profile?.ratings {
+                var ratingValue = 0
+                var allRatings = 0
+                for rating in ratings {
+                    allRatings += rating
+                }
+                ratingValue = Int(allRatings / ratings.count)
+                self.rating = ratingValue
+            }
         }
 
     }
-
+    
+    
+    
     func deinitUserProfile() {
         username = ""
         birthDay = Date()
@@ -80,6 +119,40 @@ class ProfileViewModel: ObservableObject {
         foodWasteSaved = nil
     }
 
+    func updateRating(rating: Int) {
+        print("Attempting to update rating")
+        print("User Profile: \(String(describing: userProfile))")
+        print("Current User ID: \(currentUserID() ?? "nil")")
+        
+        if let id = otherUserProfile?.id,
+           let currentUserID = currentUserID(),
+           id != currentUserID {
+            userRepo.updateRatingAndRatedBy(currenUserID: currentUserID, userID: id, rating: rating) { error in
+                if let error = error {
+                    print("Error updating rating: \(error)")
+                } else {
+                    print("Rating successfully updated")
+                }
+            }
+        } else {
+            print("Rating update conditions not met")
+        }
+    }
+    
+    func removeRating() {
+        guard let id = otherUserProfile?.id,
+              let currentUserID = currentUserID(),
+              id != currentUserID else { return }
+        
+        userRepo.removeUserRating(currentUserID: currentUserID, userID: id) { error in
+            if let error = error {
+                print("Fehler beim Löschen der Bewertung: \(error)")
+            } else {
+                print("Bewertung erfolgreich gelöscht")
+            }
+        }
+    }
+    
     func logoutProfile() {
         listener?.remove()
         listener = nil

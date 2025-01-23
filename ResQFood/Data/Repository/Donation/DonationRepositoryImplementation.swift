@@ -81,6 +81,7 @@ class DonationRepositoryImplementation: DonationRepository {
             .updateData(valuesToUpdate)
     }
     
+    
     func updateUserDonations(userID: String, username: String?, contactInfo: ContactInfo?) async throws {
         let donations = try await fb.database
             .collection("donations")

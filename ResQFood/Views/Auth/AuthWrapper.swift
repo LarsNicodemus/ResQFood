@@ -62,6 +62,7 @@ struct AuthWrapper: View {
                     .padding()
             }
         }
+        
         .accentColor(Color("primaryAT"))
     }
 }

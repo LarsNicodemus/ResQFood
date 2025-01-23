@@ -34,11 +34,18 @@ struct CreateView: View {
     var body: some View {
         VStack {
             if let donations = donVM.donations, !donations.isEmpty {
-            List {
-                    DonationSection(title: "Aktive Spenden", donations: filteredDonations.active)
-                    DonationSection(title: "Reservierte Spenden", donations: filteredDonations.reserved)
-                    DonationSection(title: "Abgeholte Spenden", donations: filteredDonations.pickedUp)
-                }.listStyle(.plain)
+                
+                    List {
+                        
+                        DonationSection(title: "Aktive Spenden", donations: filteredDonations.active)
+                        DonationSection(title: "Reservierte Spenden", donations: filteredDonations.reserved)
+                        DonationSection(title: "Abgeholte Spenden", donations: filteredDonations.pickedUp)
+                }
+                    .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+                .scrollIndicators(.hidden)
+                    
+                    
             }
             else {
                 EmptyListPlaceholder(
@@ -65,15 +72,18 @@ struct CreateView: View {
                 } label: {
                     Image(systemName: "cross.fill")
                         .resizable()
-                        .frame(width: 30, height: 30)
-                        .padding(8)
+                        .frame(width: 45, height: 45)
+                        .padding(4)
                 }
+                .padding()
+                .background(Color("primaryAT"))
+                .foregroundColor(Color("onPrimary"))
+                .clipShape(Circle())
                 .padding()
                 .frame(
                     maxWidth: .infinity, maxHeight: .infinity,
                     alignment: .bottomTrailing
                 )
-                .primaryButtonStyle()
             }
         }
         .onAppear {
@@ -89,6 +99,7 @@ struct CreateView: View {
             
             .foregroundStyle(Color("primaryAT"))
         }
+        .background(Color("secondaryContainer"))
 
     }
 }
@@ -98,5 +109,3 @@ struct CreateView: View {
         .environmentObject(DonationViewModel())
         .environmentObject(ImageViewModel())
 }
-
-
