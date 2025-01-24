@@ -12,7 +12,7 @@ struct ImageView: View {
     var body: some View {
         image
             .resizable()
-            .frame(width: 200, height: 200)
+            .frame(maxWidth: 200, maxHeight: 200)
             .scaledToFit()
             .clipShape(
                 RoundedRectangle(

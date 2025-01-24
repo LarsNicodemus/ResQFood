@@ -138,7 +138,7 @@ struct HomeView: View {
 
             }
             .padding()
-            .background(Color("secondaryContainer"))
+            .background(Color("surface"))
             .onAppear {
                 homeVM.setupDonationsListener()
             }

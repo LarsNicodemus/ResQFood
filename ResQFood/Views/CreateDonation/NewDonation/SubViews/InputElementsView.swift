@@ -153,7 +153,7 @@ struct InputElementsView: View {
                 .padding(8)
                 .background(.gray.opacity(0.2))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-
+                .padding(.bottom)
             HStack {
                 Spacer()
                 Button("Spende erstellen") {

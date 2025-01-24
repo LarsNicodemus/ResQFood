@@ -21,8 +21,11 @@ struct DonationSection: View {
                 ) {
                     CreateDonationListItem(donation: donation)
                 }
+                .colorMultiply(Color.clear)
                 .listRowBackground(Color.clear)
-
+                .overlay{
+                    CreateDonationListItem(donation: donation)
+                }
                 .task {
                     do {
                         let userID = try await donVM.getUserIdByDonationID(

@@ -62,7 +62,7 @@ struct AuthWrapper: View {
                     .padding()
             }
         }
-        
+        .preferredColorScheme(authVM.isDarkMode ? .dark : .light)
         .accentColor(Color("primaryAT"))
     }
 }

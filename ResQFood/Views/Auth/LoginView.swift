@@ -78,6 +78,8 @@ struct LoginView: View {
             .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
+        .background(Color("surface"))
+
         .onAppear {
             if authVM.appUser == nil {
                 authVM.email = ""

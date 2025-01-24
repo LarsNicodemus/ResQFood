@@ -98,7 +98,7 @@ struct AccountView: View {
                         }
                     }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color("secondaryContainer"))
+            .background(Color("surface"))
                 .customBackButton()
 
     }

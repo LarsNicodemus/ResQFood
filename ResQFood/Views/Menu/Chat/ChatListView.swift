@@ -74,7 +74,9 @@ struct ChatRowContent: View {
                     Spacer()
                     Text(chat.lastMessage.formatted())
                         .font(.system(size: 10))
-                        .foregroundStyle(Color("OnSecondaryContainer"))
+                        .fontWeight(chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 ? .bold : .regular)
+
+                        .foregroundStyle(chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 ? Color("tertiary") : Color("OnSecondaryContainer"))
 
                 }
                 if let username = chatVM.chatUsernames[chat.id] {
@@ -85,6 +87,7 @@ struct ChatRowContent: View {
                 if let lastMessageContent = chatVM.lastMessagesContent[chat.id] {
                                 Text(lastMessageContent)
                                     .font(.body)
+                                    .fontWeight(chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 ? .bold : .regular)
                                     .lineLimit(1)
                                     .italic()
                                     .foregroundStyle(chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 ? Color("tertiary") : Color("OnSecondaryContainer"))
@@ -96,8 +99,12 @@ struct ChatRowContent: View {
             }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color("secondaryContainer"))
+        .background(Color("surface"))
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(Color("primaryAT"),lineWidth: 1)
+        }
             if chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0{
                 ZStack{
                     Circle()
@@ -106,7 +113,7 @@ struct ChatRowContent: View {
                     Text("\(chatVM.unreadMessagesCounts[chat.id] ?? 0)").foregroundStyle(Color("tertiary"))
                         .bold()
                 }
-                .offset(x:155,y:-30)
+                .offset(x:150,y:10)
             }
         }
         .padding(.top)

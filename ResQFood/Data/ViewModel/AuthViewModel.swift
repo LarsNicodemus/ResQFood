@@ -7,10 +7,11 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import Foundation
+import SwiftUI
 
 @MainActor
 class AuthViewModel: ObservableObject {
+    @AppStorage("isDarkMode") var isDarkMode: Bool = false
 
     @Published var appUser: AppUser?
     @Published var user: User?

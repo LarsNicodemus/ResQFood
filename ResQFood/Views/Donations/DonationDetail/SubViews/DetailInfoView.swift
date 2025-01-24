@@ -12,66 +12,75 @@ struct DetailInfoView: View {
     @Binding var locationName: String
     var showChat: Bool
     @EnvironmentObject var mapVM: MapViewModel
+
     var body: some View {
-        HStack {
-            VStack {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
                 Text(donation.title)
-                    .font(.system(size: 20, weight: .bold))
-            }
-            Spacer()
-            VStack(alignment: .trailing) {
-                NavigationLink("Anbieter") {
-                    ProfileView(
-                        userID: donation.creatorID, fromChat: showChat)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(Color("primaryAT"))
+
+                Spacer()
+
+                VStack {
+                   
+                    NavigationLink("Anbieter") {
+                        ProfileView(
+                            userID: donation.creatorID, fromChat: showChat)
+                    }
+                    .primaryButtonStyle()
+
                 }
-                .primaryButtonStyle()
+            }
+
+            Group {
+                if let donator = donation.creatorName {
+                    DetailRow(icon: "person", text: "Ersteller: \(donator)", type: 1)
+                }
+                DetailRow(
+                    icon: "clock",
+                    text: "Gültig bis: \(formatDate(donation.expiringDate))", type: 1)
+                DetailRow(icon: "info.circle", text: donation.description, type: 2)
+                    .padding(.bottom)
+                DetailRow(icon: "tag", text: "Zustand: \(donation.condition)", type: 1)
+                DetailRow(
+                    icon: "calendar",
+                    text: "MHD bis: \(formatDate(donation.bbd))", type: 1)
+                .padding(.bottom)
+                DetailRow(
+                    icon: "map", text: "Transfer: \(donation.preferredTransfer)"
+                    , type: 1)
+                DetailRow(icon: "location", text: "Ort: \(locationName)", type: 1)
+                    .padding(.bottom)
+                DetailRow(
+                    icon: "calendar.badge.plus",
+                    text: "Erstellt am: \(formatDate(donation.creationDate))"
+                    , type: 3)
             }
         }
-        .padding(.vertical)
-        Text(donation.description)
-        Text("Zustand: \(donation.condition)")
-        let bbd = donation.bbd.formatted(
+        .padding()
+        .background(Color("secondaryContainer"))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("primaryAT"), lineWidth: 1)
+        }
+        .task {
+            locationName = await mapVM.getAddressFromCoordinates(
+                latitude: donation.location.lat,
+                longitude: donation.location.long
+            )
+        }
+    }
+
+    func formatDate(_ date: Date) -> String {
+        date.formatted(
             .dateTime
                 .locale(Locale(identifier: "de-DE"))
                 .day()
                 .month()
                 .year()
         )
-        Text("MHD bis: \(bbd)")
-        let date = donation.expiringDate.formatted(
-            .dateTime
-                .locale(Locale(identifier: "de-DE"))
-                .day()
-                .month()
-                .year()
-        )
-        Text("gültig bis: \(date)")
-        let cdate = donation.creationDate.formatted(
-            .dateTime
-                .locale(Locale(identifier: "de-DE"))
-                .day()
-                .month()
-                .year()
-        )
-        Text("erstellt am: \(cdate)")
-        if let donator = donation.creatorName {
-            Text("Ersteller: \(donator)")
-        }
-        if let contactInfo = donation.contactInfo {
-            if let number = contactInfo.number {
-                Text("Nummer: \(number)")
-            }
-            if let mail = contactInfo.email {
-                Text("Mail: \(mail)")
-            }
-        }
-        Text("Wo? \(donation.preferredTransfer)")
-        Text("Ort: \(locationName)")
-            .task {
-                locationName = await mapVM.getAddressFromCoordinates(
-                    latitude: donation.location.lat,
-                    longitude: donation.location.long)
-            }
     }
 }
 

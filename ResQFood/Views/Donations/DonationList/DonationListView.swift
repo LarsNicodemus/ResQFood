@@ -14,17 +14,26 @@ struct DonationListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             let filteredDonations = mapVM.locationsInRadius.filter { donation in
-                donation.pickedUp != true
+                donation.pickedUp != true &&
+                (mapVM.selectedItems.isEmpty ||
+                 mapVM.selectedItems.contains(where: { $0.rawValue == donation.type }))
             }
             
             if !filteredDonations.isEmpty {
-                Text("Ergebnisse: ")
-                    .font(.system(size: 20, weight: .bold))
-                    .padding(.vertical)
-            }
-            
+                ZStack {
+                    Text("Ergebnisse: ")
+                        .font(Fonts.title2)
+                        .lineLimit(nil)
+                        .multilineTextAlignment(.leading)
+                        .frame(width: 150, alignment: .leading)
+                        .foregroundStyle(Color("primaryAT"))
+                    Image("Strich")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 160, alignment: .leading)
+                        .offset(y: 18)
+                }
             ScrollView {
-                if !filteredDonations.isEmpty {
                     ForEach(filteredDonations, id: \.id) { donation in
                         Group {
                             if let isReserved = donation.isReserved, isReserved {
@@ -39,20 +48,22 @@ struct DonationListView: View {
                         }
                         .padding(.horizontal, 4)
                     }
-                } else {
+                }
+            }
+            
+            else {
+                VStack{
+                    Spacer()
                     EmptyListPlaceholder(
                         firstText: "Keine Spenden verfügbar.",
                         secondText: "versuch vielleicht einen anderen Radius oder andere Filter."
                     )
-                    .frame(maxWidth: .infinity)
-                    .background(RoundedRectangle(cornerRadius: 10)
-                        .fill(Color("primaryContainer").opacity(0.5)))
+                    Spacer()
+
                 }
             }
         }
-        .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 10)
-            .fill(!mapVM.locationsInRadius.isEmpty ? Color("primaryContainer").opacity(0.5) : Color.clear))
+        
         .task {
             mapVM.setupDonationsListener()
             mapVM.updateLocationsInRadius()

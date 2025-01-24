@@ -77,7 +77,7 @@ struct RecipesView: View {
         .customBackButton()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
-        .background(Color("secondaryContainer"))
+        .background(Color("surface"))
     }
 }
 

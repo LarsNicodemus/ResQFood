@@ -24,146 +24,72 @@ struct ChatDetailView: View {
     var currentChatID: String
     var body: some View {
         VStack {
-            HStack {
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 14)
-                            .tint(Color("primaryAT"))
-                    }
-                }.padding(.leading)
-                Spacer()
-                NavigationLink(title) {
-                    if let donation = donationForTitle {
-                        DonationDetailView(donation: donation, showChat: true)
-                    }
-                }
-                .bold()
-                .foregroundStyle(Color("tertiary"))
-                Spacer()
-                ZStack {
-                    Text(chatMember)
-                        .foregroundStyle(Color("primaryAT"))
-                        .onChange(of: chatVM.userProfile?.username ?? "") {
-                            oldValue, newValue in
-                            chatMember = newValue
-                        }
-                        .onTapGesture {
-                            details.toggle()
-                        }
-                    Image("Strich")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 110, alignment: .leading)
-                        .offset(y: 15)
-                }
+            ChatDetailHeader(
+                details: $details,
+                title: $title,
+                chatMember: $chatMember,
+                donationForTitle: $donationForTitle
+            )
 
-            }
-            .frame(height: 44)
-            .padding(.trailing)
-            List {
-                ForEach(chatVM.messages) { message in
-                    let fromSelf = message.senderID == chatVM.currentUserID
-                    MessageItem(
-                        content: message.content, fromSelf: fromSelf,
-                        timestamp: message.timestamp
-                    )
-                    .rotationEffect(Angle(degrees: -180))
-                    .onAppear {
-                        if !fromSelf
-                            && message.isread[chatVM.currentUserID] == false
-                        {
-                            chatVM.markMessageAsRead(
-                                chatID: currentChatID, messageID: message.id!)
-                        }
-                    }
-                }
-            }.listStyle(.plain)
-                .scrollIndicators(.hidden)
-                .listSectionSeparator(.hidden)
-                .rotationEffect(Angle(degrees: 180))
+            MessagesListView(
+                currentChatID: currentChatID
+            )
 
-            HStack {
-                TextField("Nachricht...", text: $chatVM.messageInput)
-                    .padding(8)
-                    .background(Color("primaryContainer").opacity(0.1))
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 10))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color("primaryAT"),lineWidth: 1)
-                    }
-                    .onSubmit {
-                        chatVM.sendMessage(chatID: currentChatID)
-                                }
-                Button {
-                    chatVM.sendMessage(chatID: currentChatID)
-                } label: {
-                    Image(systemName: "paperplane")
-                }
-                .primaryButtonStyle()
-            }
-            .padding(.horizontal)
+            MessageInputItem(currentChatID: currentChatID)
         }
-        .overlay(
-            Group {
-                if details {
-                    if let donation = donationForTitle, donation.creatorID == chatVM.currentUserID {
-                        ZStackView1(showToast: $showToast, chatMemberID: chatMemberID, donationID: donationID, details: $details, toastMessage: $toastMessage)
-                    } else {
-                        ZStackView2(chatMemberID: chatMemberID, details: $details)
-                    }
-                }
-            }
-        )
-        .overlay(
-            Group {
-                if showToast {
-                    ToastView(
-                        message: toastMessage
-                    )
-                }
-            }
-        )
+        .background(Color("surface"))
+        .overlay(DetailsOverlay())
+        .overlay(ToastOverlay())
         .toolbarVisibility(.hidden, for: .navigationBar)
-
         .onAppear {
-            chatVM.addMessageSnapshotListener(chatID: currentChatID)
-            let chat = chatVM.chats.first { chat in
-                chat.id == currentChatID
-            }
-            let donation = donVM.donations?.first(where: { donation in
-                donation.id == chat?.donationID
-            })
-            donationForTitle = donation
-            if let donationID = donation?.id {
-                self.donationID = donationID
-            }
-            let donationCreatorID = donation?.creatorID
-            if chatVM.currentUserID == donationCreatorID {
-                userCreator = true
-            }
-            if let chatMemberID = chat?.members.first(where: { userID in
-                userID != chatVM.currentUserID
-            }) {
-                chatVM.getOtherUserByID(id: chatMemberID)
-                self.chatMemberID = chatMemberID
-            }
+            setupChat()
+        }
+    }
 
-            if let chatMember = chatVM.userProfile?.username {
-                self.chatMember = chatMember
-            }
-            if let title = donation?.title {
-                self.title = title
+    private func DetailsOverlay() -> some View {
+        Group {
+            if details {
+                if let donation = donationForTitle, donation.creatorID == chatVM.currentUserID {
+                    ZStackView1(
+                        showToast: $showToast,
+                        chatMemberID: chatMemberID,
+                        donationID: donationID,
+                        details: $details,
+                        toastMessage: $toastMessage
+                    )
+                } else {
+                    ZStackView2(chatMemberID: chatMemberID, details: $details)
+                }
             }
         }
+    }
 
+    private func ToastOverlay() -> some View {
+        Group {
+            if showToast {
+                ToastView(message: toastMessage)
+            }
+        }
+    }
+
+    private func setupChat() {
+        chatVM.addMessageSnapshotListener(chatID: currentChatID)
+        let chat = chatVM.chats.first { $0.id == currentChatID }
+        let donation = donVM.donations?.first(where: { $0.id == chat?.donationID })
+        donationForTitle = donation
+        donationID = donation?.id ?? ""
+        userCreator = chatVM.currentUserID == donation?.creatorID
+
+        if let chatMemberID = chat?.members.first(where: { $0 != chatVM.currentUserID }) {
+            chatVM.getOtherUserByID(id: chatMemberID)
+            self.chatMemberID = chatMemberID
+        }
+
+        chatMember = chatVM.userProfile?.username ?? chatMember
+        title = donation?.title ?? title
     }
 }
+
 
 #Preview {
     ChatDetailView(currentChatID: "51456C01-3EAB-4CF7-A639-F2F48E38A041")

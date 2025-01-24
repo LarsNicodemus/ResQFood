@@ -42,7 +42,7 @@ struct MessageView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 200)
-            
+            .padding(.bottom, 8)
             Button {
                 sendMessage()
             } label: {

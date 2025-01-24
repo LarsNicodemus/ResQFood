@@ -83,7 +83,7 @@ struct GroceryAZView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
-        .background(Color("secondaryContainer"))
+        .background(Color("surface"))
         .onChange(of: groceryAZ.searchInput) { oldValue, newValue in
             groceryAZ.groceryDetail = false
         }

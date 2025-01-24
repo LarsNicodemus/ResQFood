@@ -22,6 +22,7 @@ struct DetailEditView: View {
                     .id("scrollContent")
                 Spacer()
             }
+            .padding(.bottom)
             if let titleError = donVM.titleError {
                 Text(titleError)
                     .font(.caption)
@@ -192,6 +193,7 @@ struct DetailEditView: View {
             }
             .padding(.bottom, 48)
         }
+        .padding()
         .overlay(
             Group {
                 if showToast {

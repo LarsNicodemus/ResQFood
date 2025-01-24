@@ -60,6 +60,8 @@ struct ReportSheet: View {
             .padding(.bottom)
             .padding(.bottom)
         }
+        .background(Color("surface"))
+
         .overlay(
             Group{
                 if showToast {

@@ -50,14 +50,34 @@ class DonationViewModel: ObservableObject {
     @Published var donUserNames: [String: String] = [:]
     @Published var userProfile: UserProfile? = nil
     @Published var address: String = ""
-
+    
+    
+    
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
     private var listenerOtherUser: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()
     private let profileRepo = UserRepositoryImplementation()
     private var memberListener: ListenerRegistration?
-
+    
+    var filteredDonations: (active: [FoodDonation], reserved: [FoodDonation], pickedUp: [FoodDonation]) {
+            guard let donations = donations else { return ([], [], []) }
+            
+            let active = donations.filter { donation in
+                !(donation.isReserved ?? false) && !(donation.pickedUp ?? false)
+            }
+            
+            let reserved = donations.filter { donation in
+                donation.isReserved ?? false && !(donation.pickedUp ?? false)
+            }
+            
+            let pickedUp = donations.filter { donation in
+                donation.pickedUp ?? false
+            }
+            
+            return (active, reserved, pickedUp)
+        }
+    
     init() {
         setupDonationsListener()
     }
@@ -95,7 +115,8 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
-
+    
+    
     func getUserProfileByIDwithReturn(
         userID: String, completion: @escaping (UserProfile?) -> Void
     ) {

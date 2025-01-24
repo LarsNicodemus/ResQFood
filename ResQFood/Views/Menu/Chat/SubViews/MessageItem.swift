@@ -33,7 +33,8 @@ struct MessageItem: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text(formatTimestamp(timestamp))
+                            let isToday = Calendar.current.isDateInToday(timestamp)
+                            Text(isToday ? "Heute \(formatTimestamp(timestamp))" : formatTimestamp(timestamp))
                                 .font(.system(size: 8))
                                 .foregroundColor(.gray)
                                 .frame(alignment: .bottomTrailing)
@@ -60,7 +61,7 @@ struct MessageItem: View {
         let formatter = DateFormatter()
 
         if isToday {
-            formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+            formatter.dateFormat = "HH:mm"
         } else {
             formatter.dateFormat = "dd.MM.yyyy, HH:mm"
         }

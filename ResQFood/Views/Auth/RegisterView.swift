@@ -38,6 +38,8 @@ struct RegisterView: View {
             .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
+        .background(Color("surface"))
+
         .onChange(of: authVM.user) { old, new in
             if new != nil {
                 dismiss()

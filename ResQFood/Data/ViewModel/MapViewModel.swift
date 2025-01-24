@@ -21,7 +21,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var donations: [FoodDonation]? = nil
     @Published var startPressed: Bool = false
     @Published var cameraPosition: MapCameraPosition = .automatic
-
+    @Published var selectedItems: Set<GroceryType> = []
+    @Published var filerToggle: Bool = false
     private var listener: ListenerRegistration?
     private let donationRepo = DonationRepositoryImplementation()
     

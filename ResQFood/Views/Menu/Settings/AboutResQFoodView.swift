@@ -69,11 +69,11 @@ struct AboutResQFoodView: View {
                     .padding(.top, 20)
             }
             .foregroundStyle(Color("OnSecondaryContainer"))
-            .background(Color("secondaryContainer"))
+            .background(Color("surface"))
 
             .padding()
         }
-        .background(Color("secondaryContainer"))
+        .background(Color("surface"))
         .customBackButton()
     }
 }

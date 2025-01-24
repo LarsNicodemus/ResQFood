@@ -59,6 +59,13 @@ struct ImagePickUploadView: View {
                     .foregroundStyle(Color("error"))
             }
         }
+        .padding()
+        .background(Color("surface"))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color("primaryAT"), lineWidth: 1)
+            }
         .onChange(of: imageVM.selectedItems) { _, newItems in
             Task {
                 await imageVM.processAndUploadImages(items: newItems)

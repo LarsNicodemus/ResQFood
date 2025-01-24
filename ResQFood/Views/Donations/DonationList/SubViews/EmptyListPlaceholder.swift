@@ -27,6 +27,7 @@ struct EmptyListPlaceholder: View {
                 .foregroundColor(.secondary)
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

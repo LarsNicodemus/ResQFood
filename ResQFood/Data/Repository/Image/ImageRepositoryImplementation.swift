@@ -8,7 +8,6 @@ import SwiftUI
 
 class ImageRepositoryImplementation: ImageRepository {
     private let baseURL = "https://api.imgur.com/3"
-    private let imageService = ImageService.shared
     private let webService: WebService = WebService()
     
     

@@ -12,34 +12,15 @@ struct CreateView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     
-    
-    var filteredDonations: (active: [FoodDonation], reserved: [FoodDonation], pickedUp: [FoodDonation]) {
-        guard let donations = donVM.donations else { return ([], [], []) }
-        
-        let active = donations.filter { donation in
-            !(donation.isReserved ?? false) && !(donation.pickedUp ?? false)
-        }
-        
-        let reserved = donations.filter { donation in
-            donation.isReserved ?? false && !(donation.pickedUp ?? false)
-        }
-        
-        let pickedUp = donations.filter { donation in
-            donation.pickedUp ?? false
-        }
-        
-        return (active, reserved, pickedUp)
-    }
-    
     var body: some View {
         VStack {
             if let donations = donVM.donations, !donations.isEmpty {
                 
                     List {
                         
-                        DonationSection(title: "Aktive Spenden", donations: filteredDonations.active)
-                        DonationSection(title: "Reservierte Spenden", donations: filteredDonations.reserved)
-                        DonationSection(title: "Abgeholte Spenden", donations: filteredDonations.pickedUp)
+                        DonationSection(title: "Aktive Spenden", donations: donVM.filteredDonations.active)
+                        DonationSection(title: "Reservierte Spenden", donations: donVM.filteredDonations.reserved)
+                        DonationSection(title: "Abgeholte Spenden", donations: donVM.filteredDonations.pickedUp)
                 }
                     .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
@@ -57,6 +38,8 @@ struct CreateView: View {
             }
             
         }
+        .padding()
+        .background(Color("surface"))
         .overlay(
             Group {
                 if donVM.showToast {
@@ -72,7 +55,7 @@ struct CreateView: View {
                 } label: {
                     Image(systemName: "cross.fill")
                         .resizable()
-                        .frame(width: 45, height: 45)
+                        .frame(width: 32, height: 32)
                         .padding(4)
                 }
                 .padding()
@@ -90,16 +73,18 @@ struct CreateView: View {
             donVM.setupDonationsListenerForUser()
         }
         .sheet(isPresented: $donVM.isPresent) {
-            ScrollView(showsIndicators: false) {
-                ScrollViewReader { proxy in
-                    InputElementsView(proxy: proxy)
-                        .padding()
+            
+            VStack{
+                ScrollView(showsIndicators: false) {
+                    ScrollViewReader { proxy in
+                        InputElementsView(proxy: proxy)
+                    }
                 }
             }
-            
+            .padding()
+            .background(Color("surface"))
             .foregroundStyle(Color("primaryAT"))
         }
-        .background(Color("secondaryContainer"))
 
     }
 }

@@ -61,126 +61,128 @@ struct ProfileView: View {
     @State var report: Bool = false
 
     var body: some View {
-        ScrollView {
+        VStack{
+            ScrollView {
 
-            VStack {
-                if let user = profileVM.otherUserProfile {
-                    HStack {
-                        Spacer()
-                        VStack {
-                            Button {
-                                sheetPresent = true
-                                report = true
-                            } label: {
-                                Image(systemName: "exclamationmark.bubble.fill")
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .tint(Color("primaryAT"))
-                            }
-                            if !fromChat {
+                VStack {
+                    if let user = profileVM.otherUserProfile {
+                        HStack {
+                            Spacer()
+                            VStack {
                                 Button {
                                     sheetPresent = true
+                                    report = true
                                 } label: {
-                                    Image(systemName: "ellipsis.message")
+                                    Image(systemName: "exclamationmark.bubble.fill")
                                         .resizable()
                                         .frame(width: 32, height: 32)
                                         .tint(Color("primaryAT"))
                                 }
-                            }
-                        }
-                    }.padding(.trailing)
-                    ProfileImageView(imageurl: user.pictureUrl)
-                        .padding(.bottom, 32)
-
-                    VStack {
-                        StarRatingView()
-                        let count = profileVM.ratedUsers.count
-                        Text("Bewertungen: \(count)")
-                    }
-
-                    VStack(alignment: .leading, spacing: 20) {
-
-                        HStack {
-                            Image(systemName: "person.fill")
-                            Text("Username: \(user.username)")
-                                .bold()
-                        }
-
-                        HStack {
-                            Image(systemName: "star.fill")
-                            Text(
-                                user.rating != nil
-                                    ? "Bewertung: \(user.rating!)"
-                                    : "Bewertung: noch keine Einträge.")
-                        }
-
-                        HStack {
-                            Image(
-                                systemName:
-                                    "point.3.connected.trianglepath.dotted")
-                            Text("Gesammelte Punkte: \(user.points ?? 0)")
-                        }
-
-                        HStack {
-                            Image(systemName: "person.crop.circle")
-                            Text(
-                                user.gender != nil
-                                    ? "Geschlecht: \(user.gender!)"
-                                    : "Geschlecht: nicht angegeben.")
-                        }
-
-                        if let city = user.location?.city,
-                            let zip = user.location?.zipCode
-                        {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Image(systemName: "house.fill")
-                                    Text("Standort:")
+                                if !fromChat {
+                                    Button {
+                                        sheetPresent = true
+                                    } label: {
+                                        Image(systemName: "ellipsis.message")
+                                            .resizable()
+                                            .frame(width: 32, height: 32)
+                                            .tint(Color("primaryAT"))
+                                    }
                                 }
-                                Text("\(zip) \(city)")
-                                    .padding(.leading, 32)
                             }
+                        }.padding(.trailing)
+                        ProfileImageView(imageurl: user.pictureUrl)
+                            .padding(.bottom, 32)
+
+                        VStack {
+                            StarRatingView()
+                            let count = profileVM.ratedUsers.count
+                            Text("Bewertungen: \(count)")
                         }
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15).fill(
-                            Color("primaryContainer"))
-                    )
-                    .shadow(radius: 5)
-                    .applyTextColor(Color("OnPrimaryContainer"))
-                }
-            }
-            .padding()
-            VStack {
-                Text("Weitere Inserate des Anbieters: ")
 
-                if let donations = donVM.donations {
-                    let filteredDonations = donations.filter { donation in
-                        donation.pickedUp != true
-                    }
-                    ForEach(filteredDonations, id: \.id) { donation in
-                        Group {
+                        VStack(alignment: .leading, spacing: 20) {
 
-                            if let isReserved = donation.isReserved, isReserved
+                            HStack {
+                                Image(systemName: "person.fill")
+                                Text("Username: \(user.username)")
+                                    .bold()
+                            }
+
+                            HStack {
+                                Image(systemName: "star.fill")
+                                Text(
+                                    user.rating != nil
+                                        ? "Bewertung: \(user.rating!)"
+                                        : "Bewertung: noch keine Einträge.")
+                            }
+
+                            HStack {
+                                Image(
+                                    systemName:
+                                        "point.3.connected.trianglepath.dotted")
+                                Text("Gesammelte Punkte: \(user.points ?? 0)")
+                            }
+
+                            HStack {
+                                Image(systemName: "person.crop.circle")
+                                Text(
+                                    user.gender != nil
+                                        ? "Geschlecht: \(user.gender!)"
+                                        : "Geschlecht: nicht angegeben.")
+                            }
+
+                            if let city = user.location?.city,
+                                let zip = user.location?.zipCode
                             {
-                                DonationListItem(donation: donation)
-                            } else {
-                                NavigationLink(
-                                    destination: DonationDetailView(
-                                        donation: donation, showChat: fromChat)
-                                ) {
-                                    DonationListItem(donation: donation)
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Image(systemName: "house.fill")
+                                        Text("Standort:")
+                                    }
+                                    Text("\(zip) \(city)")
+                                        .padding(.leading, 32)
                                 }
                             }
                         }
-                        .padding(.horizontal)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15).fill(
+                                Color("primaryContainer"))
+                        )
+                        .shadow(radius: 5)
+                        .applyTextColor(Color("OnPrimaryContainer"))
                     }
                 }
+                .padding()
+                VStack {
+                    Text("Weitere Inserate des Anbieters: ")
+
+                    if let donations = donVM.donations {
+                        let filteredDonations = donations.filter { donation in
+                            donation.pickedUp != true
+                        }
+                        ForEach(filteredDonations, id: \.id) { donation in
+                            Group {
+
+                                if let isReserved = donation.isReserved, isReserved
+                                {
+                                    DonationListItem(donation: donation)
+                                } else {
+                                    NavigationLink(
+                                        destination: DonationDetailView(
+                                            donation: donation, showChat: fromChat)
+                                    ) {
+                                        DonationListItem(donation: donation)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+
             }
-
         }
-
+        .background(Color("surface"))
         .customBackButton()
         .sheet(
             isPresented: $sheetPresent,
