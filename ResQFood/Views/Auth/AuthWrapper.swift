@@ -53,14 +53,22 @@ struct AuthWrapper: View {
                                     PrivacyPolicyView()
                                 }
                             }
+                            .onAppear {
+                                chatVM.unreadMessagesBadgeListener()
+                            }
+                            
                     } else {
                         ProfileCreationView()
                     }
                 }
+                    
             } else {
                 LoginView()
                     .padding()
             }
+        }
+        .task {
+            NotificationService().requestAuthorization()
         }
         .preferredColorScheme(authVM.isDarkMode ? .dark : .light)
         .accentColor(Color("primaryAT"))

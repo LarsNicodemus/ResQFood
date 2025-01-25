@@ -24,6 +24,7 @@ struct RewardSectionView: View {
         ) {
             ForEach(reward.rewards, id: \.points) { rewardItem in
                 RewardItemView(userPoints: userPoints, rewardItem: rewardItem, showToast: $showToast, toastMessage: $toastMessage)
+                    .environmentObject(rewardVM)
             }
         }
     }

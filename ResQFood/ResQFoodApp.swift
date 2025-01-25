@@ -10,13 +10,14 @@ import Firebase
 
 @main
 struct ResQFoodApp: App {
+    @UIApplicationDelegateAdaptor var appDelegate: NotificationService
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var profileVM = ProfileViewModel()
     @StateObject private var imageVM = ImageViewModel()
     @StateObject private var donVM = DonationViewModel()
-    @StateObject var chatVM: ChatViewModel = ChatViewModel()
-    @StateObject var mapVM: MapViewModel = MapViewModel()
+    @StateObject private var chatVM: ChatViewModel = ChatViewModel()
+    @StateObject private var mapVM: MapViewModel = MapViewModel()
 
     var body: some Scene {
         WindowGroup {

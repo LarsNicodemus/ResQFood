@@ -8,6 +8,7 @@
 import FirebaseFirestore
 import Foundation
 
+
 class ProfileViewModel: ObservableObject {
     @Published var pictureUrl: String? = nil
     @Published var appUser: AppUser? = nil

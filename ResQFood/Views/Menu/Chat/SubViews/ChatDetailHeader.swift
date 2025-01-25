@@ -14,6 +14,7 @@ struct ChatDetailHeader: View {
     @Binding var title: String
     @Binding var chatMember: String
     @Binding var donationForTitle: FoodDonation?
+    @State var fromChat: Bool = true
 
     var body: some View {
         HStack {
@@ -31,7 +32,7 @@ struct ChatDetailHeader: View {
             Spacer()
             NavigationLink(title) {
                 if let donation = donationForTitle {
-                    DonationDetailView(donation: donation, showChat: true)
+                    DonationDetailView(donation: donation, showChat: $fromChat)
                 }
             }
             .bold()

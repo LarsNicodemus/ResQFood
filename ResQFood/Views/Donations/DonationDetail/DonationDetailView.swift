@@ -12,7 +12,7 @@ struct DonationDetailView: View {
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var mapVM: MapViewModel
-    var showChat: Bool
+    @Binding var showChat: Bool
     @State var showToast: Bool = false
     @State var locationName: String = "Wird geladen..."
     var body: some View {
@@ -50,7 +50,7 @@ struct DonationDetailView: View {
 
                     DetailInfoView(
                         donation: donation, locationName: $locationName,
-                        showChat: showChat
+                        showChat: $showChat
                     )
                     .padding(.bottom, 8)
 
@@ -103,32 +103,29 @@ struct DonationDetailView: View {
         .background(Color("surface"))
         .customBackButton()
         .overlay {
-            if let id = donVM.getuserID() {
-                if id == donation.creatorID {
-                    ZStack {
-                        Button {
-                            donVM.isPresent = true
-                        } label: {
-                            Image(systemName: "pencil.circle")
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                                .padding(4)
-                        }
-                        .padding(8)
-                        .background(Color("primaryAT"))
-                        .foregroundColor(Color("onPrimary"))
-                        .clipShape(Circle())
-                        .padding(8)
-                        .frame(
-                            maxWidth: .infinity, maxHeight: .infinity,
-                            alignment: .bottomTrailing
-                        )
+            if let currentUserID = donVM.getuserID(), currentUserID == donation.creatorID {
+                ZStack {
+                    Button {
+                        donVM.isPresentDetail = true
+                    } label: {
+                        Image(systemName: "pencil.circle")
+                            .resizable()
+                            .frame(width: 32, height: 32)
+                            .padding(4)
                     }
+                    .padding(8)
+                    .background(Color("primaryAT"))
+                    .foregroundColor(Color("onPrimary"))
+                    .clipShape(Circle())
+                    .padding(8)
+                    .frame(
+                        maxWidth: .infinity, maxHeight: .infinity,
+                        alignment: .bottomTrailing
+                    )
                 }
             }
-
         }
-        .sheet(isPresented: $donVM.isPresent) {
+        .sheet(isPresented: $donVM.isPresentDetail) {
             VStack {
                 ScrollView(showsIndicators: false) {
                     ScrollViewReader { proxy in
@@ -143,7 +140,7 @@ struct DonationDetailView: View {
 }
 
 #Preview {
-    DonationDetailView(donation: MockData.foodDonationMock, showChat: false)
+    DonationDetailView(donation: MockData.foodDonationMock, showChat: .constant(false))
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
         .environmentObject(MapViewModel())

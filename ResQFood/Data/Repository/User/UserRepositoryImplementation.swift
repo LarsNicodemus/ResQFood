@@ -31,6 +31,28 @@ class UserRepositoryImplementation: UserRepository {
             .document(result.user.uid)
             .setData(from: user)
     }
+    
+    func login(email: String, password: String) async throws -> String? {
+       do {
+           try await fb.auth.signIn(withEmail: email, password: password)
+           return nil
+       } catch let error as NSError {
+           
+           if error.domain == AuthErrorDomain {
+               switch AuthErrorCode(rawValue: error.code) {
+               case .wrongPassword:
+                   return "Falsches Passwort"
+               case .userNotFound:
+                   return "Benutzer nicht gefunden"
+               case .invalidEmail:
+                   return "Ungültige E-Mail-Adresse"
+               default:
+                   return error.localizedDescription
+               }
+           }
+           return error.localizedDescription
+       }
+    }
 
     func register(email: String, password: String) async throws {
         let result = try await fb.auth.createUser(

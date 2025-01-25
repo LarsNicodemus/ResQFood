@@ -10,6 +10,7 @@ struct DonationSection: View {
     let title: String
     let donations: [FoodDonation]
     @EnvironmentObject var donVM: DonationViewModel
+    @State var fromChat: Bool = true
 
     var body: some View {
         if !donations.isEmpty {
@@ -17,7 +18,7 @@ struct DonationSection: View {
             ForEach(donations, id: \.id) { donation in
                 NavigationLink(
                     destination: DonationDetailView(
-                        donation: donation, showChat: true)
+                        donation: donation, showChat: $fromChat)
                 ) {
                     CreateDonationListItem(donation: donation)
                 }

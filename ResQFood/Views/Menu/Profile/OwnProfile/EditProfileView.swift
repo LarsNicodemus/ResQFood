@@ -13,6 +13,10 @@ struct EditProfileView: View {
 
     var body: some View {
         VStack{
+            Text("Profil bearbeiten:")
+                .font(.system(size: 18, weight: .bold))
+                .padding(.bottom)
+                .multilineTextAlignment(.center)
             ScrollView{
                 VStack(spacing: 16){
                     TextField("Username eingeben:", text: $profileVM.username)
@@ -92,6 +96,8 @@ struct EditProfileView: View {
                 .padding(.top, 32)
             }
         }
+        .padding()
+
         .background(Color("surface"))
         .onAppear {
             profileVM.setProfileInfos()

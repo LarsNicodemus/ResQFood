@@ -11,6 +11,7 @@ struct DonationListView: View {
     @ObservedObject var mapVM: MapViewModel
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
+    @State var fromChat: Bool = false
     var body: some View {
         VStack(alignment: .leading) {
             let filteredDonations = mapVM.locationsInRadius.filter { donation in
@@ -40,7 +41,7 @@ struct DonationListView: View {
                                 DonationListItem(donation: donation)
                             } else {
                                 NavigationLink(
-                                    destination: DonationDetailView(donation: donation, showChat: false)
+                                    destination: DonationDetailView(donation: donation, showChat: $fromChat)
                                 ) {
                                     DonationListItem(donation: donation)
                                 }

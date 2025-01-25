@@ -8,7 +8,6 @@
 import FirebaseFirestore
 
 class ChatRepositoryImplementation: ChatRepository {
-
     private let fb = FirebaseService.shared
     private let db = FirebaseService.shared.database
 
@@ -57,9 +56,6 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-    func removeUserFromChat(chatID: String, userID: String) {
-
-    }
 
     func sendMessage(chatID: String, content: String) {
         guard let senderID = fb.auth.currentUser?.uid else { return }
@@ -115,37 +111,6 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-    func unreadMessagesCountListener(userID: String, completion: @escaping (Int) -> Void) -> ListenerRegistration {
-        return db.collection("chats")
-            .whereField("members", arrayContains: userID)
-            .addSnapshotListener { [weak self] querySnapshot, error in
-                guard let self = self else { return }
-                guard let documents = querySnapshot?.documents else { return }
-                
-                var totalUnreadCount = 0
-                let group = DispatchGroup()
-                
-                for chatDoc in documents {
-                    group.enter()
-                    self.db.collection("chats")
-                        .document(chatDoc.documentID)
-                        .collection("messages")
-                        .whereField("isread.\(userID)", isEqualTo: false)
-                        .getDocuments { snapshot, error in
-                            defer { group.leave() }
-                            if let count = snapshot?.documents.count {
-                                totalUnreadCount += count
-                            }
-                        }
-                }
-                
-                group.notify(queue: .main) {
-                    completion(totalUnreadCount)
-                }
-            }
-    }
-    
-    
     func listenForUnreadMessages(
         chatID: String,
         userID: String,
@@ -200,7 +165,7 @@ class ChatRepositoryImplementation: ChatRepository {
 
         return userListener
     }
-
+   
     func chatListener(chatIDs: [String], completion: @escaping ([Chat]) -> Void)
     {
         db.collection("chats")

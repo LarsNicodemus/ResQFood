@@ -17,6 +17,10 @@ struct InputElementsView: View {
     var proxy: ScrollViewProxy
     var body: some View {
         VStack(alignment: .leading) {
+            Text("Neue Spende erstellen:")
+                .font(.system(size: 18, weight: .bold))
+                .padding(.bottom)
+                .multilineTextAlignment(.center)
             HStack {
                 Spacer()
                 ImagePickUploadView()
@@ -170,7 +174,6 @@ struct InputElementsView: View {
                                     showToast = false
                                     donVM.resetDonationFields()
                                     imageVM.resetFields()
-//                                    donVM.isPresent = false
                                 }
                             }
                         } else {
@@ -193,6 +196,7 @@ struct InputElementsView: View {
             }
             .padding(.bottom, 48)
         }
+        .padding()
         .overlay(
             Group {
                 if showToast {

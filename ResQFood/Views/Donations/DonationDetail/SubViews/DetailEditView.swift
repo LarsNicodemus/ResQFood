@@ -10,6 +10,8 @@ struct DetailEditView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var mapVM: MapViewModel
+    @State private var isLoading = true
+
     var donation: FoodDonation
     @State var showToast: Bool = false
     @State var updateSuccess: Bool = false
@@ -148,11 +150,15 @@ struct DetailEditView: View {
                     .font(.caption)
                     .foregroundStyle(Color("error"))
             }
-            TextField("Adresse:", text: $donVM.address)
-                .frame(height: 30)
-                .padding(8)
-                .background(.gray.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            if isLoading {
+                        Text("Lade Adresse...")
+                    } else {
+                        TextField("Adresse:", text: $donVM.address)
+                            .frame(height: 30)
+                            .padding(8)
+                            .background(.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
 
             HStack {
                 Spacer()
@@ -210,22 +216,26 @@ struct DetailEditView: View {
                 }
             }
         )
-        .onAppear{
+        .onAppear {
             Task {
                 await donVM.getUserProfileByID()
-                let adress = await mapVM.getAddressFromCoordinates(latitude: donation.location.lat, longitude: donation.location.lat)
-                donVM.setDetailInput(donation: donation, adress: adress)
-                
+                do {
+                    let address = await mapVM.getAddressFromCoordinates(latitude: donation.location.lat, longitude: donation.location.long)
+                    donVM.setDetailInput(donation: donation, adress: address)
+                    isLoading = false
+                } 
             }
         }
         .onChange(of: donVM.address) { old, new in
-                Task {
-                    if let coordinates = await mapVM.getCoordinatesFromAddress(new) {
-                        donVM.location.lat = coordinates.latitude
-                        donVM.location.long = coordinates.longitude
-                    }
+            Task {
+                isLoading = true
+                if let coordinates = await mapVM.getCoordinatesFromAddress(new) {
+                    donVM.location.lat = coordinates.latitude
+                    donVM.location.long = coordinates.longitude
                 }
+                isLoading = false
             }
+        }
         .onChange(of: donVM.weightInputText) { old, new in
             donVM.weight = donVM.convertWeight(donVM.weightInputText)
         }

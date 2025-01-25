@@ -39,6 +39,7 @@ struct RewardsView: View {
             List {
                 ForEach(rewardVM.rewardsData) { reward in
                     RewardSectionView(userPoints: userPoints, reward: reward, showToast: $showToast, toastMessage: $toastMessage)
+                        .environmentObject(rewardVM)
                         .listRowBackground(Color("surface"))
                 }
             }

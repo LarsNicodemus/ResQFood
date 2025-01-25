@@ -8,7 +8,6 @@ import FirebaseFirestore
 
 protocol ChatRepository {
     func createChat(name: String, userID: String, content: String, donationID: String?)
-    func removeUserFromChat(chatID: String, userID: String)
     func sendMessage(chatID: String, content: String)
     func userChatsListener(userID: String, completion: @escaping ([Chat]) -> Void) -> ListenerRegistration
     func chatListener(chatIDs: [String], completion: @escaping ([Chat]) -> Void)

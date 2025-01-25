@@ -87,9 +87,9 @@ struct ProfileOverView: View {
                             }
                         }
                         .padding()
-                        .background(RoundedRectangle(cornerRadius: 15).fill(Color("primaryContainer")))
+                        .background(RoundedRectangle(cornerRadius: 15).fill(Color("secondaryContainer")))
                         .shadow(radius: 5)
-                        .applyTextColor(Color("OnPrimaryContainer"))
+                        .applyTextColor(Color("OnSecondaryContainer"))
                     }
                 }
                 .padding()

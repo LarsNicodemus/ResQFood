@@ -47,6 +47,7 @@ class DonationViewModel: ObservableObject {
     @Published var uploadErrorMessage: String? = nil
     @Published var uploadSuccessMessage: String? = nil
     @Published var isPresent: Bool = false
+    @Published var isPresentDetail: Bool = false
     @Published var donUserNames: [String: String] = [:]
     @Published var userProfile: UserProfile? = nil
     @Published var address: String = ""

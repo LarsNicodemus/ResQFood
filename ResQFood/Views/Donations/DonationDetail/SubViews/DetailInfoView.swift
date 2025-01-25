@@ -10,8 +10,9 @@ import SwiftUI
 struct DetailInfoView: View {
     var donation: FoodDonation
     @Binding var locationName: String
-    var showChat: Bool
+    @Binding var showChat: Bool
     @EnvironmentObject var mapVM: MapViewModel
+    @EnvironmentObject var donVM: DonationViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -24,11 +25,13 @@ struct DetailInfoView: View {
 
                 VStack {
                    
-                    NavigationLink("Anbieter") {
-                        ProfileView(
-                            userID: donation.creatorID, fromChat: showChat)
+                    if let currentUserID = donVM.getuserID(), currentUserID != donation.creatorID {
+                        NavigationLink("Anbieter") {
+                            ProfileView(
+                                userID: donation.creatorID, fromChat: showChat)
+                        }
+                        .primaryButtonStyle()
                     }
-                    .primaryButtonStyle()
 
                 }
             }

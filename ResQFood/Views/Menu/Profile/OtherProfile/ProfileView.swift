@@ -8,47 +8,7 @@
 import PhotosUI
 import SwiftUI
 
-struct StarRatingView: View {
-    @EnvironmentObject var profileVM: ProfileViewModel
-    var maximumRating = 5
-    var onRatingChange: ((Int) -> Void)?
-    @State private var showAlertAlreadyRated = false
 
-    var body: some View {
-        HStack(spacing: 0) {
-            
-            ForEach(1...maximumRating, id: \.self) { index in
-                Image(systemName: index <= profileVM.rating ?? 0 ? "star.fill" : "star")
-                    .foregroundColor(index <= profileVM.rating ?? 0 ? .yellow : .gray)
-                    .onTapGesture {
-                        if let userID = profileVM.currentUserID() {
-                            if let profile = profileVM.otherUserProfile {
-                                if !profile.ratedBy.contains(userID) {
-                                    profileVM.rating = index
-                                    profileVM.updateRating(rating: index)
-                                    onRatingChange?(index)
-                                } else {
-                                    showAlertAlreadyRated = true
-                                }
-                            }
-                        }
-                    }
-                   
-            }
-        }
-        .alert("Bewertung ändern", isPresented: $showAlertAlreadyRated) {
-            Button("Bewertung löschen", role: .destructive) {
-                profileVM.removeRating()
-            }
-            Button("Abbrechen", role: .cancel) {}
-        } message: {
-            Text(
-                "Du hast diesen Nutzer bereits bewertet. Möchtest du deine Bewertung löschen?"
-            )
-        }
-    }
-
-}
 
 struct ProfileView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
@@ -57,36 +17,66 @@ struct ProfileView: View {
     @EnvironmentObject var chatVM: ChatViewModel
     var userID: String
     var fromChat: Bool
+    @State var fromChatForList: Bool = false
     @State var sheetPresent: Bool = false
+    @State var isReportSheet: Bool = false
     @State var report: Bool = false
+    @State private var activeSheet: ActiveSheet? = nil
 
+    enum ActiveSheet: Identifiable {
+            case report
+            case message
+
+            var id: String {
+                switch self {
+                case .report:
+                    return "report"
+                case .message:
+                    return "message"
+                }
+            }
+        }
+    
+    
     var body: some View {
-        VStack{
+        VStack {
             ScrollView {
 
                 VStack {
                     if let user = profileVM.otherUserProfile {
                         HStack {
                             Spacer()
-                            VStack {
+                            if fromChat {
                                 Button {
-                                    sheetPresent = true
-                                    report = true
+                                    activeSheet = .report
                                 } label: {
-                                    Image(systemName: "exclamationmark.bubble.fill")
+                                    Image(
+                                        systemName:
+                                            "exclamationmark.bubble.fill"
+                                    )
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .tint(Color("primaryAT"))
+                                }
+                            } else {
+                                Button {
+                                    activeSheet = .report
+                                } label: {
+                                    Image(
+                                        systemName:
+                                            "exclamationmark.bubble.fill"
+                                    )
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .tint(Color("primaryAT"))
+                                }
+                                Button {
+                                    activeSheet = .message
+                                } label: {
+                                    Image(systemName: "ellipsis.message")
                                         .resizable()
                                         .frame(width: 32, height: 32)
                                         .tint(Color("primaryAT"))
-                                }
-                                if !fromChat {
-                                    Button {
-                                        sheetPresent = true
-                                    } label: {
-                                        Image(systemName: "ellipsis.message")
-                                            .resizable()
-                                            .frame(width: 32, height: 32)
-                                            .tint(Color("primaryAT"))
-                                    }
                                 }
                             }
                         }.padding(.trailing)
@@ -143,57 +133,37 @@ struct ProfileView: View {
                                 }
                             }
                         }
+                        .padding(.horizontal, 32)
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 15).fill(
-                                Color("primaryContainer"))
+                                Color("secondaryContainer"))
                         )
                         .shadow(radius: 5)
                         .applyTextColor(Color("OnPrimaryContainer"))
                     }
                 }
                 .padding()
-                VStack {
-                    Text("Weitere Inserate des Anbieters: ")
-
-                    if let donations = donVM.donations {
-                        let filteredDonations = donations.filter { donation in
-                            donation.pickedUp != true
-                        }
-                        ForEach(filteredDonations, id: \.id) { donation in
-                            Group {
-
-                                if let isReserved = donation.isReserved, isReserved
-                                {
-                                    DonationListItem(donation: donation)
-                                } else {
-                                    NavigationLink(
-                                        destination: DonationDetailView(
-                                            donation: donation, showChat: fromChat)
-                                    ) {
-                                        DonationListItem(donation: donation)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                }
-
+                OtherProfilelistView(fromChat: Binding(
+                                get: { fromChat },
+                                set: {fromChatForList = $0 }
+                            ))
+                
             }
         }
         .background(Color("surface"))
         .customBackButton()
-        .sheet(
-            isPresented: $sheetPresent,
-            content: {
-                if report {
-                    ReportSheet(sheetPresent: $sheetPresent, report: $report)
-                } else {
-                    MessageSheet(sheetPresent: $sheetPresent)
+        .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .report:
+                        ReportSheet(sheetPresent: .constant(false), report: .constant(true))
+                            .presentationDetents([.medium])
+                    case .message:
+                        MessageSheet(sheetPresent: .constant(false))
+                            .presentationDetents([.medium])
+                    }
                 }
-            }
-        )
+
         .onAppear {
             donVM.setupDonationsListenerForOtherUser(userID: userID)
             chatVM.getOtherUserByID(id: userID)
@@ -217,10 +187,11 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: "6WallALqOfVNtT78Ym5Bqd94Dw12", fromChat: false)
-        .environmentObject(ProfileViewModel())
-        .environmentObject(ImageViewModel())
-        .environmentObject(ChatViewModel())
-        .environmentObject(DonationViewModel())
-        .environmentObject(MapViewModel())
+    ProfileView(
+        userID: "6WallALqOfVNtT78Ym5Bqd94Dw12", fromChat: true)
+    .environmentObject(ProfileViewModel())
+    .environmentObject(ImageViewModel())
+    .environmentObject(ChatViewModel())
+    .environmentObject(DonationViewModel())
+    .environmentObject(MapViewModel())
 }

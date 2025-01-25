@@ -13,10 +13,18 @@ struct MessageSheet: View {
     @State var showToast: Bool = false
     var body: some View {
         VStack{
+            Text("Möchtest du diesem Nutzer eine Nachricht senden?")
+                .font(.system(size: 18, weight: .bold))
+                .padding(.bottom)
+                .multilineTextAlignment(.center)
             ZStack{
                 
                 TextEditor(text: $messageInput)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color("primaryAT"), lineWidth: 1)
+                    }
                 if messageInput.isEmpty {
                     VStack(alignment: .leading){
                         HStack{
@@ -59,6 +67,8 @@ struct MessageSheet: View {
             .padding(.bottom)
             .padding(.bottom)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
         .background(Color("surface"))
 
         .overlay(
@@ -71,7 +81,6 @@ struct MessageSheet: View {
             }
         )
         .background(Color("surface"))
-        .padding()
     }
 }
 

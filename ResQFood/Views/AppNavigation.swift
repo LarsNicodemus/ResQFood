@@ -40,19 +40,11 @@ struct AppNavigation: View {
                 Tab("Menü", systemImage: "wrench") {
                     MenuView(navigationPath: $navigationPath)
                 }
-                .badge(
-                    chatVM.unreadMessagesCount > 0
-                        ? chatVM.unreadMessagesCount : 0)
+                .badge(chatVM.unreadMessagesCount > 0 ? chatVM.unreadMessagesCount : 0)
             }
-
-            .task {
-                if !chatVM.currentUserID.isEmpty {
-                    chatVM.startUnreadMessagesListener()
-                }
-
-            }
-            .tint(Color("primaryAT"))
             
+            .tint(Color("primaryAT"))
+
         } else {
             TabView {
                 Tab("Home", systemImage: "house") {

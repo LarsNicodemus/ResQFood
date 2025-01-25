@@ -80,12 +80,20 @@ class AuthViewModel: ObservableObject {
     func login() {
         Task {
             do {
-                try await userRepo.login(email: email, password: password)
-                resetEmailPassword()
+                if let errorMessage = try await userRepo.login(email: email, password: password) {
+                    if errorMessage.contains("Passwort") {
+                        passwordError = errorMessage
+                    } else {
+                        emailError = errorMessage
+                    }
+                    emailPasswordError = true
+                } else {
+                    resetEmailPassword()
+                }
             } catch {
                 print(error)
+                errorMessage = "Ein unerwarteter Fehler ist aufgetreten"
             }
-            
         }
     }
 
@@ -180,18 +188,14 @@ class AuthViewModel: ObservableObject {
     var userNotAnonym: Bool {
         user?.email != nil
     }
-
+    
     func validateEmail() {
         if email.isEmpty {
-            emailError = "Email darf nicht leer sein."
-        } else if !email.contains("@") {
-            emailError = "Bitte geben Sie eine gültige Email-Adresse ein."
-        } else if emailAlredyUsed {
-            emailError = "Diese Email-Adresse wird bereits verwendet."
-        } else if emailPasswordError && !isResetEmailSent {
-            emailError = "Email-Adresse oder Passwort fehlerhaft."
-        } else if isResetEmailSent {
-            emailError = "Reset Email wurde gesendet."
+            emailError = "E-Mail darf nicht leer sein."
+        } else if !isValidEmail(email) {
+            emailError = "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+        } else if emailPasswordError {
+            emailError = emailError
         } else {
             emailError = nil
         }
@@ -202,22 +206,67 @@ class AuthViewModel: ObservableObject {
             passwordError = "Passwort darf nicht leer sein."
         } else if password.count < 6 {
             passwordError = "Das Passwort muss mindestens 6 Zeichen lang sein."
+        } else if emailPasswordError {
+            passwordError = passwordError
         } else {
             passwordError = nil
         }
     }
-
+    
     func validateFieldsLogin() {
-        didValidate = true
-        validateEmail()
-        validatePassword()
-        emailPasswordError = false
-        isResetEmailSent = false
-        if emailError == nil && passwordError == nil {
-            login()
+       didValidate = true
+       emailPasswordError = false
+       isResetEmailSent = false
+
+       validateEmail()
+       validatePassword()
+
+       if emailError == nil && passwordError == nil {
+           Task {
+               do {
+                   if let errorMessage = try await userRepo.login(email: email, password: password) {
+                       print("VIEWMODEL FEHLER: \(errorMessage)")
+
+                       if errorMessage.contains("Passwort") {
+                           
+                           passwordError = "E-Mail oder Passwort fehlerhaft."
+                       } else {
+                           emailError = "E-Mail oder Passwort fehlerhaft."
+                       }
+                       emailPasswordError = true
+                   } else {
+                       resetEmailPassword()
+                   }
+               } catch let error as NSError {
+                   handleFirebaseLoginError(error)
+               }
+           }
+       }
+    }
+    
+    private func handleFirebaseLoginError(_ error: NSError) {
+        if error.domain == AuthErrorDomain {
+            switch AuthErrorCode(rawValue: error.code) {
+            case .wrongPassword:
+                emailPasswordError = true
+                passwordError = "Falsches Passwort."
+                validatePassword()
+            case .userNotFound:
+                emailPasswordError = true
+                emailError = "Benutzer nicht gefunden."
+                validateEmail()
+            case .invalidEmail:
+                emailPasswordError = true
+                emailError = "Ungültige E-Mail-Adresse."
+                validateEmail()
+            default:
+                errorMessage = "Ein unbekannter Fehler ist aufgetreten: \(error.localizedDescription)"
+            }
+        } else {
+            errorMessage = "Ein Fehler ist aufgetreten: \(error.localizedDescription)"
         }
     }
-
+    
     func validateFieldsRegister() {
         didValidate = true
         validateEmail()

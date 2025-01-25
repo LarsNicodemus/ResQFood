@@ -14,7 +14,7 @@ struct HomeView: View {
     @StateObject var homeVM: HomeViewModel = HomeViewModel()
     @State private var greeting: String = ""
     @Binding var navigationPath: NavigationPath
-
+    @State var showChat: Bool = true
     var body: some View {
         VStack {
                 ZStack{
@@ -125,7 +125,7 @@ struct HomeView: View {
                         Text("Für dich reservierte Spenden: ")
                         ForEach(donations, id: \.id) { donation in
                             NavigationLink{
-                                DonationDetailView(donation: donation, showChat: true)
+                                DonationDetailView(donation: donation, showChat: $showChat)
                             } label: {
                                 HomeDonationListItem(donation: donation)
                                     .padding(.horizontal)
