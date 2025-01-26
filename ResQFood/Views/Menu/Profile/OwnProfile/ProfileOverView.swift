@@ -98,7 +98,7 @@ struct ProfileOverView: View {
         .background(Color("surface"))
         .customBackButton()
         .sheet(isPresented: $sheetPresent, content: {
-            EditProfileView()
+            EditProfileView(sheetPresent: $sheetPresent)
         })
         .onChange(of: imageVM.selectedItem) { oldItems, newItems in
                     Task {

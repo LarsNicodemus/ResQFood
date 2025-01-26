@@ -36,21 +36,4 @@ class ImageRepositoryImplementation: ImageRepository {
 
         return response.data
     }
-    
-
-
-    func deleteImage(deleteHash: String) async throws -> Bool {
-        let urlString = baseURL + "/image/\(deleteHash)"
-        let headers = [
-            "Authorization": "Client-ID \(APIClientId)"
-        ]
-
-        let response: DeleteResponse = try await webService.deleteData(
-            urlString: urlString,
-            method: "DELETE",
-            headers: headers
-        )
-        
-        return response.success
-    }
 }

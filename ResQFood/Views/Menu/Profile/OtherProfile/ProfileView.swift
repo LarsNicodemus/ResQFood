@@ -150,6 +150,7 @@ struct ProfileView: View {
                             ))
                 
             }
+            .scrollIndicators(.hidden)
         }
         .background(Color("surface"))
         .customBackButton()
@@ -169,19 +170,6 @@ struct ProfileView: View {
             chatVM.getOtherUserByID(id: userID)
             profileVM.getOtherUserByIDList(id: userID)
 
-        }
-
-        .onChange(of: imageVM.selectedItem) { oldItems, newItems in
-            Task {
-                await imageVM.handleImageSelection(newItem: newItems)
-                if imageVM.selectedImage != nil {
-                    await imageVM.uploadImage()
-                    profileVM.pictureUrl = imageVM.uploadedImage?.url
-                    profileVM.editProfile(updates: [
-                        .pictureUrl: profileVM.pictureUrl as Any
-                    ])
-                }
-            }
         }
     }
 }

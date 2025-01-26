@@ -6,13 +6,6 @@
 //
 import SwiftUI
 
-struct ImgurImage {
-    let id: String
-    let url: String
-    let thumbnailUrl: String
-}
-
-
 struct AppImage: Codable, Identifiable {
     var id: String = UUID().uuidString
     var deletehash: String

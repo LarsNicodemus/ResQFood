@@ -13,67 +13,73 @@ struct DonationMapView: View {
 
     var body: some View {
         ZStack {
-            Map(position: $mapVM.position) {
+            if mapVM.isLoading {
+                ProgressView("Lade Spenden...")
+            } else {
+                Map(position: $mapVM.position) {
 
-                if let coordinates = mapVM.coordinates {
-                    Annotation("Meine Position", coordinate: coordinates) {
-                        Image(systemName: "heart.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 32)
-                            .foregroundStyle(Color("primaryContainer"))
-                            .overlay {
-                                Image(systemName: "heart")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(Color("primaryAT"))
-                            }
-
-                        Text("Meine Position")
-                            .font(.caption)
-                            .foregroundStyle(Color("primaryAT"))
-                    }
-                    .annotationTitles(.hidden)
-                }
-
-                if !mapVM.locationsInRadius.isEmpty {
-                    let donations = mapVM.locationsInRadius
-                    ForEach(donations, id: \.id) { donation in
-
-                        Annotation(
-                            donation.title,
-                            coordinate: CLLocationCoordinate2D(
-                                latitude: donation.location.lat,
-                                longitude: donation.location.long)
-                        ) {
-                            Image("fridgeicon2")
+                    if let coordinates = mapVM.coordinates {
+                        Annotation("Meine Position", coordinate: coordinates) {
+                            Image(systemName: "heart.fill")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 32)
-                                .foregroundStyle(Color("primaryAT"))
-                            Text(donation.title)
+                                .foregroundStyle(Color("primaryContainer"))
+                                .overlay {
+                                    Image(systemName: "heart")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle(Color("primaryAT"))
+                                }
+
+                            Text("Meine Position")
                                 .font(.caption)
                                 .foregroundStyle(Color("primaryAT"))
                         }
                         .annotationTitles(.hidden)
                     }
-                }
 
-                if let coordinates = mapVM.coordinates {
-                    MapCircle(center: coordinates, radius: mapVM.searchRadius)
+                    if !mapVM.locationsInRadius.isEmpty {
+
+                        if let donations = mapVM.donations, !donations.isEmpty {
+                            ForEach(donations, id: \.id) { donation in
+                                Annotation(
+                                    donation.title,
+                                    coordinate: CLLocationCoordinate2D(
+                                        latitude: donation.location.lat,
+                                        longitude: donation.location.long
+                                    )
+                                ) {
+                                    Image("fridgeicon2")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 32)
+                                        .foregroundStyle(Color("primaryAT"))
+                                    Text(donation.title)
+                                        .font(.caption)
+                                        .foregroundStyle(Color("primaryAT"))
+                                }
+                                .annotationTitles(.hidden)
+                            }
+                        }
+                    }
+
+                    if let coordinates = mapVM.coordinates {
+                        MapCircle(
+                            center: coordinates, radius: mapVM.searchRadius
+                        )
                         .strokeStyle(style: .init(lineWidth: 2))
                         .foregroundStyle(.green.opacity(0.25))
+                    }
+                }
+                .mapStyle(.standard)
+                .mapControls {
+                    MapScaleView()
+                    MapCompass()
+                    MapPitchToggle()
                 }
             }
-            .mapStyle(.standard)
-            .mapControls {
-                MapScaleView()
-                MapCompass()
-                MapPitchToggle()
-            }
-            
-                
-            
+
             VStack {
                 HStack {
                     TextField("Suche:", text: $mapVM.searchTerm)
@@ -125,27 +131,30 @@ struct DonationMapView: View {
                         .font(.system(size: 10))
 
                 }
-                
+
                 Spacer()
                 VStack {
-
-                    DonationListView(mapVM: mapVM)
+                    
+                    DonationListView()
                         .frame(minHeight: 0, maxHeight: 350, alignment: .bottom)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color("secondaryContainer").opacity(0.5)))
+                    
                 }
             }
             .padding(.top, 64)
             .padding(.horizontal, 8)
             if mapVM.filerToggle {
-                ZStack{
+                ZStack {
                     FilterView()
                         .frame(maxWidth: 250, maxHeight: 300)
                         .padding(.trailing, 8)
                         .padding(.top, 106)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .frame(
+                    maxWidth: .infinity, maxHeight: .infinity,
+                    alignment: .topTrailing)
             }
         }
         .task {
@@ -155,13 +164,16 @@ struct DonationMapView: View {
         }
         .onChange(of: mapVM.searchRadius) { oldValue, newValue in
             if let coordinates = mapVM.coordinates {
-                withAnimation {
-                    mapVM.position = .region(
-                        MKCoordinateRegion(
-                            center: coordinates,
-                            latitudinalMeters: newValue * 2,
-                            longitudinalMeters: newValue * 2
-                        ))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation {
+                        mapVM.position = .region(
+                            MKCoordinateRegion(
+                                center: coordinates,
+                                latitudinalMeters: newValue * 2,
+                                longitudinalMeters: newValue * 2
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -193,7 +205,7 @@ struct FilterView: View {
                 }
                 .primaryButtonStyle()
             }
-            
+
             List(
                 GroceryType.allCases,
                 id: \.self,
@@ -222,7 +234,7 @@ struct FilterView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
-            
+
         }
         .padding(8)
         .background(Color("secondaryContainer"))
@@ -231,6 +243,6 @@ struct FilterView: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color("primaryAT"), lineWidth: 1)
         }
-        
+
     }
 }

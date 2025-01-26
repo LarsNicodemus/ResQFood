@@ -12,6 +12,7 @@ class ChatViewModel: ObservableObject {
     @Published var chats: [Chat] = []
     @Published var messages: [Message] = []
     @Published var messageInput: String = ""
+//    @Published var unreadMessagesCount: Int = 0
     var unreadMessagesCount: Int {
         return unreadCountPerChat.values.reduce(0, +)
     }
@@ -34,11 +35,19 @@ class ChatViewModel: ObservableObject {
     private var chatListeners: [String: ListenerRegistration] = [:]
 
     init() {
-        addChatsSnapshotListener()
+//        addChatsSnapshotListener()
     }
 
     deinit {
-        deinitChat()
+        listener?.remove()
+        listener = nil
+        unreadListener?.remove()
+        unreadListener = nil
+        memberListener?.remove()
+        memberListener = nil
+        userProfile = nil
+        chatListeners.values.forEach { $0.remove() }
+        chatListeners.removeAll()
     }
 
     func getOtherUserByID(id: String) {
@@ -132,7 +141,8 @@ class ChatViewModel: ObservableObject {
     }
 
     func addChatsSnapshotListener() {
-        listener = repo.userChatsListener(userID: currentUserID) { chats in
+        guard let userID = fb.userID else {return}
+        listener = repo.userChatsListener(userID: userID) { chats in
             self.chats = chats.sorted(by: { c1, c2 in
                 c1.lastMessage > c2.lastMessage
             }

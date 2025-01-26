@@ -81,6 +81,9 @@ struct CreateView: View {
                     }
                 }
             }
+            .onAppear{
+                donVM.resetDonationFields()
+            }
             .padding()
             .background(Color("surface"))
             .foregroundStyle(Color("primaryAT"))

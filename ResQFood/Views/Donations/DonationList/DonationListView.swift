@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DonationListView: View {
-    @ObservedObject var mapVM: MapViewModel
+    @EnvironmentObject var mapVM: MapViewModel
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
     @State var fromChat: Bool = false
@@ -74,7 +74,8 @@ struct DonationListView: View {
 }
 
 #Preview {
-    DonationListView(mapVM: MapViewModel())
+    DonationListView()
+        .environmentObject(MapViewModel())
         .environmentObject(DonationViewModel())
         .environmentObject(ChatViewModel())
 

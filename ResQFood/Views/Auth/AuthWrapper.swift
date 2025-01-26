@@ -18,7 +18,26 @@ struct AuthWrapper: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            if authVM.user != nil {
+            if authVM.isLoading {                
+                ZStack {
+                    RotatingImageView()
+                        .opacity(0.8)
+                    VStack {
+                        Text("Bitte warten...")
+                            .font(.headline)
+                            .foregroundColor(Color("surface"))
+                            .padding(.bottom, 10)
+                        
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color("surface")))
+                            .scaleEffect(1.2)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color("surface").opacity(0.8))
+                .edgesIgnoringSafeArea(.all)
+                
+                    } else if authVM.user != nil {
                 if authVM.appUser != nil {
                     if authVM.appUser?.userProfileID != nil || !authVM.userNotAnonym {
                         AppNavigation(navigationPath: $navigationPath)
@@ -54,11 +73,14 @@ struct AuthWrapper: View {
                                 }
                             }
                             .onAppear {
+                                chatVM.addChatsSnapshotListener()
+
                                 chatVM.unreadMessagesBadgeListener()
                             }
                             
                     } else {
                         ProfileCreationView()
+                            .padding()
                     }
                 }
                     

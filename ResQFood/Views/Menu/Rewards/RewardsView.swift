@@ -41,9 +41,11 @@ struct RewardsView: View {
                     RewardSectionView(userPoints: userPoints, reward: reward, showToast: $showToast, toastMessage: $toastMessage)
                         .environmentObject(rewardVM)
                         .listRowBackground(Color("surface"))
+                    
                 }
             }
             .listStyle(.plain)
+            .scrollIndicators(.hidden)
         }
         .background(Color("surface"))
         .overlay {

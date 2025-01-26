@@ -10,6 +10,7 @@ import SwiftUI
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var profileVM: ProfileViewModel
+    @Binding var sheetPresent: Bool
 
     var body: some View {
         VStack{
@@ -85,6 +86,11 @@ struct EditProfileView: View {
                                 let updates = profileVM.getUpdatedFields()
                                 if !updates.isEmpty {
                                     profileVM.editProfile(updates: updates)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        withAnimation {
+                                            sheetPresent = false
+                                        }
+                                    }
                                 } else {
                                     print("No Changes")
                                 }
@@ -106,7 +112,7 @@ struct EditProfileView: View {
 }
 
 #Preview {
-    EditProfileView()
+    EditProfileView(sheetPresent: .constant(true))
         .environmentObject(ProfileViewModel())
     
 }

@@ -74,6 +74,7 @@ struct AboutResQFoodView: View {
             .padding()
         }
         .background(Color("surface"))
+        .scrollIndicators(.hidden)
         .customBackButton()
     }
 }

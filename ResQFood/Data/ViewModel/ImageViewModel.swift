@@ -14,7 +14,6 @@ class ImageViewModel: ObservableObject {
     let imageRepository: ImageRepository = ImageRepositoryImplementation()
 
     @Published var selectedImage: UIImage?
-    @Published var uploadedImageURL: String?
     @Published var selectedItem: PhotosPickerItem? = nil
 
     @Published var selectedImages: [UIImage] = []
@@ -51,26 +50,6 @@ class ImageViewModel: ObservableObject {
         }
     }
 
-    func uploadImagenew() async {
-        isLoading = true
-        uploadedImages = []
-        do {
-            for image in selectedImages {
-                let uploadedImageData = try await imageRepository.uploadImage(
-                    image)
-                let appImage = AppImage(
-                    id: uploadedImageData.id,
-                    deletehash: uploadedImageData.deletehash,
-                    url: uploadedImageData.link)
-                uploadedImages.append(appImage)
-            }
-            print("Images uploaded: \(uploadedImages)")
-        } catch {
-            print("Upload Error: \(error.localizedDescription)")
-        }
-        isLoading = false
-    }
-
     func handleImageSelection(newItem: PhotosPickerItem?) async {
         do {
             if let data = try await newItem?.loadTransferable(type: Data.self) {
@@ -88,25 +67,6 @@ class ImageViewModel: ObservableObject {
             print(
                 "Error loading image data: \(error.localizedDescription)"
             )
-        }
-    }
-
-    func deleteImage(_ image: ImgurImageData) {
-        Task {
-            isLoading = true
-            do {
-                let success = try await imageRepository.deleteImage(
-                    deleteHash: image.deletehash)
-                if success {
-                    uploadedImgurImageData = nil
-                    uploadedImage = nil
-                    print("Image deleted")
-                }
-            } catch {
-                errorMessage =
-                    "Fehler beim Löschen: \(error.localizedDescription)"
-            }
-            isLoading = false
         }
     }
 

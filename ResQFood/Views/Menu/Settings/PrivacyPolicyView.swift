@@ -242,6 +242,7 @@ struct PrivacyPolicyView: View {
             .background(Color("surface"))
         }
         .background(Color("surface"))
+        .scrollIndicators(.hidden)
         .customBackButton()
 
     }

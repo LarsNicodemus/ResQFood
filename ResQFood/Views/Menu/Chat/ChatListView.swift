@@ -22,9 +22,11 @@ struct ChatListView: View {
                         ChatRowView(chat: chat)
                     }
                 }
+                .scrollIndicators(.hidden)
                 .padding()
             }
         }
+        .background(Color("surface"))
         .customBackButton()
         .onAppear {
                    chatVM.addChatsSnapshotListener()
@@ -99,7 +101,7 @@ struct ChatRowContent: View {
             }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color("surface"))
+        .background(Color("secondaryContainer"))
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay {
             RoundedRectangle(cornerRadius: 15)

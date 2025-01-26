@@ -31,7 +31,8 @@ class AuthViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var isResetEmailSent = false
     @Published var resetNavigation = false
-    
+    @Published var isLoading = true
+
     private let fb = FirebaseService.shared
     private let userRepo = UserRepositoryImplementation()
     private var listener: NSObjectProtocol?
@@ -59,8 +60,12 @@ class AuthViewModel: ObservableObject {
         userListener = nil
         
         if let userID = fb.userID {
+            self.isLoading = true
             userListener = userRepo.addUserListener(userID: userID) { user in
+                DispatchQueue.main.async {
                     self.appUser = user
+                    self.isLoading = false
+                }
             }
         }
     }

@@ -17,16 +17,16 @@ struct ImagePickView: View {
             if imageVM.selectedImage != nil {
                 
                 if let image = imageVM.selectedImage {
-                    ImageView(image: Image(uiImage: image))
+                    CreateImageView(image: Image(uiImage: image))
                 }
-
+                
             } else {
                 PhotosPicker(
                     selection: $imageVM.selectedItem,
                     matching: .images,
                     photoLibrary: .shared()
                 ) {
-                    ImageView(image: Image("placeholder"))
+                    CreateImageView(image: Image("placeholder"))
                 }
                 
             }
@@ -39,15 +39,7 @@ struct ImagePickView: View {
                 photoLibrary: .shared()
             ) {
                 Text("Bild auswählen")
-
-            }
-            .primaryButtonStyle()
-
-            Button("Bild hochladen") {
-                Task {
-                    await imageVM.uploadImage()
-                    profileVM.pictureUrl = imageVM.uploadedImage?.url
-                }
+                
             }
             .primaryButtonStyle()
         }
@@ -56,6 +48,8 @@ struct ImagePickView: View {
             Task {
                 await imageVM.handleImageSelection(
                     newItem: newItems)
+                await imageVM.uploadImage()
+                profileVM.pictureUrl = imageVM.uploadedImage?.url
             }
         }
     }

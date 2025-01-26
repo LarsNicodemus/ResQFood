@@ -7,6 +7,5 @@
 import SwiftUI
 
 protocol ImageRepository {
-    func deleteImage(deleteHash: String) async throws -> Bool
     func uploadImage(_ image: UIImage) async throws -> ImgurImageData
 }

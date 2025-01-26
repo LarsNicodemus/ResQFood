@@ -33,6 +33,7 @@ struct ChatDetailHeader: View {
             NavigationLink(title) {
                 if let donation = donationForTitle {
                     DonationDetailView(donation: donation, showChat: $fromChat)
+                        
                 }
             }
             .bold()

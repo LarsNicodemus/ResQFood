@@ -25,7 +25,8 @@ struct RewardItemView: View {
             Text("\(rewardItem.description)")
                 .font(.body)
                 .foregroundColor(isEligible ? Color("primaryAT") : Color("tertiary"))
-        }
+        }.listRowBackground(isEligible ? Color("secondaryContainer").opacity(0.5) : Color("tertiaryContainer").opacity(0.5))
+        
         .onTapGesture {
             
             if isEligible {
