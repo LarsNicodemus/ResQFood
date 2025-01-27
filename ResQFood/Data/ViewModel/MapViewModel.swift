@@ -45,6 +45,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func updateSearchResults() {
+        print("Location before\(String(describing: coordinates))")
         guard !searchTerm.isEmpty else {
             locationsInRadius = []
             return
@@ -59,6 +60,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 {
                     await MainActor.run {
                         self.coordinates = location
+                        updateLocationsInRadius()
                         withAnimation {
                             self.position = .region(
                                 MKCoordinateRegion(
@@ -67,7 +69,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                                     longitudinalMeters: self.searchRadius * 2
                                 ))
                         }
-                        updateLocationsInRadius()
+                        print("Location after\(String(describing: coordinates))")
                     }
                 }
             } catch {
@@ -96,10 +98,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         _ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]
     ) {
         guard let location = locations.last?.coordinate else { return }
-
+        
         Task { @MainActor in
             self.coordinates = location
-
+            updateLocationsInRadius()
             withAnimation {
                 self.position = .region(
                     MKCoordinateRegion(
@@ -108,7 +110,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                         longitudinalMeters: self.searchRadius * 2
                     ))
             }
-            updateLocationsInRadius()
+            
         }
     }
 

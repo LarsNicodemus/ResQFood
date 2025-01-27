@@ -11,11 +11,18 @@ struct FoodWasteView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Lebensmittelverschwendung")
-                    .font(.largeTitle)
+                Text("Lebensmittel-")
+                    .font(Fonts.title2)
                     .fontWeight(.bold)
                     .padding(.horizontal)
-                
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Text("verschwendung")
+                    .font(Fonts.title2)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+                    .padding(.top, -10)
+                    .frame(maxWidth: .infinity, alignment: .center)
+
                 Text("In Deutschland landen jährlich 11 Millionen Tonnen Lebensmittel im Müll. Über die Hälfte davon – etwa 6,5 Millionen Tonnen – stammen aus privaten Haushalten. Das müssen wir ändern!")
                     .font(.body)
                     .padding(.horizontal)

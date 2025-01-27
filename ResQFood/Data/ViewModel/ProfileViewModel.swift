@@ -102,8 +102,6 @@ class ProfileViewModel: ObservableObject {
 
     }
     
-    
-    
     func deinitUserProfile() {
         username = ""
         birthDay = Date()

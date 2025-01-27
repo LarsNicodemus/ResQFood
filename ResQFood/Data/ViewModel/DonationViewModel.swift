@@ -61,6 +61,7 @@ class DonationViewModel: ObservableObject {
     private let profileRepo = UserRepositoryImplementation()
     private var memberListener: ListenerRegistration?
     
+    /// Filtert die Spenden nach Status (aktiv, reserviert, abgeholt)
     var filteredDonations: (active: [FoodDonation], reserved: [FoodDonation], pickedUp: [FoodDonation]) {
             guard let donations = donations else { return ([], [], []) }
             
@@ -92,11 +93,16 @@ class DonationViewModel: ObservableObject {
         listenerOtherUser = nil
     }
 
+    
+    /// Gibt die aktuelle User ID zurück, falls vorhanden
+    /// - Returns: Die User ID als String oder nil
     func getuserID() -> String? {
         guard let userID = fb.userID else { return nil }
         return userID
     }
 
+    /// Lädt das Benutzerprofil für die angegebene User ID
+    /// - Parameter userID: Die ID des zu ladenden Benutzers
     private func getUserProfileByID(userID: String) async {
         Task {
             do {
@@ -189,7 +195,8 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
-
+    
+    /// Erstellt eine neue Spende mit den aktuellen Formulardaten
     func addDonation() async {
         guard let userID = fb.userID else {
             print("Fehler UserID")
@@ -258,6 +265,8 @@ class DonationViewModel: ObservableObject {
 
     }
 
+    /// Aktualisiert den "Abgeholt" Status einer Spende
+    /// - Parameter donation: Die zu aktualisierende Spende
     func handlePickedUpAction(donation: FoodDonation) async {
         let newValue = (donation.pickedUp ?? false) == true ? false : true
         editDonation(id: donation.id!, updates: [.pickedUp: newValue])
@@ -284,6 +293,8 @@ class DonationViewModel: ObservableObject {
         }
     }
 
+    /// Aktualisiert den "Reserviert" Status einer Spende
+    /// - Parameter donation: Die zu aktualisierende Spende
     func handleReservedAction(donation: FoodDonation) {
         let newValue = (donation.isReserved ?? false) == true ? false : true
         editDonation(id: donation.id!, updates: [.isReserved: newValue])
@@ -302,6 +313,8 @@ class DonationViewModel: ObservableObject {
             completion: completion)
     }
 
+    /// Aktualisiert die Punktzahl beider Benutzer nach erfolgreicher Spende
+    /// - Parameter otherUserID: ID des anderen beteiligten Benutzers
     func setUserPoints(otherUserID: String) {
         guard let userID = fb.userID else { return }
 
@@ -325,6 +338,13 @@ class DonationViewModel: ObservableObject {
             }
         }
     }
+    
+    
+    /// Konvertiert ein Gewicht in Gramm
+    /// - Parameters:
+    ///   - weight: Das umzurechnende Gewicht
+    ///   - unit: Die Ausgangseinheit
+    /// - Returns: Das Gewicht in Gramm
     func convertToGrams(weight: Double, unit: WeightUnit) -> Double {
         return weight * unit.toGramsConversionFactor()
     }
@@ -368,6 +388,8 @@ class DonationViewModel: ObservableObject {
         }
     }
 
+    /// Löscht eine Spende
+    /// - Parameter id: ID der zu löschenden Spende
     func deleteDonation(id: String) {
         Task {
             do {
@@ -400,6 +422,8 @@ class DonationViewModel: ObservableObject {
         }
     }
 
+    /// Validiert alle Eingabefelder für eine neue Spende
+    /// - Returns: True wenn alle Felder valide sind, sonst false
     func checkForDonationUpload() async -> Bool {
         checkTitle()
         checkDescription()
@@ -417,6 +441,53 @@ class DonationViewModel: ObservableObject {
         } else {
             return false
         }
+    }
+    func checkForExistingDonationUpload(id: String, donation: FoodDonation) async -> Bool {
+        checkTitle()
+        checkDescription()
+        checkWeight()
+        checkPictures()
+        checkLocation()
+
+        let allValid = titleError == nil &&
+            descriptionError == nil &&
+            weightError == nil &&
+            picturesError == nil &&
+            locationError == nil
+
+        if allValid {
+            let updates = collectDonationUpdates(donation: donation)
+            if !updates.isEmpty {
+                donationRepo.editDonation(id: id, updates: updates)
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    func collectDonationUpdates(donation: FoodDonation) -> [DonationField: Any] {
+        var updates: [DonationField: Any] = [:]
+
+        if title != donation.title { updates[.title] = title }
+        if description != donation.description { updates[.description] = description }
+        if weight != donation.weight { updates[.weight] = weight }
+        
+        if let urls = donation.picturesUrl {
+            if !picturesUrl.elementsEqual(urls) { updates[.picturesUrl] = picturesUrl }
+        }
+        if location != donation.location {
+            updates[.location] = ["lat": location.lat, "long": location.long]
+        }
+        if selectedType.rawValue != donation.type { updates[.type] = selectedType.rawValue }
+        if bbd != donation.bbd { updates[.bbd] = bbd }
+        if expiringDate != donation.expiringDate { updates[.expiringDate] = expiringDate }
+        if selectedItemCondition.rawValue != donation.condition { updates[.condition] = selectedItemCondition.rawValue }
+        if selectedPreferredTransfer.rawValue != donation.preferredTransfer {
+            updates[.preferredTransfer] = selectedPreferredTransfer.rawValue
+        }
+
+        return updates
     }
 
     func checkTitle() {
@@ -458,14 +529,25 @@ class DonationViewModel: ObservableObject {
         }
 
     }
-
+    
+    /// Prüft ob eine Spende noch verfügbar ist
+    /// - Parameter id: ID der zu prüfenden Spende
+    /// - Returns: True wenn verfügbar, sonst false
+    func checkDonationAvailability(id: String) async -> Bool {
+        return await donationRepo.isDonationAvailable(id: id)
+        }
+    func checkDonationReservedOrPickedUp(id: String) async -> Bool {
+        return await donationRepo.isDonationReservedOrPickedUp(id: id)
+        }
+    
+    /// Setzt alle Formularfelder auf ihre Standardwerte zurück
     func resetDonationFields() {
         title = ""
         description = ""
         selectedType = .fruits
         weight = 0.0
         weightInputText = ""
-        selectedWeightUnit = .milligram
+        selectedWeightUnit = .gram
         bbd = Date()
         selectedItemCondition = .fresh
         picturesUrl = []
@@ -475,6 +557,11 @@ class DonationViewModel: ObservableObject {
         address = ""
     }
 
+    
+    /// Befüllt die Eingabefelder mit den Daten einer existierenden Spende
+    /// - Parameters:
+    ///   - donation: Die Spende deren Daten angezeigt werden sollen
+    ///   - adress: Die zugehörige Adresse
     func setDetailInput(donation: FoodDonation, adress: String) {
         self.title = donation.title
         self.description = donation.description

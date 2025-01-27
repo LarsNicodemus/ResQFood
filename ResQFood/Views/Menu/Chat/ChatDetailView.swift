@@ -11,7 +11,7 @@ struct ChatDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
-    @State var title: String = "TestSpendentitel"
+    @State var title: String? = nil
     @State var chatMember: String = "Hasibububär"
     @State var chatMemberID: String = ""
     @State var donationID: String = ""
@@ -44,6 +44,9 @@ struct ChatDetailView: View {
         .onAppear {
             setupChat()
         }
+        .onDisappear {
+            chatVM.deinitChat()
+        }
     }
 
     private func DetailsOverlay() -> some View {
@@ -75,18 +78,24 @@ struct ChatDetailView: View {
     private func setupChat() {
         chatVM.addMessageSnapshotListener(chatID: currentChatID)
         let chat = chatVM.chats.first { $0.id == currentChatID }
-        let donation = donVM.donations?.first(where: { $0.id == chat?.donationID })
-        donationForTitle = donation
-        donationID = donation?.id ?? ""
-        userCreator = chatVM.currentUserID == donation?.creatorID
-
+        
         if let chatMemberID = chat?.members.first(where: { $0 != chatVM.currentUserID }) {
             chatVM.getOtherUserByID(id: chatMemberID)
             self.chatMemberID = chatMemberID
+            if chatVM.currentUserID == chat?.admin {
+                donVM.setupDonationsListenerForUser()
+            } else {
+                donVM.setupDonationsListenerForOtherUser(userID: chatMemberID)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                let donation = self.donVM.donations?.first(where: { $0.id == chat?.donationID })
+                self.donationForTitle = donation
+                self.donationID = donation?.id ?? ""
+                self.userCreator = self.chatVM.currentUserID == donation?.creatorID
+                self.title = donation?.title ?? self.title
+            }
         }
-
         chatMember = chatVM.userProfile?.username ?? chatMember
-        title = donation?.title ?? title
     }
 }
 

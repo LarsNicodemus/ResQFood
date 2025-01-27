@@ -64,11 +64,6 @@ struct DonationListView: View {
                 }
             }
         }
-        
-        .task {
-            mapVM.setupDonationsListener()
-            mapVM.updateLocationsInRadius()
-        }
         .scrollIndicators(.hidden)
     }
 }

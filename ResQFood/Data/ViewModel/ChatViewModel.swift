@@ -12,7 +12,6 @@ class ChatViewModel: ObservableObject {
     @Published var chats: [Chat] = []
     @Published var messages: [Message] = []
     @Published var messageInput: String = ""
-//    @Published var unreadMessagesCount: Int = 0
     var unreadMessagesCount: Int {
         return unreadCountPerChat.values.reduce(0, +)
     }
@@ -20,6 +19,7 @@ class ChatViewModel: ObservableObject {
     @Published var unreadMessagesCounts: [String: Int] = [:]
     @Published var chatUsernames: [String: String] = [:]
     @Published var lastMessagesContent: [String: String] = [:]
+    @Published var lastMessagesSender: [String: String] = [:]
     @Published var unreadCountPerChat: [String: Int] = [:]
 
     var currentUserID: String {
@@ -34,9 +34,6 @@ class ChatViewModel: ObservableObject {
     private var memberListener: ListenerRegistration?
     private var chatListeners: [String: ListenerRegistration] = [:]
 
-    init() {
-//        addChatsSnapshotListener()
-    }
 
     deinit {
         listener?.remove()
@@ -60,7 +57,6 @@ class ChatViewModel: ObservableObject {
         memberListener = userRepo.addProfileListener(userID: id) { profile in
             print("Member Listener Update: \(profile?.username ?? "nil")")
             self.chatUsernames[chatID] = profile?.username
-
         }
     }
 
@@ -95,9 +91,6 @@ class ChatViewModel: ObservableObject {
             print("Chats Empty")
         }
     }
-
-    
-    
     
     func startUnreadMessagesListenerForBadge(chatID: String, completion: @escaping () -> Void) {
         guard let currentID = fb.userID else { return }
@@ -134,8 +127,10 @@ class ChatViewModel: ObservableObject {
             }
             if let lastMessage = self.messages.first {
                 self.lastMessagesContent[chatID] = lastMessage.content
+                self.lastMessagesSender[chatID] = lastMessage.senderID
             } else {
                 self.lastMessagesContent[chatID] = "Keine Nachrichten verfügbar"
+                self.lastMessagesSender[chatID] = "Keine ID verfügbar"
             }
         }
     }

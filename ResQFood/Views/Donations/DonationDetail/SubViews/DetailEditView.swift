@@ -164,7 +164,7 @@ struct DetailEditView: View {
                 Spacer()
                 Button("Änderung speichern") {
                     Task {
-                        let checkUpdate = await donVM.checkForDonationUpload()
+                        let checkUpdate = await donVM.checkForExistingDonationUpload(id: donation.id!, donation: donation)
                         if checkUpdate {
                             updateSuccess = true
                             withAnimation {
@@ -176,7 +176,7 @@ struct DetailEditView: View {
                                     showToast = false
                                     donVM.resetDonationFields()
                                     imageVM.resetFields()
-//                                    donVM.isPresent = false
+                                    donVM.isPresentDetail = false
                                 }
                             }
                         } else {

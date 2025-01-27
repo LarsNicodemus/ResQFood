@@ -43,34 +43,7 @@ struct AuthWrapper: View {
                         AppNavigation(navigationPath: $navigationPath)
                             .environmentObject(donVM)
                             .navigationDestination(for: NavigationRoute.self) { route in
-                                switch route {
-                                case .settings:
-                                    SettingsOverView(navigationPath: $navigationPath)
-                                case .account:
-                                    AccountView(navigationPath: $navigationPath)
-                                case .profil:
-                                    ProfileOverView()
-                                case .rewards:
-                                    RewardsView()
-                                case .chat:
-                                    ChatListView()
-                                case .community:
-                                    CommunityView()
-                                case .groceryAZ:
-                                    GroceryAZView()
-                                case .recipes:
-                                    RecipesView()
-                                case .partners:
-                                    PartnersView()
-                                case .about:
-                                    AboutResQFoodView()
-                                case .design:
-                                    DesignView()
-                                case .help:
-                                    HelpAndSettingsView()
-                                case .privacy:
-                                    PrivacyPolicyView()
-                                }
+                                SwitchRoute(route: route, navigationPath: $navigationPath)
                             }
                             .onAppear {
                                 chatVM.addChatsSnapshotListener()
@@ -106,4 +79,40 @@ struct AuthWrapper: View {
         .environmentObject(ChatViewModel())
         .environmentObject(DonationViewModel())
         .environmentObject(MapViewModel())
+}
+
+
+struct SwitchRoute: View {
+    var route: NavigationRoute
+    @Binding var navigationPath: NavigationPath
+    var body: some View {
+        switch route {
+        case .settings:
+            SettingsOverView(navigationPath: $navigationPath)
+        case .account:
+            AccountView(navigationPath: $navigationPath)
+        case .profil:
+            ProfileOverView()
+        case .rewards:
+            RewardsView()
+        case .chat:
+            ChatListView()
+        case .community:
+            CommunityView()
+        case .groceryAZ:
+            GroceryAZView()
+        case .recipes:
+            RecipesView()
+        case .partners:
+            PartnersView()
+        case .about:
+            AboutResQFoodView()
+        case .design:
+            DesignView()
+        case .help:
+            HelpAndSettingsView()
+        case .privacy:
+            PrivacyPolicyView()
+        }
+    }
 }

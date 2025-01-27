@@ -11,7 +11,7 @@ struct ChatDetailHeader: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var chatVM: ChatViewModel
     @Binding var details: Bool
-    @Binding var title: String
+    @Binding var title: String?
     @Binding var chatMember: String
     @Binding var donationForTitle: FoodDonation?
     @State var fromChat: Bool = true
@@ -30,14 +30,20 @@ struct ChatDetailHeader: View {
                 }
             }.padding(.leading)
             Spacer()
-            NavigationLink(title) {
-                if let donation = donationForTitle {
-                    DonationDetailView(donation: donation, showChat: $fromChat)
-                        
+            if let title = title {
+                NavigationLink(title) {
+                    if let donation = donationForTitle {
+                        DonationDetailView(donation: donation, showChat: $fromChat)
+                            
+                    }
                 }
+                .bold()
+                .foregroundStyle(Color("tertiary"))
+            } else {
+                Text("Nicht mehr verfügbar")
+                    .bold()
+                    .foregroundStyle(Color("tertiary"))
             }
-            .bold()
-            .foregroundStyle(Color("tertiary"))
             Spacer()
             ZStack {
                 Text(chatMember)

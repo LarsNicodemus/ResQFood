@@ -54,32 +54,35 @@ struct DonationDetailView: View {
                     )
                     .padding(.bottom, 8)
 
-                    if (chatVM.chats.first(where: {
-                        $0.members.contains(chatVM.currentUserID)
-                            && $0.name == donation.title
-                    })?.id) != nil {
-                        HStack {
-                            Spacer()
-                            VStack(spacing: 20) {
-                                Image("placeholderIG")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 150, height: 150)
-                                    .foregroundColor(.gray)
-
-                                Text("Anbieter \nbereits kontaktiert.")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-
-                            }
-                            .padding()
-                            Spacer()
-                        }
+                    if let currentUserID = donVM.getuserID(), currentUserID == donation.creatorID {
                     } else {
+                        if (chatVM.chats.first(where: {
+                            $0.members.contains(chatVM.currentUserID)
+                                && $0.name == donation.title
+                        })?.id) != nil {
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 20) {
+                                    Image("placeholderIG")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 150, height: 150)
+                                        .foregroundColor(.gray)
 
-                        MessageView(showToast: $showToast, donation: donation)
+                                    Text("Anbieter \nbereits kontaktiert.")
+                                        .font(.title)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.center)
 
+                                }
+                                .padding()
+                                Spacer()
+                            }
+                        } else {
+                            
+                            MessageView(showToast: $showToast, donation: donation)
+
+                        }
                     }
 
                 }

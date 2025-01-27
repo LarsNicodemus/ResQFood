@@ -43,10 +43,12 @@ class AuthViewModel: ObservableObject {
         listener = fb.auth.addStateDidChangeListener { auth, user in
             self.user = user
             self.setupUserListener()
+            
+            if user == nil {
+                self.isLoading = false
+            }
         }
-
     }
-
     deinit {
         listener = nil
 
@@ -67,6 +69,8 @@ class AuthViewModel: ObservableObject {
                     self.isLoading = false
                 }
             }
+        } else {
+            self.isLoading = false
         }
     }
     
@@ -161,16 +165,18 @@ class AuthViewModel: ObservableObject {
     }
     
     func logout() {
-            do {
-                userListener?.remove()
-                userListener = nil
-                try userRepo.logout()
-                appUser = nil
-                user = nil
-            } catch {
-                print(error)
-            }
+        do {
+            userListener?.remove()
+            userListener = nil
+            try userRepo.logout()
+            appUser = nil
+            user = nil
+            isLoading = false
+        } catch {
+            print(error)
+            isLoading = false
         }
+    }
     
     func deleteUser() {
         Task {
@@ -180,8 +186,10 @@ class AuthViewModel: ObservableObject {
                 try await userRepo.deleteUser()
                 appUser = nil
                 user = nil
+                isLoading = false
             } catch {
                 print(error)
+                isLoading = false
             }
         }
     }
