@@ -10,10 +10,6 @@ import SwiftUI
 struct ChatDetailHeader: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var chatVM: ChatViewModel
-    @Binding var details: Bool
-    @Binding var title: String?
-    @Binding var chatMember: String
-    @Binding var donationForTitle: FoodDonation?
     @State var fromChat: Bool = true
 
     var body: some View {
@@ -30,9 +26,9 @@ struct ChatDetailHeader: View {
                 }
             }.padding(.leading)
             Spacer()
-            if let title = title {
+            if let title = chatVM.title {
                 NavigationLink(title) {
-                    if let donation = donationForTitle {
+                    if let donation = chatVM.donationForTitle {
                         DonationDetailView(donation: donation, showChat: $fromChat)
                             
                     }
@@ -46,14 +42,14 @@ struct ChatDetailHeader: View {
             }
             Spacer()
             ZStack {
-                Text(chatMember)
+                Text(chatVM.chatMember)
                     .foregroundStyle(Color("primaryAT"))
                     .onChange(of: chatVM.userProfile?.username ?? "") {
                         oldValue, newValue in
-                        chatMember = newValue
+                        chatVM.chatMember = newValue
                     }
                     .onTapGesture {
-                        details.toggle()
+                        chatVM.details.toggle()
                     }
                 Image("Strich")
                     .resizable()

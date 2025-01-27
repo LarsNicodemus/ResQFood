@@ -18,6 +18,10 @@ class MealDBViewModel: ObservableObject {
     @Published var ingredients: [String] = []
     @Published var measures: [String] = []
 
+    /// Sucht nach Rezepten basierend auf einer Zutat.
+    /// - Uses `translateIngredient` um die Zutat zu übersetzen.
+    /// - Updates: `meals` mit den abgerufenen Mahlzeiten.
+    /// - Prints: Fehlermeldungen, wenn die Rezepte nicht abgerufen werden können.
     func searchRecipies() {
         translateIngredient(ingredient) { translatedIngredient in
             Task {
@@ -35,6 +39,10 @@ class MealDBViewModel: ObservableObject {
             }
         }
     }
+    
+    /// Ruft die Details eines ausgewählten Rezepts ab.
+    /// - Updates: `selectedRecipe` mit den abgerufenen Rezeptdetails.
+    /// - Prints: Fehlermeldungen, wenn die Rezeptdetails nicht abgerufen werden können.
     func getRecipeDetails() {
         Task {
             do {
@@ -49,6 +57,10 @@ class MealDBViewModel: ObservableObject {
         }
     }
 
+    /// Übersetzt eine Zutat in eine andere Sprache.
+    /// - Parameters:
+    ///   - ingredient: Die zu übersetzende Zutat.
+    ///   - completion: Callback mit der übersetzten Zutat.
     private func translateIngredient(
         _ ingredient: String, completion: @escaping (String) -> Void
     ) {

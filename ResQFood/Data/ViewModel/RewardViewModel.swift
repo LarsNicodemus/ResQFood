@@ -45,20 +45,37 @@ class RewardViewModel: ObservableObject {
         ])
     ]
     
-    
+    /// Überprüft, ob die Benutzerpunkte im Bereich des Rewards liegen.
+    /// - Parameters:
+    ///   - userPoints: Die Punkte des Benutzers.
+    ///   - reward: Der Reward, der überprüft werden soll.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die Benutzerpunkte im Bereich des Rewards liegen.
     func isUserInRange(_ userPoints: Int, for reward: Reward) -> Bool {
             return userPoints >= reward.lowerBound
         }
 
+    /// Überprüft, ob die Benutzerpunkte im spezifischen Bereich des Rewards liegen.
+    /// - Parameters:
+    ///   - userPoints: Die Punkte des Benutzers.
+    ///   - reward: Der Reward, der überprüft werden soll.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die Benutzerpunkte im spezifischen Bereich des Rewards liegen.
         func isUserInSpecificRange(_ userPoints: Int, for reward: Reward) -> Bool {
             return userPoints >= reward.lowerBound && userPoints <= reward.upperBound
         }
 
+    /// Überprüft, ob der Benutzer für einen bestimmten Reward berechtigt ist.
+    /// - Parameters:
+    ///   - userPoints: Die Punkte des Benutzers.
+    ///   - rewardItem: Der RewardItem, der überprüft werden soll.
+    /// - Returns: Ein Bool-Wert, der angibt, ob der Benutzer für den Reward berechtigt ist.
         func isUserEligibleForReward(_ userPoints: Int, rewardItem: RewardItem) -> Bool {
             return userPoints >= rewardItem.points
         }
     
-    
+    /// Setzt die Punkte des Benutzers und aktualisiert das Profil.
+    /// - Parameters:
+    ///   - points: Die neuen Punkte des Benutzers.
+    /// - Prints: Erfolgs- oder Fehlermeldungen während der Aktualisierung.
     func setUserPoints(points: Int) {
         guard let userID = fb.userID else { return }
         

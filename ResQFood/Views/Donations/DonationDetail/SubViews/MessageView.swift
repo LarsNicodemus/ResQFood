@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MessageView: View {
     @EnvironmentObject var chatVM: ChatViewModel
-    @Binding var showToast: Bool
     var donation: FoodDonation
     var body: some View {
         VStack {
@@ -24,7 +23,7 @@ struct MessageView: View {
                                 Color("primaryAT"), lineWidth: 1)
                     }
                     .onSubmit {
-                        sendMessage()
+                        chatVM.sendMessagefromDon(donation: donation)
                                 }
                 if chatVM.messageInput.isEmpty {
                     VStack(alignment: .leading) {
@@ -44,7 +43,7 @@ struct MessageView: View {
             .frame(height: 200)
             .padding(.bottom, 8)
             Button {
-                sendMessage()
+                chatVM.sendMessagefromDon(donation: donation)
             } label: {
                 Image(systemName: "paperplane")
                 Text("Nachricht senden")
@@ -54,23 +53,5 @@ struct MessageView: View {
             .padding(.bottom)
         }
     }
-    private func sendMessage(){
-        if !chatVM.messageInput.isEmpty {
-            
-            chatVM.createChat(
-                name: donation.title,
-                userID: donation.creatorID,
-                donationID: donation.id)
-            withAnimation {
-                showToast = true
-            }
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + 2
-            ) {
-                withAnimation {
-                    showToast = false
-                }
-            }
-        }
-    }
+
 }

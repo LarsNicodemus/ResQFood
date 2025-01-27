@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MessageItem: View {
+    @EnvironmentObject var chatMV: ChatViewModel
     var content: String
     var fromSelf: Bool
     var timestamp: Date
@@ -34,7 +35,7 @@ struct MessageItem: View {
                         HStack {
                             Spacer()
                             let isToday = Calendar.current.isDateInToday(timestamp)
-                            Text(isToday ? "Heute \(formatTimestamp(timestamp))" : formatTimestamp(timestamp))
+                            Text(isToday ? "Heute \(chatMV.formatTimestamp(timestamp))" : chatMV.formatTimestamp(timestamp))
                                 .font(.system(size: 8))
                                 .foregroundColor(.gray)
                                 .frame(alignment: .bottomTrailing)
@@ -55,26 +56,6 @@ struct MessageItem: View {
             }
         }.listRowSeparator(.hidden)
     }
-    private func formatTimestamp(_ date: Date) -> String {
-        let calendar = Calendar.current
-        let isToday = calendar.isDateInToday(date)
-        let formatter = DateFormatter()
 
-        if isToday {
-            formatter.dateFormat = "HH:mm"
-        } else {
-            formatter.dateFormat = "dd.MM.yyyy, HH:mm"
-        }
-
-        return formatter.string(from: date)
-    }
 }
 
-#Preview {
-    MessageItem(
-        content:
-            "Ich kann nicht glauben, dass du so einen schatz verkaufen willst wie kommt es denn dazu?",
-        fromSelf: false,
-        timestamp: Date()
-    )
-}

@@ -42,13 +42,13 @@ struct DetailInfoView: View {
                 }
                 DetailRow(
                     icon: "clock",
-                    text: "Gültig bis: \(formatDate(donation.expiringDate))", type: 1)
+                    text: "Gültig bis: \(donVM.formatDate(donation.expiringDate))", type: 1)
                 DetailRow(icon: "info.circle", text: donation.description, type: 2)
                     .padding(.bottom)
                 DetailRow(icon: "tag", text: "Zustand: \(donation.condition)", type: 1)
                 DetailRow(
                     icon: "calendar",
-                    text: "MHD bis: \(formatDate(donation.bbd))", type: 1)
+                    text: "MHD bis: \(donVM.formatDate(donation.bbd))", type: 1)
                 .padding(.bottom)
                 DetailRow(
                     icon: "map", text: "Transfer: \(donation.preferredTransfer)"
@@ -57,7 +57,7 @@ struct DetailInfoView: View {
                     .padding(.bottom)
                 DetailRow(
                     icon: "calendar.badge.plus",
-                    text: "Erstellt am: \(formatDate(donation.creationDate))"
+                    text: "Erstellt am: \(donVM.formatDate(donation.creationDate))"
                     , type: 3)
             }
         }
@@ -76,14 +76,5 @@ struct DetailInfoView: View {
         }
     }
 
-    func formatDate(_ date: Date) -> String {
-        date.formatted(
-            .dateTime
-                .locale(Locale(identifier: "de-DE"))
-                .day()
-                .month()
-                .year()
-        )
-    }
 }
 

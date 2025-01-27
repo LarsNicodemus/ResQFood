@@ -10,7 +10,11 @@ class ImageRepositoryImplementation: ImageRepository {
     private let baseURL = "https://api.imgur.com/3"
     private let webService: WebService = WebService()
     
-    
+    /// Lädt ein Bild zu einem Imgur-Server hoch und gibt die hochgeladenen Bilddaten zurück.
+    /// - Parameters:
+    ///   - image: Das Bild, das hochgeladen werden soll
+    /// - Throws: HTTPError.networkError, wenn das Bild nicht in JPEG-Daten konvertiert werden kann
+    /// - Returns: `ImgurImageData` mit den Daten des hochgeladenen Bildes
     func uploadImage(_ image: UIImage) async throws -> ImgurImageData {
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
             throw HTTPError.networkError

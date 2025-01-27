@@ -33,6 +33,9 @@ class GroceryAZViewModel: ObservableObject {
         listener = nil
     }
 
+    /// Richtet einen Listener für Änderungen an der Einkaufsliste ein.
+    /// - Entfernt vorhandene Listener, bevor ein neuer hinzugefügt wird.
+    /// - Updates: `groceries` mit den abgerufenen Einkaufslisteneinträgen.
     private func setupGroceryListener() {
         listener?.remove()
         listener = nil
@@ -41,28 +44,4 @@ class GroceryAZViewModel: ObservableObject {
             self.groceries = groceries
         }
     }
-
-    
-
-//    var groceryList: [GroceryModel] = []
-//
-//    func addGrocery() {
-//
-//        Task {
-//            do {
-//                for grocery in groceryList {
-//                    try await addG(grocery)
-//                }
-//                print("Erfolgreich Liste hochgeladen")
-//            } catch {
-//                print(error)
-//            }
-//        }
-//    }
-//
-//    func addG(_ grocery: GroceryModel) async throws {
-//        _ = try fb.database
-//            .collection("groceryaz")
-//            .addDocument(from: grocery)
-//    }
 }

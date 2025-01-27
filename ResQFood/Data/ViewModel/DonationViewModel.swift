@@ -530,6 +530,17 @@ class DonationViewModel: ObservableObject {
 
     }
     
+    
+    func formatDate(_ date: Date) -> String {
+        date.formatted(
+            .dateTime
+                .locale(Locale(identifier: "de-DE"))
+                .day()
+                .month()
+                .year()
+        )
+    }
+    
     /// Prüft ob eine Spende noch verfügbar ist
     /// - Parameter id: ID der zu prüfenden Spende
     /// - Returns: True wenn verfügbar, sonst false

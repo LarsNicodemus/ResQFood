@@ -37,7 +37,11 @@ class AuthViewModel: ObservableObject {
     private let userRepo = UserRepositoryImplementation()
     private var listener: NSObjectProtocol?
     private var userListener: ListenerRegistration?
+    
+    var userIsLoggedIn: Bool {user != nil}
 
+    var userNotAnonym: Bool {user?.email != nil}
+    
 
     init() {
         listener = fb.auth.addStateDidChangeListener { auth, user in
@@ -56,7 +60,10 @@ class AuthViewModel: ObservableObject {
         userListener = nil
     }
 
-    
+    /// Richtet einen Listener für Änderungen am Benutzerprofil ein.
+    /// - Entfernt vorhandene Listener, bevor ein neuer hinzugefügt wird.
+    /// - Setzt `isLoading` auf true, während die Benutzerdaten abgerufen werden.
+    /// - Aktualisiert `appUser` und `isLoading` basierend auf den abgerufenen Benutzerdaten.
     private func setupUserListener() {
         userListener?.remove()
         userListener = nil
@@ -74,6 +81,9 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Ruft den Benutzer basierend auf der Benutzer-ID ab.
+    /// - Throws: Wirft einen Fehler, wenn das Abrufen der Benutzerdaten fehlschlägt.
+    /// - Returns: Setzt `appUser` auf die abgerufenen Benutzerdaten.
     func getUserByID() {
         guard let userID = fb.userID else { return }
 
@@ -86,6 +96,9 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Führt die Benutzeranmeldung mit E-Mail und Passwort durch.
+    /// - Throws: Wirft einen Fehler, wenn die Anmeldung fehlschlägt.
+    /// - Returns: Aktualisiert die Fehlerstatusvariablen bei fehlerhafter Anmeldung oder setzt die E-Mail und Passwort Felder zurück
     func login() {
         Task {
             do {
@@ -106,6 +119,8 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Führt die anonyme Benutzeranmeldung durch.
+    /// - Throws: Wirft einen Fehler, wenn die anonyme Anmeldung fehlschlägt.
     func loginAnonym() {
         Task {
             do {
@@ -116,6 +131,9 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Registriert einen neuen Benutzer mit E-Mail und Passwort.
+    /// - Throws: Wirft einen Fehler, wenn die Registrierung fehlschlägt.
+    /// - Returns: Setzt die E-Mail und Passwort Felder nach erfolgreicher Registrierung zurück.
     func register() {
         Task {
             do {
@@ -126,6 +144,11 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    /// Reauthentifiziert den Benutzer mit dem aktuellen Passwort.
+    /// - Parameters:
+    ///   - currentPassword: Das aktuelle Passwort des Benutzers.
+    ///   - completion: Callback mit dem Ergebnis der Re-Authentifizierung.
     func reauthenticateUser(currentPassword: String, completion: @escaping (Bool, String?) -> Void) {
         guard let user = fb.auth.currentUser, let email = user.email else {
             completion(false, "Benutzer ist nicht eingeloggt.")
@@ -143,6 +166,10 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Ändert das Passwort des Benutzers nach erfolgreicher Re-Authentifizierung.
+    /// - Parameters:
+    ///   - currentPassword: Das aktuelle Passwort des Benutzers.
+    ///   - newPassword: Das neue Passwort, das gesetzt werden soll.
     func changePassword(currentPassword: String, newPassword: String) {
         reauthenticateUser(currentPassword: currentPassword) { [weak self] success, errorMessage in
             guard success else {
@@ -164,6 +191,8 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Meldet den Benutzer ab und entfernt alle Listener.
+    /// - Throws: Wirft einen Fehler, wenn die Abmeldung fehlschlägt.
     func logout() {
         do {
             userListener?.remove()
@@ -178,6 +207,8 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Löscht das Benutzerkonto und entfernt alle Listener.
+    /// - Throws: Wirft einen Fehler, wenn das Löschen des Benutzerkontos fehlschlägt.
     func deleteUser() {
         Task {
             do {
@@ -194,14 +225,7 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    var userIsLoggedIn: Bool {
-        user != nil
-    }
-
-    var userNotAnonym: Bool {
-        user?.email != nil
-    }
-    
+    /// Validiert die E-Mail-Adresse und setzt entsprechende Fehlermeldungen.
     func validateEmail() {
         if email.isEmpty {
             emailError = "E-Mail darf nicht leer sein."
@@ -214,6 +238,7 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Validiert das Passwort und setzt entsprechende Fehlermeldungen.
     func validatePassword() {
         if password.isEmpty {
             passwordError = "Passwort darf nicht leer sein."
@@ -226,6 +251,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Validiert die Felder für die Anmeldung und versucht die Anmeldung, wenn keine Fehler vorhanden sind.
     func validateFieldsLogin() {
        didValidate = true
        emailPasswordError = false
@@ -257,6 +283,10 @@ class AuthViewModel: ObservableObject {
        }
     }
     
+    /// Behandelt Fehler, die während des Firebase-Login-Prozesses auftreten.
+    /// - Parameters:
+    ///   - error: Ein `NSError`-Objekt, das den aufgetretenen Fehler beschreibt.
+    /// - Updates die entsprechenden Fehlerstatusvariablen basierend auf der Art des Fehlers.
     private func handleFirebaseLoginError(_ error: NSError) {
         if error.domain == AuthErrorDomain {
             switch AuthErrorCode(rawValue: error.code) {
@@ -280,6 +310,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Validiert die Felder für die Registrierung und versucht die Registrierung, wenn keine Fehler vorhanden sind.
     func validateFieldsRegister() {
         didValidate = true
         validateEmail()
@@ -290,6 +321,8 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Sendet eine E-Mail zum Zurücksetzen des Passworts.
+    /// - Throws: Setzt `errorMessage` auf eine entsprechende Fehlermeldung, wenn ein Fehler auftritt.
     func sendPasswordResetEmail() {
         guard !email.isEmpty, isValidEmail(email) else {
             errorMessage = "Please enter a valid email address"
@@ -315,12 +348,16 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    /// Überprüft, ob die E-Mail-Adresse gültig ist.
+    /// - Parameter email: Die zu überprüfende E-Mail-Adresse.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die E-Mail-Adresse gültig ist.
     func isValidEmail(_ email: String) -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
     }
     
+    /// Setzt die E-Mail und Passwort Felder zurück.
     func resetEmailPassword(){
         email = ""
         password = ""

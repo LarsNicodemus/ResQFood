@@ -7,18 +7,17 @@
 
 import SwiftUI
 
-struct ZStackView2: View {
-    var chatMemberID: String
-    @Binding var details: Bool
+struct PopupView2: View {
+    @EnvironmentObject var chatVM: ChatViewModel
     var body: some View {
         ZStack {
             VStack(alignment: .trailing) {
                 ZStack {
                     NavigationLink {
-                        ProfileView(userID: chatMemberID, fromChat: true)
+                        ProfileView(userID: chatVM.chatMemberID, fromChat: true)
                             .onAppear {
                                         withAnimation {
-                                            details = false
+                                            chatVM.details = false
                                         }
                                     }
                     } label: {

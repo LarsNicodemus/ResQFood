@@ -15,9 +15,7 @@ struct CreateView: View {
     var body: some View {
         VStack {
             if let donations = donVM.donations, !donations.isEmpty {
-                
                     List {
-                        
                         DonationSection(title: "Aktive Spenden", donations: donVM.filteredDonations.active)
                         DonationSection(title: "Reservierte Spenden", donations: donVM.filteredDonations.reserved)
                         DonationSection(title: "Abgeholte Spenden", donations: donVM.filteredDonations.pickedUp)
@@ -25,8 +23,6 @@ struct CreateView: View {
                     .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
                 .scrollIndicators(.hidden)
-                    
-                    
             }
             else {
                 EmptyListPlaceholder(
@@ -36,7 +32,6 @@ struct CreateView: View {
                     maxWidth: .infinity, maxHeight: .infinity
                 )
             }
-            
         }
         .padding()
         .background(Color("surface"))

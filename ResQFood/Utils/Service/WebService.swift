@@ -8,6 +8,12 @@
 import SwiftUI
 
 class WebService {
+    
+    /// Lädt Daten von einer URL herunter und dekodiert sie in das angegebene Typ.
+    /// - Parameters:
+    ///   - urlString: Die URL als String, von der die Daten heruntergeladen werden sollen.
+    /// - Throws: `HTTPError.invalidURL` wenn die URL ungültig ist.
+    /// - Returns: Die dekodierten Daten des Typs `T`.
     func downloadData<T: Codable>(urlString: String) async throws -> T {
         guard let url = URL(string: urlString) else {
             throw HTTPError.invalidURL
@@ -19,6 +25,12 @@ class WebService {
         return result
     }
 
+    /// Lädt Daten von einer URL herunter, wobei spezifische Header verwendet werden, und dekodiert sie in das angegebene Typ.
+    /// - Parameters:
+    ///   - urlString: Die URL als String, von der die Daten heruntergeladen werden sollen.
+    ///   - headers: Ein Dictionary mit Header-Feldern und Werten.
+    /// - Throws: `HTTPError.invalidURL` wenn die URL ungültig ist.
+    /// - Returns: Die dekodierten Daten des Typs `T`.
     func downloadDataWithHeader<T: Codable>(
         urlString: String, headers: [String: String]
     ) async throws -> T {
@@ -36,6 +48,14 @@ class WebService {
         return response
     }
     
+    /// Lädt Daten hoch und dekodiert die Antwort in das angegebene Typ.
+    /// - Parameters:
+    ///   - urlString: Die URL als String, zu der die Daten hochgeladen werden sollen.
+    ///   - method: Die HTTP-Methode (Standard ist "POST").
+    ///   - headers: Ein optionales Dictionary mit Header-Feldern und Werten.
+    ///   - body: Der zu sendende HTTP-Body als Data.
+    /// - Throws: `HTTPError.invalidURL` wenn die URL ungültig ist.
+    /// - Returns: Die dekodierten Daten des Typs `T`.
     func uploadData<T: Codable>(
         urlString: String, method: String = "POST",
         headers: [String: String]? = nil, body: Data
@@ -56,6 +76,15 @@ class WebService {
         return response
     }
     
+    /// Löscht Daten von einer URL und dekodiert die Antwort in das angegebene Typ.
+    /// - Parameters:
+    ///   - urlString: Die URL als String, von der die Daten gelöscht werden sollen.
+    ///   - method: Die HTTP-Methode (Standard ist "GET").
+    ///   - headers: Ein optionales Dictionary mit Header-Feldern und Werten.
+    ///   - body: Ein optionaler HTTP-Body als Data.
+    /// - Throws: `HTTPError.invalidURL` wenn die URL ungültig ist.
+    /// - Throws: `HTTPError.networkError` wenn die Antwort einen Statuscode außerhalb des Bereichs 200-299 hat.
+    /// - Returns: Die dekodierten Daten des Typs `T`.
     func deleteData<T: Codable>(
         urlString: String,
         method: String = "GET",

@@ -86,6 +86,3 @@ struct DonationListItem: View {
     }
 }
 
-//#Preview {
-//    DonationListItem(donation: FoodDonation())
-//}

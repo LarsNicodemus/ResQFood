@@ -82,6 +82,3 @@ struct RecipeDetailView: View {
     }
 }
 
-//#Preview {
-//    RecipeDetailView()
-//}

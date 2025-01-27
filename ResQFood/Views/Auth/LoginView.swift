@@ -17,11 +17,7 @@ struct LoginView: View {
                 .padding(.bottom, 64)
             EmailView()
             PasswordView()
-            .padding(.bottom, 32)
-            
-            
-            
-            
+            .padding(.bottom, 32) 
             HStack {
                 Spacer()
                 Button("Login") {

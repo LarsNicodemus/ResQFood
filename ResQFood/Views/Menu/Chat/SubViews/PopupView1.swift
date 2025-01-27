@@ -7,12 +7,7 @@
 //
 import SwiftUI
 
-struct ZStackView1: View {
-    @Binding var showToast: Bool
-    var chatMemberID: String
-    var donationID: String
-    @Binding var details: Bool
-    @Binding var toastMessage: String
+struct PopupView1: View {
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
     var body: some View {
@@ -20,10 +15,10 @@ struct ZStackView1: View {
             VStack(alignment: .trailing) {
                 ZStack {
                     NavigationLink {
-                        ProfileView(userID: chatMemberID, fromChat: true)
+                        ProfileView(userID: chatVM.chatMemberID, fromChat: true)
                             .onAppear {
                                         withAnimation {
-                                            details = false
+                                            chatVM.details = false
                                         }
                                     }
                     } label: {
@@ -44,31 +39,31 @@ struct ZStackView1: View {
                 ZStack {
                     Button("reservieren") {
                         donVM.editDonation(
-                            id: donationID, updates: [.isReserved: true])
+                            id: chatVM.donationID, updates: [.isReserved: true])
                         donVM.editUserInfos(
-                            userID: chatMemberID,
-                            donationID: donationID,
+                            userID: chatVM.chatMemberID,
+                            donationID: chatVM.donationID,
                             to: .reserved
                         ) { result in
                             switch result {
                             case .success(let message):
-                                toastMessage = message
+                                chatVM.toastMessage = message
                             case .failure(let error):
-                                toastMessage = error.message
+                                chatVM.toastMessage = error.message
                             }
                             withAnimation {
-                                showToast = true
+                                chatVM.showToastDetails = true
                             }
                             DispatchQueue.main.asyncAfter(
                                 deadline: .now() + 2
                             ) {
                                 withAnimation {
-                                    showToast = false
+                                    chatVM.showToastDetails = false
                                 }
                             }
                         }
 
-                        details = false
+                        chatVM.details = false
                     }
                     .frame(
                         maxWidth: .infinity,

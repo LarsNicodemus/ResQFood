@@ -33,7 +33,6 @@ struct RegisterView: View {
                     action: {
                         dismiss()
                     })
-
             }
             .tint(Color("primaryAT"))
             .font(.system(size: 16))

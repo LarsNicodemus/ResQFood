@@ -38,12 +38,17 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         listener?.remove()
         listener = nil
     }
-
+    
+    /// Fordert die Standortberechtigung vom Benutzer an und startet die Standortaktualisierung.
     func requestLocation() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     }
 
+    /// Aktualisiert die Suchergebnisse basierend auf dem Suchbegriff.
+    /// - Updates: `coordinates` mit den Geokoordinaten des Suchbegriffs.
+    /// - Updates: `locationsInRadius` basierend auf den neuen Koordinaten.
+    /// - Prints: Fehlermeldungen, wenn die Geokodierung fehlschlägt.
     func updateSearchResults() {
         print("Location before\(String(describing: coordinates))")
         guard !searchTerm.isEmpty else {
@@ -78,6 +83,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    /// Setzt den Standort und startet die Standortaktualisierung neu.
+    /// - Updates: `position` basierend auf den neuen Koordinaten.
     func resetLocation() {
         locationManager.stopUpdatingLocation()
         locationManager.startUpdatingLocation()
@@ -94,6 +101,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    /// CLLocationManagerDelegate-Methode, die bei Standortaktualisierungen aufgerufen wird.
+    /// - Updates: `coordinates` mit den neuen Koordinaten.
+    /// - Updates: `locationsInRadius` basierend auf den neuen Koordinaten.
     nonisolated func locationManager(
         _ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]
     ) {
@@ -114,6 +124,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    /// Holt die Koordinaten basierend auf dem Suchbegriff.
+    /// - Updates: `coordinates` mit den Geokoordinaten des Suchbegriffs.
+    /// - Updates: `locationsInRadius` basierend auf den neuen Koordinaten.
+    /// - Prints: Fehlermeldungen, wenn die Geokodierung fehlschlägt.
     func getCoordinates() {
         Task {
             do {
@@ -129,6 +143,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     }
 
+    /// Aktualisiert die Liste der Standorte im Umkreis basierend auf den aktuellen Koordinaten.
     func updateLocationsInRadius() {
         guard let currentCoordinates = coordinates else {
             return
@@ -141,6 +156,11 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             } ?? []
     }
 
+    /// Überprüft, ob ein Standort im angegebenen Radius liegt.
+    /// - Parameters:
+    ///   - location: Der zu überprüfende Standort.
+    ///   - center: Der Mittelpunkt des Suchradius.
+    /// - Returns: Ein Bool-Wert, der angibt, ob der Standort im Radius liegt.
     private func isLocationInRadius(
         _ location: AppLocation, center: CLLocationCoordinate2D
     ) -> Bool {
@@ -153,11 +173,18 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         return centerLocation.distance(from: pointLocation) <= searchRadius
     }
 
+    /// Aktualisiert den Suchradius und die Liste der Standorte im Umkreis.
+    /// - Parameters:
+    ///   - radius: Der neue Suchradius.
     func updateSearchRadius(_ radius: Double) {
         searchRadius = radius
         updateLocationsInRadius()
     }
 
+    /// Richtet einen Listener für Spenden ein.
+    /// - Entfernt vorhandene Listener, bevor ein neuer hinzugefügt wird.
+    /// - Updates: `donations` mit den abgerufenen Spenden.
+    /// - Updates: `isLoading` während des Ladevorgangs.
     func setupDonationsListener() {
         listener?.remove()
         listener = nil
@@ -174,6 +201,11 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    /// Holt die Geokoordinaten basierend auf einer Adresse.
+    /// - Parameters:
+    ///   - address: Die Adresse, für die die Koordinaten ermittelt werden sollen.
+    /// - Returns: Ein optionales Tupel mit den Koordinaten (Breitengrad, Längengrad).
+    /// - Prints: Fehlermeldungen, wenn die Geokodierung fehlschlägt.
     func getCoordinatesFromAddress(_ address: String) async -> (
         latitude: Double, longitude: Double
     )? {
@@ -191,6 +223,12 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         return nil
     }
 
+    /// Holt die Adresse basierend auf den Geokoordinaten.
+    /// - Parameters:
+    ///   - latitude: Der Breitengrad.
+    ///   - longitude: Der Längengrad.
+    /// - Returns: Die Adresse als String.
+    /// - Prints: Fehlermeldungen, wenn die Rückwärtsgeokodierung fehlschlägt.
     func getAddressFromCoordinates(latitude: Double, longitude: Double) async
         -> String
     {

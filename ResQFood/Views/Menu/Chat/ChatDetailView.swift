@@ -11,25 +11,12 @@ struct ChatDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var chatVM: ChatViewModel
     @EnvironmentObject var donVM: DonationViewModel
-    @State var title: String? = nil
-    @State var chatMember: String = "Hasibububär"
-    @State var chatMemberID: String = ""
-    @State var donationID: String = ""
-    @State var details: Bool = false
-    @State var userCreator: Bool = false
-    @State var showToast: Bool = false
-    @State var toastMessage: String = ""
-    @State var donationForTitle: FoodDonation? = nil
+
 
     var currentChatID: String
     var body: some View {
         VStack {
-            ChatDetailHeader(
-                details: $details,
-                title: $title,
-                chatMember: $chatMember,
-                donationForTitle: $donationForTitle
-            )
+            ChatDetailHeader()
 
             MessagesListView(
                 currentChatID: currentChatID
@@ -38,8 +25,23 @@ struct ChatDetailView: View {
             MessageInputItem(currentChatID: currentChatID)
         }
         .background(Color("surface"))
-        .overlay(DetailsOverlay())
-        .overlay(ToastOverlay())
+        .overlay(
+            Group {
+                if chatVM.details {
+                    if let donation = chatVM.donationForTitle, donation.creatorID == chatVM.currentUserID {
+                        PopupView1()
+                    } else {
+                        PopupView2()
+                    }
+                }
+            }
+        )
+        .overlay(
+            Group {
+                if chatVM.showToastDetails {
+                    ToastView(message: chatVM.toastMessage)
+                }
+            })
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear {
             setupChat()
@@ -49,39 +51,13 @@ struct ChatDetailView: View {
         }
     }
 
-    private func DetailsOverlay() -> some View {
-        Group {
-            if details {
-                if let donation = donationForTitle, donation.creatorID == chatVM.currentUserID {
-                    ZStackView1(
-                        showToast: $showToast,
-                        chatMemberID: chatMemberID,
-                        donationID: donationID,
-                        details: $details,
-                        toastMessage: $toastMessage
-                    )
-                } else {
-                    ZStackView2(chatMemberID: chatMemberID, details: $details)
-                }
-            }
-        }
-    }
-
-    private func ToastOverlay() -> some View {
-        Group {
-            if showToast {
-                ToastView(message: toastMessage)
-            }
-        }
-    }
-
     private func setupChat() {
         chatVM.addMessageSnapshotListener(chatID: currentChatID)
         let chat = chatVM.chats.first { $0.id == currentChatID }
         
         if let chatMemberID = chat?.members.first(where: { $0 != chatVM.currentUserID }) {
             chatVM.getOtherUserByID(id: chatMemberID)
-            self.chatMemberID = chatMemberID
+            chatVM.chatMemberID = chatMemberID
             if chatVM.currentUserID == chat?.admin {
                 donVM.setupDonationsListenerForUser()
             } else {
@@ -89,13 +65,13 @@ struct ChatDetailView: View {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 let donation = self.donVM.donations?.first(where: { $0.id == chat?.donationID })
-                self.donationForTitle = donation
-                self.donationID = donation?.id ?? ""
-                self.userCreator = self.chatVM.currentUserID == donation?.creatorID
-                self.title = donation?.title ?? self.title
+                chatVM.donationForTitle = donation
+                chatVM.donationID = donation?.id ?? ""
+                chatVM.userCreator = self.chatVM.currentUserID == donation?.creatorID
+                chatVM.title = donation?.title ?? chatVM.title
             }
         }
-        chatMember = chatVM.userProfile?.username ?? chatMember
+        chatVM.chatMember = chatVM.userProfile?.username ?? chatVM.chatMember
     }
 }
 

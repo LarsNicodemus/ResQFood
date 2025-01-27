@@ -12,6 +12,9 @@ import SwiftUI
 class GroceryAZRepositoryImplementation: GroceryAZRepository {
     private let fb = FirebaseService.shared
 
+    /// Erstellt einen Listener für Änderungen an der Lebensmittel-Datenbank (A-Z)
+    /// - Parameter onChange: Callback der bei Änderungen aufgerufen wird mit einem Array aller Lebensmittel
+    /// - Returns: ListenerRegistration zum späteren Entfernen des Listeners
     func addGroceryListener(onChange: @escaping ([GroceryModel]) -> Void)
         -> any ListenerRegistration
     {

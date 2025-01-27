@@ -8,11 +8,7 @@
 import SwiftUI
 
 struct HelpAndSettingsView: View {
-    @State var messageInput: String = ""
-    @State var messageTitleInput: String = ""
-    @State var showToast: Bool = false
-    @State var showError: Bool = false
-
+    @EnvironmentObject var settingsVM: SettingsViewModel
     var body: some View {
         VStack{
             VStack {
@@ -22,12 +18,12 @@ struct HelpAndSettingsView: View {
                     .padding(.bottom)
                     .multilineTextAlignment(.center)
                 
-                if showError && messageTitleInput.isEmpty {
+                if settingsVM.showError && settingsVM.messageTitleInput.isEmpty {
                     Text("Bitte gib einen Betreff ein.")
                         .font(.caption)
                         .foregroundStyle(.error)
                 }
-                TextField("Betreff..", text: $messageTitleInput)
+                TextField("Betreff..", text: $settingsVM.messageTitleInput)
                     .padding(8)
                     .background(Color("secondaryContainer"))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -37,13 +33,13 @@ struct HelpAndSettingsView: View {
                                 Color("primaryAT"), lineWidth: 1)
                     }
                     .padding(.bottom)
-                if showError && messageInput.isEmpty {
+                if settingsVM.showError && settingsVM.messageInput.isEmpty {
                     Text("Bitte gib einen Betreff ein.")
                         .font(.caption)
                         .foregroundStyle(.error)
                 }
                 ZStack {
-                    TextEditor(text: $messageInput)
+                    TextEditor(text: $settingsVM.messageInput)
                         .scrollContentBackground(.hidden)
                         .background(Color("secondaryContainer"))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -53,9 +49,9 @@ struct HelpAndSettingsView: View {
                                     Color("primaryAT"), lineWidth: 1)
                         }
                         .onSubmit {
-                            sendMessage()
+                            settingsVM.sendMessage()
                                     }
-                    if messageInput.isEmpty {
+                    if settingsVM.messageInput.isEmpty {
                         VStack(alignment: .leading) {
                             HStack {
                                 Text(
@@ -73,7 +69,7 @@ struct HelpAndSettingsView: View {
                 .frame(height: 200)
                 .padding(.bottom, 8)
                 Button {
-                    sendMessage()
+                    settingsVM.sendMessage()
                 } label: {
                     Image(systemName: "paperplane")
                     Text("Nachricht senden")
@@ -86,7 +82,7 @@ struct HelpAndSettingsView: View {
         }
         .overlay(
             Group {
-                if showToast {
+                if settingsVM.showToast {
                     ToastView(
                         message: "Nachricht wurde erfolgreich gesendet!"
                     )
@@ -97,27 +93,5 @@ struct HelpAndSettingsView: View {
         .background(Color("surface"))
 
     }
-    private func sendMessage(){
-        if !messageInput.isEmpty && !messageTitleInput.isEmpty {
-            withAnimation {
-                showToast = true
-            }
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + 2
-            ) {
-                withAnimation {
-                    showToast = false
-                }
-            }
-            messageInput = ""
-            messageTitleInput = ""
-            showError = false
-        } else {
-            showError = true
-        }
-    }
-}
-
-#Preview {
-    HelpAndSettingsView()
+   
 }

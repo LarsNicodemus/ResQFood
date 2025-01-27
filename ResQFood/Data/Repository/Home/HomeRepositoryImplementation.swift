@@ -14,6 +14,9 @@ class HomeRepositoryImplementation: HomeRepository {
     private let fb = FirebaseService.shared
     private let db = FirebaseService.shared.database
 
+    /// Erstellt einen Listener für den gesamten eingespartem Lebensmittelabfall aller Benutzer
+    /// - Parameter completion: Callback mit der Gesamtsumme des eingespartem Lebensmittelabfalls oder nil
+    /// - Returns: ListenerRegistration zum späteren Entfernen des Listeners
     func getFoodWasteCountListener(completion: @escaping (Double?) -> Void) -> ListenerRegistration{
         return fb.database
             .collection("profiles")
@@ -37,7 +40,12 @@ class HomeRepositoryImplementation: HomeRepository {
                 completion(totalFoodWaste)
             }
     }
-
+    
+    /// Erstellt einen Listener für den eingespartem Lebensmittelabfall eines bestimmten Benutzers
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - completion: Callback mit der Menge des eingespartem Lebensmittelabfalls oder nil
+    /// - Returns: ListenerRegistration zum späteren Entfernen des Listeners
     func getFoodWasteCountListenerForID(
         userID: String, completion: @escaping (Double?) -> Void) -> ListenerRegistration {
         return fb.database

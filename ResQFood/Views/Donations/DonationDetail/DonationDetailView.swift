@@ -13,14 +13,11 @@ struct DonationDetailView: View {
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var mapVM: MapViewModel
     @Binding var showChat: Bool
-    @State var showToast: Bool = false
     @State var locationName: String = "Wird geladen..."
     var body: some View {
-
         VStack {
             ScrollView {
                 VStack(alignment: .leading) {
-
                     if let images = donation.picturesUrl {
                         ScrollView(.horizontal) {
                             HStack {
@@ -80,7 +77,7 @@ struct DonationDetailView: View {
                             }
                         } else {
                             
-                            MessageView(showToast: $showToast, donation: donation)
+                            MessageView(donation: donation)
 
                         }
                     }
@@ -88,7 +85,7 @@ struct DonationDetailView: View {
                 }
                 .overlay(
                     Group {
-                        if showToast {
+                        if chatVM.showToast {
                             ToastView(
                                 message: "Nachricht wurde erfolgreich gesendet!"
                             )

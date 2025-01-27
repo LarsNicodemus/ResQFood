@@ -10,6 +10,10 @@ import UserNotifications
 class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
     
+    /// Plant eine Benachrichtigung mit einem Titel und einer Nachricht.
+    /// - Parameters:
+    ///   - title: Der Titel der Benachrichtigung.
+    ///   - body: Der Text der Benachrichtigung.
     func scheduleNotification(title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -22,17 +26,28 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
         UNUserNotificationCenter.current().add(request)
     }
     
+    /// Fordert die Berechtigung für Benachrichtigungen an.
     func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .badge, .sound]
         ) { success, error in }
     }
     
+    /// Wird aufgerufen, wenn die Anwendung gestartet wird.
+    /// - Parameters:
+    ///   - application: Die Anwendung.
+    ///   - launchOptions: Optionen, die beim Starten der Anwendung übergeben werden.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die Anwendung erfolgreich gestartet wurde.
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
     }
     
+    /// Wird aufgerufen, wenn eine Benachrichtigung präsentiert wird.
+    /// - Parameters:
+    ///   - center: Das Benachrichtigungszentrum.
+    ///   - notification: Die Benachrichtigung.
+    ///   - completionHandler: Ein Abschluss-Handler, der die Präsentationsoptionen angibt.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
@@ -45,6 +60,11 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
         }
     }
     
+    /// Sendet eine Benachrichtigung mit einer Verzögerung.
+    /// - Parameters:
+    ///   - title: Der Titel der Benachrichtigung.
+    ///   - message: Die Nachricht der Benachrichtigung.
+    ///   - delay: Die Verzögerung in Sekunden.
     func sendNotificationWithDelay(title: String, message: String, delay: Double) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -56,6 +76,10 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
         
         UNUserNotificationCenter.current().add(request)
     }
+    
+    /// Benachrichtigt den Benutzer über eine neue Spende in der Nähe.
+    /// - Parameters:
+    ///   - donation: Die neue Spende.
     func notifyNewDonationNearby(donation: FoodDonation) {
         scheduleNotification(
             title: "New Donation Nearby",
@@ -63,6 +87,9 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
         )
     }
     
+    /// Benachrichtigt den Benutzer, dass eine Spende reserviert wurde.
+    /// - Parameters:
+    ///   - donation: Die reservierte Spende.
     func notifyDonationReserved(donation: FoodDonation) {
         scheduleNotification(
             title: "Donation Reserved",
@@ -71,7 +98,11 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
     }
     
     
-    
+    /// Benachrichtigt den Benutzer über eine neue Chatnachricht.
+    /// - Parameters:
+    ///   - chatID: Die ID des Chats.
+    ///   - senderName: Der Name des Absenders.
+    ///   - message: Die Nachricht.
     func notifyNewChatMessage(chatID: String, senderName: String, message: String) {
         scheduleNotification(
             title: "New Message from \(senderName)",
@@ -79,6 +110,10 @@ class NotificationService: UIResponder, UIApplicationDelegate, UNUserNotificatio
         )
     }
     
+    /// Erstellt eine Benachrichtigung mit Aktionen.
+    /// - Parameters:
+    ///   - title: Der Titel der Benachrichtigung.
+    ///   - body: Der Text der Benachrichtigung.
     func notificationWithActions(title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title

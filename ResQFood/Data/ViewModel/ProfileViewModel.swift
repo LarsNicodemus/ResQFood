@@ -50,6 +50,9 @@ class ProfileViewModel: ObservableObject {
         otherUserProfile = nil
     }
 
+    /// Richtet den Profil-Listener ein, um Profiländerungen zu überwachen.
+    /// - Removes vorhandene Listener, bevor ein neuer hinzugefügt wird.
+    /// - Updates: `userProfile` mit den abgerufenen Profildaten.
     func setupProfileListener() {
         listener?.remove()
         listener = nil
@@ -62,12 +65,18 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    /// Gibt die aktuelle Benutzer-ID zurück.
+    /// - Returns: Die Benutzer-ID als String oder nil, wenn kein Benutzer angemeldet ist.
     func currentUserID() -> String? {
         guard let userID = fb.userID else {return nil}
         return userID
     }
     
-    
+    /// Ruft das Profil eines anderen Benutzers basierend auf der Benutzer-ID ab.
+    /// - Parameters:
+    ///   - id: Die ID des anderen Benutzers.
+    /// - Updates: `otherUserProfile` mit den abgerufenen Profildaten.
+    /// - Updates: `rating` und `ratedUsers` basierend auf dem Profil des anderen Benutzers.
     func getOtherUserByIDList(id: String) {
         listenerOtherUser = userRepo.addProfileListener(userID: id) { profile in
             print("Member Listener Update: \(profile?.username ?? "nil")")
@@ -79,6 +88,10 @@ class ProfileViewModel: ObservableObject {
             
         }
     }
+    /// Richtet den Profil-Listener für einen anderen Benutzer ein.
+    /// - Parameters:
+    ///   - userID: Die ID des anderen Benutzers.
+    /// - Updates: `otherUserProfile`, `ratedUsers` und `rating` basierend auf dem Profil des anderen Benutzers.
     func setupOtherProfileListener(userID: String) {
         listenerOtherUser?.remove()
         listenerOtherUser = nil
@@ -102,6 +115,7 @@ class ProfileViewModel: ObservableObject {
 
     }
     
+    /// Setzt die Profilinformationen zurück.
     func deinitUserProfile() {
         username = ""
         birthDay = Date()
@@ -118,6 +132,10 @@ class ProfileViewModel: ObservableObject {
         foodWasteSaved = nil
     }
 
+    /// Aktualisiert die Bewertung eines anderen Benutzers.
+    /// - Parameters:
+    ///   - rating: Die neue Bewertung.
+    /// - Prints: Erfolgs- oder Fehlermeldungen während der Aktualisierung.
     func updateRating(rating: Int) {
         print("Attempting to update rating")
         print("User Profile: \(String(describing: userProfile))")
@@ -138,6 +156,8 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    /// Entfernt die Bewertung eines anderen Benutzers.
+    /// - Prints: Erfolgs- oder Fehlermeldungen während des Löschens.
     func removeRating() {
         guard let id = otherUserProfile?.id,
               let currentUserID = currentUserID(),
@@ -152,6 +172,8 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    /// Meldet den Benutzer ab und entfernt alle Listener.
+    /// - Updates: Setzt `appUser`, `userProfile`, und alle anderen Profilinformationen zurück.
     func logoutProfile() {
         listener?.remove()
         listener = nil
@@ -160,6 +182,9 @@ class ProfileViewModel: ObservableObject {
         deinitUserProfile()
     }
 
+    /// Ruft das Profil des aktuellen Benutzers basierend auf der Benutzer-ID ab.
+    /// - Updates: `appUser` mit den abgerufenen Benutzerdaten.
+    /// - Prints: Fehlermeldungen, wenn das Profil nicht abgerufen werden kann.
     func getUserByID() {
         guard let userID = fb.userID else { return }
 
@@ -172,6 +197,11 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    /// Ruft das Profil eines anderen Benutzers basierend auf der Benutzer-ID ab.
+    /// - Parameters:
+    ///   - id: Die ID des anderen Benutzers.
+    /// - Updates: `userProfile` mit den abgerufenen Profildaten.
     func getOtherUserByID(id: String) {
         listener = userRepo.addProfileListener(userID: id) { profile in
             print("Profile Listener Update: \(profile?.username ?? "nil")")
@@ -179,6 +209,8 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Gibt die aktualisierten Felder des Profils zurück.
+    /// - Returns: Ein Dictionary mit den geänderten Profilfeldern.
     func getUpdatedFields() -> [ProfileField: Any] {
         var updates: [ProfileField: Any] = [:]
 
@@ -231,6 +263,8 @@ class ProfileViewModel: ObservableObject {
         return updates
     }
 
+    /// Setzt die Profilinformationen basierend auf den abgerufenen Benutzerdaten.
+    /// - Updates: `username`, `birthDay`, `selectedGender`, `locationStreetInput`, `locationCityInput`, `contactEmailInput`, `contactPhoneInput` basierend auf dem Profil des Benutzers.
     func setProfileInfos() {
         guard let user = fb.auth.currentUser else { return }
         contactEmailInput = user.email ?? ""
@@ -263,6 +297,10 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Fügt ein neues Profil hinzu.
+    /// - Adds das Profil des Benutzers, falls noch nicht vorhanden.
+    /// - Uses: `userID`, `username`, `location`, `contactInfo`, `pictureUrl` zur Erstellung des Profils.
+    /// - Prints: Fehlermeldungen, wenn das Profil nicht hinzugefügt werden kann.
     func addProfile() {
         guard let userID = fb.userID else { return }
         if userProfile == nil {
@@ -291,6 +329,9 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Überspringt die Profilerstellung und fügt ein minimales Profil hinzu.
+    /// - Uses: `userID` und `username` zur Erstellung des Profils.
+    /// - Prints: Fehlermeldungen, wenn das Profil nicht hinzugefügt werden kann.
     func skipProfile() {
         guard let userID = fb.userID else { return }
         let userProfile = UserProfile(userID: userID, username: username)
@@ -303,6 +344,11 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Bearbeitet das Profil des Benutzers.
+    /// - Parameters:
+    ///   - updates: Ein Dictionary mit den zu aktualisierenden Feldern.
+    /// - Updates: Die Spenden des Benutzers basierend auf den neuen Profilinformationen.
+    /// - Prints: Fehlermeldungen, wenn die Spenden nicht aktualisiert werden können.
     func editProfile(updates: [ProfileField: Any]) {
         guard let userID = fb.userID else { return }
         userRepo.editProfile(id: userID, updates: updates)
@@ -319,6 +365,9 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Setzt die Standortinformationen basierend auf den Benutzereingaben.
+    /// - Uses: `locationStreetInput` und `locationCityInput` zur Erstellung des Standorts.
+    /// - Prints: Fehlermeldungen, wenn die Standortinformationen nicht gültig sind.
     func setLocation() {
         var street: String = ""
         var number: String = ""
@@ -405,6 +454,9 @@ class ProfileViewModel: ObservableObject {
         print("Adresse erstellt: \(adress)")
     }
 
+    /// Setzt die Kontaktinformationen basierend auf den Benutzereingaben.
+    /// - Uses: `contactEmailInput` und `contactPhoneInput` zur Erstellung der Kontaktinformationen.
+    /// - Validates: Die E-Mail-Adresse und die Telefonnummer.
     func setContactInfo() {
         if isValidEmail(contactEmailInput)
             && isValidPhoneNumber(contactPhoneInput)
@@ -422,11 +474,20 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    /// Überprüft, ob eine E-Mail-Adresse gültig ist.
+    /// - Parameters:
+    ///   - email: Die zu überprüfende E-Mail-Adresse.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die E-Mail-Adresse gültig ist.
     func isValidEmail(_ email: String) -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
     }
+    
+    /// Überprüft, ob eine Telefonnummer gültig ist.
+    /// - Parameters:
+    ///   - phoneNumber: Die zu überprüfende Telefonnummer.
+    /// - Returns: Ein Bool-Wert, der angibt, ob die Telefonnummer gültig ist.
     func isValidPhoneNumber(_ phoneNumber: String) -> Bool {
         let phoneNumberRegEx =
             #"^\+?[0-9]{1,4}?[-.\s]?(\(?\d{1,4}?\)?[-.\s]?)?[\d\s.-]{5,15}$"#

@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// Custom Modifier for Back Button
 struct CustomBackButton: ViewModifier {
     @Environment(\.presentationMode) var presentationMode
     
@@ -35,7 +34,6 @@ struct CustomBackButton: ViewModifier {
     }
 }
 
-// Extension for easy application
 extension View {
     func customBackButton() -> some View {
         self.modifier(CustomBackButton())

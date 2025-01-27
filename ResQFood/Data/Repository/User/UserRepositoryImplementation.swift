@@ -12,6 +12,10 @@ class UserRepositoryImplementation: UserRepository {
     private let fb = FirebaseService.shared
     private let db = FirebaseService.shared.database
 
+    // Ruft einen Benutzer anhand seiner ID aus der Datenbank ab
+    /// - Parameter id: Die ID des gesuchten Benutzers
+    /// - Returns: AppUser Objekt
+    /// - Throws: Fehler bei Datenbankzugriff oder Dekodierung
     func getUserByID(_ id: String) async throws -> AppUser {
         return try await fb.database
             .collection("users")
@@ -19,10 +23,18 @@ class UserRepositoryImplementation: UserRepository {
             .getDocument(as: AppUser.self)
     }
 
+    /// Meldet einen Benutzer mit Email und Passwort an
+    /// - Parameters:
+    ///   - email: Email-Adresse des Benutzers
+    ///   - password: Passwort des Benutzers
+    /// - Returns: Fehlermeldung als String oder nil bei Erfolg
+    /// - Throws: Auth-Fehler bei ungültigen Anmeldedaten
     func login(email: String, password: String) async throws {
         try await fb.auth.signIn(withEmail: email, password: password)
     }
 
+    /// Erstellt einen anonymen Benutzer-Account
+    /// - Throws: Fehler bei der Erstellung des Accounts
     func loginAnonymously() async throws {
         let result = try await fb.auth.signInAnonymously()
         let user = AppUser()
@@ -32,6 +44,11 @@ class UserRepositoryImplementation: UserRepository {
             .setData(from: user)
     }
     
+    /// Registriert einen neuen Benutzer
+    /// - Parameters:
+    ///   - email: Email-Adresse für den neuen Account
+    ///   - password: Passwort für den neuen Account
+    /// - Throws: Fehler bei der Registrierung
     func login(email: String, password: String) async throws -> String? {
        do {
            try await fb.auth.signIn(withEmail: email, password: password)
@@ -54,6 +71,7 @@ class UserRepositoryImplementation: UserRepository {
        }
     }
 
+    /// Registriert einen neuen Benutzer
     func register(email: String, password: String) async throws {
         let result = try await fb.auth.createUser(
             withEmail: email, password: password)
@@ -65,10 +83,15 @@ class UserRepositoryImplementation: UserRepository {
             .setData(from: user)
     }
 
+    /// Meldet den aktuellen Benutzer ab
+    /// - Throws: Fehler beim Abmelden
     func logout() throws {
         try? fb.auth.signOut()
     }
 
+
+    /// Löscht den aktuellen Benutzer-Account inkl. aller Daten
+    /// - Throws: Fehler beim Löschen
     func deleteUser() async throws {
         guard let userID = fb.userID else { return }
         try await fb.database
@@ -82,6 +105,9 @@ class UserRepositoryImplementation: UserRepository {
         try await fb.auth.currentUser?.delete()
     }
 
+    /// Fügt ein neues Benutzerprofil hinzu
+    /// - Parameter profile: Das zu speichernde Profil
+    /// - Throws: Fehler beim Speichern
     func addProfile(_ profile: UserProfile) async throws {
         guard let userID = fb.userID else { return }
 
@@ -100,6 +126,10 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Aktualisiert bestimmte Felder eines Benutzerprofils
+    /// - Parameters:
+    ///   - id: ID des zu aktualisierenden Profils
+    ///   - updates: Dictionary mit zu aktualisierenden Feldern
     func editProfile(id: String, updates: [ProfileField: Any]) {
         var valuesToUpdate: [String: Any] = [:]
 
@@ -126,6 +156,11 @@ class UserRepositoryImplementation: UserRepository {
             .updateData(valuesToUpdate)
     }
 
+    /// Erhöht die Punktzahl eines Benutzers
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - additionalPoints: Anzahl der hinzuzufügenden Punkte
+    ///   - completion: Callback mit möglichem Fehler
     func updateUserPoints(
         userID: String, additionalPoints: Int,
         completion: @escaping (Error?) -> Void
@@ -145,6 +180,12 @@ class UserRepositoryImplementation: UserRepository {
             }
         }
     }
+    
+    /// Verringert die Punktzahl eines Benutzers
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - subtractPoints: Anzahl der abzuziehenden Punkte
+    ///   - completion: Callback mit möglichem Fehler
     func updateUserPointsDown(
         userID: String, subtractPoints: Int,
         completion: @escaping (Error?) -> Void
@@ -165,6 +206,11 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Aktualisiert die Menge an eingespartem Lebensmittelabfall
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - foodWasteGramm: Eingespartes Gewicht in Gramm
+    ///   - completion: Callback mit möglichem Fehler
     func updateFoodWasteSaved(
         userID: String, foodWasteGramm: Double,
         completion: @escaping (Error?) -> Void
@@ -187,6 +233,12 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Fügt eine neue Bewertung für einen Benutzer hinzu
+    /// - Parameters:
+    ///   - currenUserID: ID des bewertenden Benutzers
+    ///   - userID: ID des zu bewertenden Benutzers
+    ///   - rating: Bewertung (1-5)
+    ///   - completion: Callback mit möglichem Fehler
     func updateRatingAndRatedBy(
         currenUserID: String, userID: String, rating: Int,
         completion: @escaping (Error?) -> Void
@@ -226,6 +278,11 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Entfernt eine Bewertung eines Benutzers
+    /// - Parameters:
+    ///   - currentUserID: ID des Benutzers dessen Bewertung entfernt wird
+    ///   - userID: ID des bewerteten Benutzers
+    ///   - completion: Callback mit möglichem Fehler
     func removeUserRating(
         currentUserID: String, userID: String,
         completion: @escaping (Error?) -> Void
@@ -271,6 +328,12 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Aktualisiert den Status einer Spende für einen Benutzer
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - donationID: ID der Spende
+    ///   - status: Neuer Status der Spende
+    ///   - completion: Callback mit Erfolg/Fehler-Resultat
     func editUserInfos(
         userID: String, donationID: String, to status: DonationStatus,
         completion: @escaping (Result<String, DonationUpdateError>) -> Void
@@ -316,6 +379,11 @@ class UserRepositoryImplementation: UserRepository {
         }
     }
 
+    /// Erstellt einen Listener für Änderungen am Benutzerprofil
+    /// - Parameters:
+    ///   - userID: ID des zu überwachenden Profils
+    ///   - onChange: Callback der bei Änderungen aufgerufen wird
+    /// - Returns: ListenerRegistration zum späteren Entfernen
     func addProfileListener(
         userID: String, onChange: @escaping (UserProfile?) -> Void
     ) -> any ListenerRegistration {
@@ -340,6 +408,11 @@ class UserRepositoryImplementation: UserRepository {
             }
     }
 
+    /// Erstellt einen Listener für Änderungen am Benutzer
+    /// - Parameters:
+    ///   - userID: ID des zu überwachenden Benutzers
+    ///   - completion: Callback der bei Änderungen aufgerufen wird
+    /// - Returns: ListenerRegistration zum späteren Entfernen
     func addUserListener(
         userID: String, completion: @escaping (AppUser?) -> Void
     ) -> ListenerRegistration {
@@ -365,6 +438,10 @@ class UserRepositoryImplementation: UserRepository {
             }
     }
 
+    /// Ruft ein Benutzerprofil anhand seiner ID ab
+    /// - Parameter id: ID des gesuchten Profils
+    /// - Returns: UserProfile Objekt
+    /// - Throws: Fehler bei Datenbankzugriff oder Dekodierung
     func getUProfileByID(_ id: String) async throws -> UserProfile {
         return try await fb.database
             .collection("profiles")

@@ -15,11 +15,11 @@ struct ImagePickView: View {
     var body: some View {
         VStack {
             if imageVM.selectedImage != nil {
-                
+
                 if let image = imageVM.selectedImage {
                     CreateImageView(image: Image(uiImage: image))
                 }
-                
+
             } else {
                 PhotosPicker(
                     selection: $imageVM.selectedItem,
@@ -28,18 +28,14 @@ struct ImagePickView: View {
                 ) {
                     CreateImageView(image: Image("placeholder"))
                 }
-                
             }
-            
-            
-            
             PhotosPicker(
                 selection: $imageVM.selectedItem,
                 matching: .images,
                 photoLibrary: .shared()
             ) {
                 Text("Bild auswählen")
-                
+
             }
             .primaryButtonStyle()
         }

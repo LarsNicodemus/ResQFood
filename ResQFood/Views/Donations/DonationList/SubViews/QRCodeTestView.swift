@@ -38,7 +38,7 @@ struct QRCodeView: View {
         if let qrCode = qrCode {
             Image(uiImage: qrCode)
                 .resizable()
-                .interpolation(.none) // Für scharfe Darstellung
+                .interpolation(.none)
                 .scaledToFit()
                 .frame(width: 200, height: 200)
         } else {
@@ -163,7 +163,7 @@ func generateQRCode(from string: String) -> UIImage? {
 }
 
 struct QRScannerView: UIViewControllerRepresentable {
-    var onCodeScanned: (String) -> Void // Callback, wenn QR-Code erkannt wird
+    var onCodeScanned: (String) -> Void
 
     func makeUIViewController(context: Context) -> QRScannerViewController {
         let scannerVC = QRScannerViewController()
@@ -172,14 +172,12 @@ struct QRScannerView: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: QRScannerViewController, context: Context) {
-        // Kein spezielles Update benötigt
     }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(onCodeScanned: onCodeScanned)
     }
 
-    // Coordinator zur Verbindung von SwiftUI und UIKit
     class Coordinator: NSObject, QRScannerViewControllerDelegate {
         var onCodeScanned: (String) -> Void
 
@@ -209,11 +207,9 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
     }
 
     private func setupCamera() {
-        // Berechtigungsprüfung für Kamera
         let cameraAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
         switch cameraAuthorizationStatus {
         case .notDetermined:
-            // Berechtigung anfordern
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 if granted {
                     DispatchQueue.main.async {
@@ -238,7 +234,6 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
             return
         }
 
-        // Konfiguriere Kamera-Session
         guard let videoInput = try? AVCaptureDeviceInput(device: videoCaptureDevice) else {
             print("Kamera-Input konnte nicht erstellt werden.")
             return
@@ -271,20 +266,19 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         captureSession.startRunning()
     }
 
-    // Verarbeitung erkannter QR-Codes
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first {
             guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
                   let stringValue = readableObject.stringValue else { return }
 
-            captureSession.stopRunning() // Kamera-Scan pausieren
-            delegate?.didFindCode(stringValue) // Code an Delegate senden
+            captureSession.stopRunning()
+            delegate?.didFindCode(stringValue)
             dismiss(animated: true)
         }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        captureSession.stopRunning() // Kamera stoppen, wenn View verschwindet
+        captureSession.stopRunning()
     }
 }

@@ -11,6 +11,12 @@ class ChatRepositoryImplementation: ChatRepository {
     private let fb = FirebaseService.shared
     private let db = FirebaseService.shared.database
 
+    /// Erstellt einen neuen Chat zwischen zwei Benutzern
+    /// - Parameters:
+    ///   - name: Name des Chats
+    ///   - userID: ID des anderen Chat-Teilnehmers
+    ///   - content: Inhalt der ersten Nachricht
+    ///   - donationID: ID der zugehörigen Spende
     func createChat(name: String, userID: String, content: String, donationID: String?) {
         guard let id = fb.auth.currentUser?.uid else { return }
         guard let donationID = donationID else { return }
@@ -42,6 +48,10 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
+    /// Aktualisiert die Chat-IDs der beteiligten Benutzer
+    /// - Parameters:
+    ///   - userIDs: Array der Benutzer-IDs
+    ///   - chatID: ID des Chats der hinzugefügt werden soll
     func updateChatIDs(for userIDs: [String], chatID: String) {
         for userID in userIDs {
             fb.database.collection("users").document(userID).updateData([
@@ -56,7 +66,10 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-
+    /// Sendet eine neue Nachricht in einem Chat
+    /// - Parameters:
+    ///   - chatID: ID des Chats
+    ///   - content: Inhalt der Nachricht
     func sendMessage(chatID: String, content: String) {
         guard let senderID = fb.auth.currentUser?.uid else { return }
         let chatRef = fb.database.collection("chats").document(chatID)
@@ -86,6 +99,10 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
+    /// Markiert eine Nachricht als gelesen für den aktuellen Benutzer
+    /// - Parameters:
+    ///   - chatID: ID des Chats
+    ///   - messageID: ID der Nachricht
     func markMessageAsRead(chatID: String, messageID: String) {
         guard let id = fb.auth.currentUser?.uid else { return }
 
@@ -111,6 +128,12 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
+    /// Überwacht ungelesene Nachrichten in einem Chat
+    /// - Parameters:
+    ///   - chatID: ID des zu überwachenden Chats
+    ///   - userID: ID des Benutzers
+    ///   - completion: Callback mit der Anzahl ungelesener Nachrichten
+    /// - Returns: ListenerRegistration zum späteren Entfernen
     func listenForUnreadMessages(
         chatID: String,
         userID: String,
@@ -139,6 +162,11 @@ class ChatRepositoryImplementation: ChatRepository {
             }
     }
 
+    /// Erstellt einen Listener für alle Chats eines Benutzers
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - completion: Callback mit Array aller Chats
+    /// - Returns: ListenerRegistration zum späteren Entfernen
     func userChatsListener(
         userID: String, completion: @escaping ([Chat]) -> Void
     ) -> any ListenerRegistration {
@@ -165,7 +193,10 @@ class ChatRepositoryImplementation: ChatRepository {
 
         return userListener
     }
-   
+    /// Überwacht Änderungen an bestimmten Chats
+    /// - Parameters:
+    ///   - chatIDs: Array der zu überwachenden Chat-IDs
+    ///   - completion: Callback mit Array der aktualisierten Chats
     func chatListener(chatIDs: [String], completion: @escaping ([Chat]) -> Void)
     {
         db.collection("chats")
@@ -184,6 +215,11 @@ class ChatRepositoryImplementation: ChatRepository {
             }
     }
 
+    /// Erstellt einen Listener für Nachrichten in einem Chat
+    /// - Parameters:
+    ///   - chatID: ID des zu überwachenden Chats
+    ///   - onSuccess: Callback mit Array aller Nachrichten
+    /// - Returns: Optional ListenerRegistration zum späteren Entfernen
     func addMessageSnapshotListener(
         chatID: String, onSuccess: @escaping ([Message]) -> Void
     ) -> (any ListenerRegistration)? {
