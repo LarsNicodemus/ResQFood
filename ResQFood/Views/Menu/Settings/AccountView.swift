@@ -41,6 +41,7 @@ struct AccountView: View {
                     Button{
                         navigationPath = NavigationPath()
                         authVM.deleteUser()
+                        profileVM.logoutProfile()
                     }label: {
                     ZStack {
                         Text("Delete User")

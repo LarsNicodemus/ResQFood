@@ -9,6 +9,8 @@ import SwiftUI
 
 struct StarRatingView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
+    @EnvironmentObject var authVM: AuthViewModel
+
     var maximumRating = 5
     var onRatingChange: ((Int) -> Void)?
     @State private var showAlertAlreadyRated = false
@@ -25,17 +27,21 @@ struct StarRatingView: View {
                     index <= profileVM.rating ?? 0 ? .yellow : .gray
                 )
                 .onTapGesture {
-                    if let userID = profileVM.currentUserID() {
-                        if let profile = profileVM.otherUserProfile {
-                            if !profile.ratedBy.contains(userID) {
-                                profileVM.rating = index
-                                profileVM.updateRating(rating: index)
-                                onRatingChange?(index)
-                            } else {
-                                showAlertAlreadyRated = true
+                    
+                    if authVM.userNotAnonym {
+                        if let userID = profileVM.currentUserID() {
+                            if let profile = profileVM.otherUserProfile {
+                                if !profile.ratedBy.contains(userID) {
+                                    profileVM.rating = index
+                                    profileVM.updateRating(rating: index)
+                                    onRatingChange?(index)
+                                } else {
+                                    showAlertAlreadyRated = true
+                                }
                             }
                         }
                     }
+                    
                 }
 
             }

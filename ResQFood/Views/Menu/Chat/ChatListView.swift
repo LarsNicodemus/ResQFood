@@ -56,9 +56,9 @@ struct ChatListView: View {
         }
         .background(Color("surface"))
         .customBackButton()
-        .onAppear {
-            chatVM.addChatsSnapshotListener()
-        }
+//        .onAppear {
+//            chatVM.addChatsSnapshotListener()
+//        }
     }
 }
 

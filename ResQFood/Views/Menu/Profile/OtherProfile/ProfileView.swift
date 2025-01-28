@@ -12,6 +12,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var imageVM: ImageViewModel
     @EnvironmentObject var chatVM: ChatViewModel
@@ -44,42 +45,44 @@ struct ProfileView: View {
 
                 VStack {
                     if let user = profileVM.otherUserProfile {
-                        HStack {
-                            Spacer()
-                            if fromChat {
-                                Button {
-                                    activeSheet = .report
-                                } label: {
-                                    Image(
-                                        systemName:
-                                            "exclamationmark.bubble.fill"
-                                    )
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .tint(Color("primaryAT"))
-                                }
-                            } else {
-                                Button {
-                                    activeSheet = .report
-                                } label: {
-                                    Image(
-                                        systemName:
-                                            "exclamationmark.bubble.fill"
-                                    )
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .tint(Color("primaryAT"))
-                                }
-                                Button {
-                                    activeSheet = .message
-                                } label: {
-                                    Image(systemName: "ellipsis.message")
+                        if authVM.userNotAnonym {
+                            HStack {
+                                Spacer()
+                                if fromChat {
+                                    Button {
+                                        activeSheet = .report
+                                    } label: {
+                                        Image(
+                                            systemName:
+                                                "exclamationmark.bubble.fill"
+                                        )
                                         .resizable()
                                         .frame(width: 32, height: 32)
                                         .tint(Color("primaryAT"))
+                                    }
+                                } else {
+                                    Button {
+                                        activeSheet = .report
+                                    } label: {
+                                        Image(
+                                            systemName:
+                                                "exclamationmark.bubble.fill"
+                                        )
+                                        .resizable()
+                                        .frame(width: 32, height: 32)
+                                        .tint(Color("primaryAT"))
+                                    }
+                                    Button {
+                                        activeSheet = .message
+                                    } label: {
+                                        Image(systemName: "ellipsis.message")
+                                            .resizable()
+                                            .frame(width: 32, height: 32)
+                                            .tint(Color("primaryAT"))
+                                    }
                                 }
-                            }
-                        }.padding(.trailing)
+                            }.padding(.trailing)
+                        }
                         ProfileImageView(imageurl: user.pictureUrl)
                             .padding(.bottom, 32)
 

@@ -41,21 +41,11 @@ class ChatViewModel: ObservableObject {
     private let userRepo = UserRepositoryImplementation()
     private let fb = FirebaseService.shared
     private var listener: ListenerRegistration?
-    private var unreadListener: ListenerRegistration?
-    private var memberListener: ListenerRegistration?
     private var chatListeners: [String: ListenerRegistration] = [:]
 
 
     deinit {
-        listener?.remove()
-        listener = nil
-        unreadListener?.remove()
-        unreadListener = nil
-        memberListener?.remove()
-        memberListener = nil
-        userProfile = nil
-        chatListeners.values.forEach { $0.remove() }
-        chatListeners.removeAll()
+        deinitChat()
     }
 
     /// Ruft das Profil eines anderen Benutzers basierend auf der Benutzer-ID ab.
@@ -63,7 +53,7 @@ class ChatViewModel: ObservableObject {
     ///   - id: Die ID des anderen Benutzers.
     /// - Updates: `userProfile` mit den abgerufenen Profildaten.
     func getOtherUserByID(id: String) {
-        memberListener = userRepo.addProfileListener(userID: id) { profile in
+        listener = userRepo.addProfileListener(userID: id) { profile in
             print("Member Listener Update: \(profile?.username ?? "nil")")
             self.userProfile = profile
         }
@@ -75,25 +65,23 @@ class ChatViewModel: ObservableObject {
     ///   - id: Die ID des anderen Benutzers.
     /// - Updates: `chatUsernames` mit den Benutzernamen des abgerufenen Profils.
     func getOtherUserByIDList(chatID: String, id: String) {
-        memberListener = userRepo.addProfileListener(userID: id) { profile in
+        listener = userRepo.addProfileListener(userID: id) { profile in
             print("Member Listener Update: \(profile?.username ?? "nil")")
             self.chatUsernames[chatID] = profile?.username
         }
     }
-
-    /// Startet einen Listener für ungelesene Nachrichten in einem bestimmten Chat.
-    /// - Parameters:
-    ///   - chatID: Die ID des Chats.
-    /// - Updates: `unreadMessagesCounts` mit der Anzahl der ungelesenen Nachrichten im Chat.
-    func startUnreadMessagesListenerForChat(chatID: String) {
-        guard let currentID = fb.userID else { return }
-        chatListeners[chatID]?.remove()
-        chatListeners[chatID] = repo.listenForUnreadMessages(
-            chatID: chatID, userID: currentID
-        ) { [weak self] count in
+    
+    /// Fügt einen Snapshot-Listener für die Chats des Benutzers hinzu.
+    /// - Updates: `chats` mit den abgerufenen Chats, sortiert nach der letzten Nachricht.
+    func addChatsSnapshotListener() {
+        guard let userID = fb.userID else { return }
+        listener?.remove()
+        listener = repo.userChatsListener(userID: userID) { chats in
             DispatchQueue.main.async {
-                self?.unreadMessagesCounts[chatID] = count
-                print("for \(chatID) \(count)")
+                self.chats = chats.sorted(by: { c1, c2 in
+                    c1.lastMessage > c2.lastMessage
+                })
+                self.unreadMessagesBadgeListener()
             }
         }
     }
@@ -101,23 +89,22 @@ class ChatViewModel: ObservableObject {
     /// Startet einen Listener für ungelesene Nachrichten-Abzeichen.
     /// - Updates: `unreadCountPerChat` mit der Anzahl der ungelesenen Nachrichten in allen Chats.
     func unreadMessagesBadgeListener() {
-        addChatsSnapshotListener()
-        if !chats.isEmpty {
-            var remainingCalls = chats.count
-            
-            for chat in chats {
-                startUnreadMessagesListenerForBadge(chatID: chat.id) {
-                    remainingCalls -= 1
-                    
-                    if remainingCalls == 0 {
-                        print("UnredCount: \(self.unreadMessagesCount)")
+            if !chats.isEmpty {
+                var remainingCalls = chats.count
+                
+                for chat in chats {
+                    startUnreadMessagesListenerForBadge(chatID: chat.id) {
+                        remainingCalls -= 1
+                        
+                        if remainingCalls == 0 {
+                            print("UnreadCount: \(self.unreadMessagesCount)")
+                        }
                     }
                 }
+            } else {
+                print("Chats Empty")
             }
-        } else {
-            print("Chats Empty")
         }
-    }
     
     /// Startet einen Listener für ungelesene Nachrichten-Abzeichen in einem bestimmten Chat.
     /// - Parameters:
@@ -133,6 +120,8 @@ class ChatViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.unreadCountPerChat[chatID] = count
                 self?.objectWillChange.send()
+                self?.unreadMessagesCounts[chatID] = count
+                print("for \(chatID) \(count)")
                 completion()
             }
         }
@@ -181,18 +170,6 @@ class ChatViewModel: ObservableObject {
         }
     }
 
-    /// Fügt einen Snapshot-Listener für die Chats des Benutzers hinzu.
-    /// - Updates: `chats` mit den abgerufenen Chats, sortiert nach der letzten Nachricht.
-    func addChatsSnapshotListener() {
-        guard let userID = fb.userID else {return}
-        listener = repo.userChatsListener(userID: userID) { chats in
-            self.chats = chats.sorted(by: { c1, c2 in
-                c1.lastMessage > c2.lastMessage
-            }
-            )
-        }
-    }
-
     /// Markiert eine Nachricht in einem bestimmten Chat als gelesen.
     /// - Parameters:
     ///   - chatID: Die ID des Chats.
@@ -205,10 +182,6 @@ class ChatViewModel: ObservableObject {
     func deinitChat() {
         listener?.remove()
         listener = nil
-        unreadListener?.remove()
-        unreadListener = nil
-        memberListener?.remove()
-        memberListener = nil
         userProfile = nil
         chatListeners.values.forEach { $0.remove() }
         chatListeners.removeAll()
@@ -247,5 +220,4 @@ class ChatViewModel: ObservableObject {
 
         return formatter.string(from: date)
     }
-    
 }

@@ -47,8 +47,6 @@ struct AuthWrapper: View {
                             }
                             .onAppear {
                                 chatVM.addChatsSnapshotListener()
-
-                                chatVM.unreadMessagesBadgeListener()
                             }
                             
                     } else {

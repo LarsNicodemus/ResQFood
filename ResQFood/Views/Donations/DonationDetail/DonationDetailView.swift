@@ -10,6 +10,7 @@ import SwiftUI
 struct DonationDetailView: View {
     var donation: FoodDonation
     @EnvironmentObject var chatVM: ChatViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var donVM: DonationViewModel
     @EnvironmentObject var mapVM: MapViewModel
     @Binding var showChat: Bool
@@ -51,7 +52,7 @@ struct DonationDetailView: View {
                     )
                     .padding(.bottom, 8)
 
-                    if let currentUserID = donVM.getuserID(), currentUserID == donation.creatorID {
+                    if let currentUserID = donVM.getuserID(), currentUserID == donation.creatorID || !authVM.userNotAnonym {
                     } else {
                         if (chatVM.chats.first(where: {
                             $0.members.contains(chatVM.currentUserID)
@@ -92,9 +93,9 @@ struct DonationDetailView: View {
                         }
                     }
                 )
-                .task {
-                    chatVM.addChatsSnapshotListener()
-                }
+//                .task {
+//                    chatVM.addChatsSnapshotListener()
+//                }
             }
             .scrollIndicators(.hidden)
             .clipShape(RoundedRectangle(cornerRadius: 10))

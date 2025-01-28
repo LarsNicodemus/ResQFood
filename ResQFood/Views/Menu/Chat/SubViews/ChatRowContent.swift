@@ -42,10 +42,8 @@ struct ChatRowContent: View {
 
                 }
                 if chatVM.currentUserID == chatVM.lastMessagesSender[chat.id] {
-                    if let username = profileVM.userProfile?.username {
                         Text("Du: ")
                             .foregroundStyle(Color("OnSecondaryContainer"))
-                    }
                 } else {
                     if let username = chatVM.chatUsernames[chat.id] {
                         Text("Von: \(username)")

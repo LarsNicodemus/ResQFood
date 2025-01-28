@@ -24,6 +24,8 @@ struct OtherProfilelistView: View {
                         if let isReserved = donation.isReserved, isReserved
                         {
                             DonationListItem(donation: donation)
+                                .padding(.vertical)
+
                         } else {
                             NavigationLink(
                                 destination: DonationDetailView(
