@@ -20,7 +20,7 @@ class ChatViewModel: ObservableObject {
     @Published var unreadCountPerChat: [String: Int] = [:]
     @Published var showToast: Bool = false
     @Published var title: String? = nil
-    @Published var chatMember: String = "Hasibububär"
+    @Published var chatMember: String = "Kein User"
     @Published var chatMemberID: String = ""
     @Published var donationID: String = ""
     @Published var details: Bool = false
@@ -30,7 +30,7 @@ class ChatViewModel: ObservableObject {
     @Published var donationForTitle: FoodDonation? = nil
     
     var unreadMessagesCount: Int {
-        return unreadCountPerChat.values.reduce(0, +)
+        unreadCountPerChat.values.reduce(0, +)
     }
     
     var currentUserID: String {
@@ -63,7 +63,7 @@ class ChatViewModel: ObservableObject {
                 self.chats = chats.sorted(by: { c1, c2 in
                     c1.lastMessage > c2.lastMessage
                 })
-                self.unreadMessagesBadgeListener()
+                self.updateUnreadBadge()
             }
         }
     }
@@ -74,12 +74,12 @@ class ChatViewModel: ObservableObject {
     ///   wird die Gesamtanzahl der ungelesenen Nachrichten für alle Chats ausgegeben.
     /// - Parameters: Keine.
     /// - Updates: `unreadMessagesCount` mit der Gesamtanzahl der ungelesenen Nachrichten in allen Chats.
-    func unreadMessagesBadgeListener() {
+    func updateUnreadBadge() {
             if !chats.isEmpty {
                 var remainingCalls = chats.count
                 
                 for chat in chats {
-                    startUnreadMessagesListenerForBadge(chatID: chat.id) {
+                    listenForUnread(chatID: chat.id) {
                         remainingCalls -= 1
                         
                         if remainingCalls == 0 {
@@ -97,7 +97,7 @@ class ChatViewModel: ObservableObject {
     ///   - chatID: Die ID des Chats, für den der Listener gestartet werden soll.
     ///   - completion: Ein Callback, der nach dem Aktualisieren der Anzahl ungelesener Nachrichten aufgerufen wird.
     /// - Updates: `unreadCountPerChat`  mit der Anzahl der ungelesenen Nachrichten im Chat.
-    func startUnreadMessagesListenerForBadge(chatID: String, completion: @escaping () -> Void) {
+    func listenForUnread(chatID: String, completion: @escaping () -> Void) {
         guard let currentID = fb.userID else { return }
         chatListeners[chatID]?.remove()
         chatListeners[chatID] = repo.listenForUnreadMessages(

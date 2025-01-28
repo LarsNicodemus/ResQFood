@@ -10,6 +10,74 @@ import FirebaseFirestore
 class ChatRepositoryImplementation: ChatRepository {
     private let fb = FirebaseService.shared
     private let db = FirebaseService.shared.database
+    
+    /// Erstellt einen Listener für alle Chats eines Benutzers
+    /// - Parameters:
+    ///   - userID: ID des Benutzers
+    ///   - completion: Callback mit Array aller Chats
+    /// - Returns: ListenerRegistration zum späteren Entfernen
+    func userChatsListener(
+        userID: String, completion: @escaping ([Chat]) -> Void
+    ) -> any ListenerRegistration {
+        let userListener = db.collection("users").document(userID)
+            .addSnapshotListener { [weak self] documentSnapshot, error in
+                guard let self = self,
+                    let document = documentSnapshot
+                else {
+                    print(
+                        "Error fetching user: \(error?.localizedDescription ?? "")"
+                    )
+                    return
+                }
+
+                guard let user = try? document.data(as: AppUser.self),
+                    !user.chatIDs.isEmpty
+                else {
+                    completion([])
+                    return
+                }
+                self.chatListener(
+                    chatIDs: Array(user.chatIDs), completion: completion)
+            }
+
+        return userListener
+    }
+    
+    /// Überwacht ungelesene Nachrichten in einem Chat
+    /// - Parameters:
+    ///   - chatID: ID des zu überwachenden Chats
+    ///   - userID: ID des Benutzers
+    ///   - completion: Callback mit der Anzahl ungelesener Nachrichten
+    /// - Returns: ListenerRegistration zum späteren Entfernen
+    func listenForUnreadMessages(
+        chatID: String,
+        userID: String,
+        completion: @escaping (Int) -> Void
+    ) -> ListenerRegistration {
+        return db.collection("chats")
+            .document(chatID)
+            .collection("messages")
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    print(
+                        "Error fetching messages for chat \(chatID): \(error.localizedDescription)"
+                    )
+                    return
+                }
+
+                guard let documents = querySnapshot?.documents else { return }
+
+                let unreadMessages = documents.filter { document in
+                    if let message = try? document.data(as: Message.self) {
+                        return message.isread[userID] == false
+                    }
+                    return false
+                }
+                completion(unreadMessages.count)
+            }
+    }
+    
+    
 
     /// Erstellt einen neuen Chat zwischen zwei Benutzern
     /// - Parameters:
@@ -128,71 +196,6 @@ class ChatRepositoryImplementation: ChatRepository {
         }
     }
 
-    /// Überwacht ungelesene Nachrichten in einem Chat
-    /// - Parameters:
-    ///   - chatID: ID des zu überwachenden Chats
-    ///   - userID: ID des Benutzers
-    ///   - completion: Callback mit der Anzahl ungelesener Nachrichten
-    /// - Returns: ListenerRegistration zum späteren Entfernen
-    func listenForUnreadMessages(
-        chatID: String,
-        userID: String,
-        completion: @escaping (Int) -> Void
-    ) -> ListenerRegistration {
-        return db.collection("chats")
-            .document(chatID)
-            .collection("messages")
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    print(
-                        "Error fetching messages for chat \(chatID): \(error.localizedDescription)"
-                    )
-                    return
-                }
-
-                guard let documents = querySnapshot?.documents else { return }
-
-                let unreadMessages = documents.filter { document in
-                    if let message = try? document.data(as: Message.self) {
-                        return message.isread[userID] == false
-                    }
-                    return false
-                }
-                completion(unreadMessages.count)
-            }
-    }
-
-    /// Erstellt einen Listener für alle Chats eines Benutzers
-    /// - Parameters:
-    ///   - userID: ID des Benutzers
-    ///   - completion: Callback mit Array aller Chats
-    /// - Returns: ListenerRegistration zum späteren Entfernen
-    func userChatsListener(
-        userID: String, completion: @escaping ([Chat]) -> Void
-    ) -> any ListenerRegistration {
-        let userListener = db.collection("users").document(userID)
-            .addSnapshotListener { [weak self] documentSnapshot, error in
-                guard let self = self,
-                    let document = documentSnapshot
-                else {
-                    print(
-                        "Error fetching user: \(error?.localizedDescription ?? "")"
-                    )
-                    return
-                }
-
-                guard let user = try? document.data(as: AppUser.self),
-                    !user.chatIDs.isEmpty
-                else {
-                    completion([])
-                    return
-                }
-                self.chatListener(
-                    chatIDs: Array(user.chatIDs), completion: completion)
-            }
-
-        return userListener
-    }
     /// Überwacht Änderungen an bestimmten Chats
     /// - Parameters:
     ///   - chatIDs: Array der zu überwachenden Chat-IDs

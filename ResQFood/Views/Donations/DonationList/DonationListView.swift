@@ -39,6 +39,7 @@ struct DonationListView: View {
                         Group {
                             if let isReserved = donation.isReserved, isReserved {
                                 DonationListItem(donation: donation)
+                                    .padding(.vertical)
                             } else {
                                 NavigationLink(
                                     destination: DonationDetailView(donation: donation, showChat: $fromChat)
