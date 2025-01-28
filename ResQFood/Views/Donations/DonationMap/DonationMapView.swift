@@ -32,8 +32,10 @@ struct DonationMapView: View {
             }
         }
         .onAppear {
+            mapVM.resetLocation()
             mapVM.requestLocation()
         }
+
         .onChange(of: mapVM.searchRadius) { oldValue, newValue in
             if let coordinates = mapVM.coordinates {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

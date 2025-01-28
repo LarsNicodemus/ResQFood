@@ -46,18 +46,18 @@ struct AuthWrapper: View {
                                 SwitchRoute(route: route, navigationPath: $navigationPath)
                             }
                             .onAppear {
-                                chatVM.addChatsSnapshotListener()
+                                chatVM.startChatListener()
                             }
                             
                     } else {
                         ProfileCreationView()
-                            .padding()
+                            
                     }
                 }
                     
             } else {
                 LoginView()
-                    .padding()
+                    
             }
         }
         .task {

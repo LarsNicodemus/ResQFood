@@ -29,10 +29,7 @@ struct MapInputListView: View {
                     }
 
                 Button {
-                    mapVM.coordinates = nil
-                    mapVM.startPressed = false
                     mapVM.resetLocation()
-                    mapVM.searchTerm = ""
                 } label: {
                     Image(systemName: "location.fill")
                 }

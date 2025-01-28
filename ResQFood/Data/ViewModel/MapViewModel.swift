@@ -37,7 +37,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     deinit {
         listener?.remove()
         listener = nil
-    }
+        }
     
     /// Fordert die Standortberechtigung vom Benutzer an und startet die Standortaktualisierung.
     func requestLocation() {
@@ -86,9 +86,13 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     /// Setzt den Standort und startet die Standortaktualisierung neu.
     /// - Updates: `position` basierend auf den neuen Koordinaten.
     func resetLocation() {
+        searchTerm = ""
+        coordinates = nil
+        startPressed = false
+        searchRadius = 1000
+        selectedItems = []
         locationManager.stopUpdatingLocation()
         locationManager.startUpdatingLocation()
-
         if let coordinates = coordinates {
             withAnimation {
                 position = .region(
@@ -188,7 +192,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     func setupDonationsListener() {
         listener?.remove()
         listener = nil
-
+        coordinates = nil
         isLoading = true
         listener = donationRepo.addDonationsListener { donations in
             DispatchQueue.main.async {

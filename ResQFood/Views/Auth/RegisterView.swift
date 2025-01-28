@@ -37,6 +37,8 @@ struct RegisterView: View {
             .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
         .background(Color("surface"))
 
         .onChange(of: authVM.user) { old, new in

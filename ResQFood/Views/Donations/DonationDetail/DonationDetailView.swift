@@ -93,9 +93,6 @@ struct DonationDetailView: View {
                         }
                     }
                 )
-//                .task {
-//                    chatVM.addChatsSnapshotListener()
-//                }
             }
             .scrollIndicators(.hidden)
             .clipShape(RoundedRectangle(cornerRadius: 10))

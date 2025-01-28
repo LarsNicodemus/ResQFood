@@ -81,6 +81,8 @@ struct ProfileCreationView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
         .background(Color("surface"))
 
     }

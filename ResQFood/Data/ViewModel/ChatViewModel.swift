@@ -55,7 +55,7 @@ class ChatViewModel: ObservableObject {
     ///   die Liste der Chats aktualisiert sowie den Abzeichen-Zähler für ungelesene Nachrichten aktualisiert.
     /// - Parameters: Keine.
     /// - Updates: `chats` mit sortierten Chats nach dem letzten Nachrichtendatum und ruft `unreadMessagesBadgeListener` auf.
-    func addChatsSnapshotListener() {
+    func startChatListener() {
         guard let userID = fb.userID else { return }
         listener?.remove()
         listener = repo.userChatsListener(userID: userID) { chats in
@@ -105,7 +105,6 @@ class ChatViewModel: ObservableObject {
         ) { [weak self] count in
             DispatchQueue.main.async {
                 self?.unreadCountPerChat[chatID] = count
-                self?.objectWillChange.send()
                 print("for \(chatID) \(count)")
                 completion()
             }

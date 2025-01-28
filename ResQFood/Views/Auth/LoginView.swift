@@ -74,6 +74,8 @@ struct LoginView: View {
             .tint(Color("primaryAT"))
             .font(.system(size: 16))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
         .background(Color("surface"))
 
         .onAppear {
