@@ -31,12 +31,12 @@ struct ChatRowContent: View {
                     Text(chat.lastMessage.formatted())
                         .font(.system(size: 10))
                         .fontWeight(
-                            chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0
+                            chatVM.unreadCountPerChat[chat.id] ?? 0 > 0
                                 ? .bold : .regular
                         )
 
                         .foregroundStyle(
-                            chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0
+                            chatVM.unreadCountPerChat[chat.id] ?? 0 > 0
                                 ? Color("tertiary")
                                 : Color("OnSecondaryContainer"))
 
@@ -70,13 +70,13 @@ struct ChatRowContent: View {
                         Text(lastMessageContent)
                             .font(.body)
                             .fontWeight(
-                                chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0
+                                chatVM.unreadCountPerChat[chat.id] ?? 0 > 0
                                     ? .bold : .regular
                             )
                             .lineLimit(1)
                             .italic()
                             .foregroundStyle(
-                                chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0
+                                chatVM.unreadCountPerChat[chat.id] ?? 0 > 0
                                     ? Color("tertiary")
                                     : Color("OnSecondaryContainer"))
                     } else {
@@ -98,12 +98,12 @@ struct ChatRowContent: View {
                 RoundedRectangle(cornerRadius: 15)
                     .stroke(Color("primaryAT"), lineWidth: 1)
             }
-            if chatVM.unreadMessagesCounts[chat.id] ?? 0 > 0 {
+            if chatVM.unreadCountPerChat[chat.id] ?? 0 > 0 {
                 ZStack {
                     Circle()
                         .fill(Color("tertiary").opacity(0.4))
                         .frame(width: 40, height: 40)
-                    Text("\(chatVM.unreadMessagesCounts[chat.id] ?? 0)")
+                    Text("\(chatVM.unreadCountPerChat[chat.id] ?? 0)")
                         .foregroundStyle(Color("tertiary"))
                         .bold()
                 }

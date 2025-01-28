@@ -9,20 +9,16 @@ import FirebaseFirestore
 import SwiftUI
 
 class ChatViewModel: ObservableObject {
+    
     @Published var chats: [Chat] = []
     @Published var messages: [Message] = []
     @Published var messageInput: String = ""
-    var unreadMessagesCount: Int {
-        return unreadCountPerChat.values.reduce(0, +)
-    }
     @Published var userProfile: UserProfile? = nil
-    @Published var unreadMessagesCounts: [String: Int] = [:]
     @Published var chatUsernames: [String: String] = [:]
     @Published var lastMessagesContent: [String: String] = [:]
     @Published var lastMessagesSender: [String: String] = [:]
     @Published var unreadCountPerChat: [String: Int] = [:]
     @Published var showToast: Bool = false
-    
     @Published var title: String? = nil
     @Published var chatMember: String = "Hasibububär"
     @Published var chatMemberID: String = ""
@@ -32,6 +28,10 @@ class ChatViewModel: ObservableObject {
     @Published var showToastDetails: Bool = false
     @Published var toastMessage: String = ""
     @Published var donationForTitle: FoodDonation? = nil
+    
+    var unreadMessagesCount: Int {
+        return unreadCountPerChat.values.reduce(0, +)
+    }
     
     var currentUserID: String {
         fb.userID ?? ""
@@ -48,6 +48,71 @@ class ChatViewModel: ObservableObject {
         deinitChat()
     }
 
+   
+    
+    /// Startet einen Listener für die Chats eines Benutzers.
+    /// - Description: Diese Funktion fügt einen Snapshot-Listener hinzu, der die Chats des Benutzers überwacht und bei Änderungen
+    ///   die Liste der Chats aktualisiert sowie den Abzeichen-Zähler für ungelesene Nachrichten aktualisiert.
+    /// - Parameters: Keine.
+    /// - Updates: `chats` mit sortierten Chats nach dem letzten Nachrichtendatum und ruft `unreadMessagesBadgeListener` auf.
+    func addChatsSnapshotListener() {
+        guard let userID = fb.userID else { return }
+        listener?.remove()
+        listener = repo.userChatsListener(userID: userID) { chats in
+            DispatchQueue.main.async {
+                self.chats = chats.sorted(by: { c1, c2 in
+                    c1.lastMessage > c2.lastMessage
+                })
+                self.unreadMessagesBadgeListener()
+            }
+        }
+    }
+    
+    /// Startet einen Listener für ungelesene Nachrichten-Abzeichen für alle Chats des Benutzers.
+    /// - Description: Diese Funktion überprüft, ob Chats vorhanden sind, und startet für jeden Chat einen Listener,
+    ///   um die Anzahl der ungelesenen Nachrichten zu überwachen. Sobald alle Listener ihre Arbeit abgeschlossen haben,
+    ///   wird die Gesamtanzahl der ungelesenen Nachrichten für alle Chats ausgegeben.
+    /// - Parameters: Keine.
+    /// - Updates: `unreadMessagesCount` mit der Gesamtanzahl der ungelesenen Nachrichten in allen Chats.
+    func unreadMessagesBadgeListener() {
+            if !chats.isEmpty {
+                var remainingCalls = chats.count
+                
+                for chat in chats {
+                    startUnreadMessagesListenerForBadge(chatID: chat.id) {
+                        remainingCalls -= 1
+                        
+                        if remainingCalls == 0 {
+                            print("UnreadCount: \(self.unreadMessagesCount)")
+                        }
+                    }
+                }
+            } else {
+                print("Chats Empty")
+            }
+        }
+    
+    /// Startet einen Listener für ungelesene Nachrichten in einem bestimmten Chat und aktualisiert den Badge-Zähler.
+    /// - Parameters:
+    ///   - chatID: Die ID des Chats, für den der Listener gestartet werden soll.
+    ///   - completion: Ein Callback, der nach dem Aktualisieren der Anzahl ungelesener Nachrichten aufgerufen wird.
+    /// - Updates: `unreadCountPerChat`  mit der Anzahl der ungelesenen Nachrichten im Chat.
+    func startUnreadMessagesListenerForBadge(chatID: String, completion: @escaping () -> Void) {
+        guard let currentID = fb.userID else { return }
+        chatListeners[chatID]?.remove()
+        chatListeners[chatID] = repo.listenForUnreadMessages(
+            chatID: chatID, userID: currentID
+        ) { [weak self] count in
+            DispatchQueue.main.async {
+                self?.unreadCountPerChat[chatID] = count
+                self?.objectWillChange.send()
+                print("for \(chatID) \(count)")
+                completion()
+            }
+        }
+    }
+
+    
     /// Ruft das Profil eines anderen Benutzers basierend auf der Benutzer-ID ab.
     /// - Parameters:
     ///   - id: Die ID des anderen Benutzers.
@@ -71,62 +136,6 @@ class ChatViewModel: ObservableObject {
         }
     }
     
-    /// Fügt einen Snapshot-Listener für die Chats des Benutzers hinzu.
-    /// - Updates: `chats` mit den abgerufenen Chats, sortiert nach der letzten Nachricht.
-    func addChatsSnapshotListener() {
-        guard let userID = fb.userID else { return }
-        listener?.remove()
-        listener = repo.userChatsListener(userID: userID) { chats in
-            DispatchQueue.main.async {
-                self.chats = chats.sorted(by: { c1, c2 in
-                    c1.lastMessage > c2.lastMessage
-                })
-                self.unreadMessagesBadgeListener()
-            }
-        }
-    }
-    
-    /// Startet einen Listener für ungelesene Nachrichten-Abzeichen.
-    /// - Updates: `unreadCountPerChat` mit der Anzahl der ungelesenen Nachrichten in allen Chats.
-    func unreadMessagesBadgeListener() {
-            if !chats.isEmpty {
-                var remainingCalls = chats.count
-                
-                for chat in chats {
-                    startUnreadMessagesListenerForBadge(chatID: chat.id) {
-                        remainingCalls -= 1
-                        
-                        if remainingCalls == 0 {
-                            print("UnreadCount: \(self.unreadMessagesCount)")
-                        }
-                    }
-                }
-            } else {
-                print("Chats Empty")
-            }
-        }
-    
-    /// Startet einen Listener für ungelesene Nachrichten-Abzeichen in einem bestimmten Chat.
-    /// - Parameters:
-    ///   - chatID: Die ID des Chats.
-    ///   - completion: Callback nach dem Aktualisieren der ungelesenen Nachrichten.
-    /// - Updates: `unreadCountPerChat` mit der Anzahl der ungelesenen Nachrichten im Chat.
-    func startUnreadMessagesListenerForBadge(chatID: String, completion: @escaping () -> Void) {
-        guard let currentID = fb.userID else { return }
-        chatListeners[chatID]?.remove()
-        chatListeners[chatID] = repo.listenForUnreadMessages(
-            chatID: chatID, userID: currentID
-        ) { [weak self] count in
-            DispatchQueue.main.async {
-                self?.unreadCountPerChat[chatID] = count
-                self?.objectWillChange.send()
-                self?.unreadMessagesCounts[chatID] = count
-                print("for \(chatID) \(count)")
-                completion()
-            }
-        }
-    }
-
     /// Erstellt einen neuen Chat mit einem bestimmten Namen, Benutzer-ID und optionaler Spenden-ID.
     /// - Parameters:
     ///   - name: Der Name des Chats.

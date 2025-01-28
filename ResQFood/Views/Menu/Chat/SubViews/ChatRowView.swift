@@ -17,9 +17,6 @@ struct ChatRowView: View {
         } label: {
             ChatRowContent(chat: chat)
         }
-        .badge(chatVM.unreadMessagesCounts[chat.id] ?? 0)
-//        .onAppear {
-//            chatVM.startUnreadMessagesListenerForChat(chatID: chat.id)
-//        }
+        .badge(chatVM.unreadCountPerChat[chat.id] ?? 0)
     }
 }
