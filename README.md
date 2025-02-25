@@ -1,88 +1,85 @@
-# ResQFood - Gemeinsam gegen Lebensmittelverschwendung
-![Beispielbild](https://github.com/SI-Classroom-Batch-017/abschlussprojekt-LarsNicodemus/blob/main/ResQFood/Assets.xcassets/Logo%20small.imageset/Logo%20small.png) 
+# ResQFood - Together Against Food Waste
 
-## Über ResQFood
-ResQFood ist eine mobile Anwendung, die entwickelt wurde, um Lebensmittelverschwendung zu bekämpfen und gleichzeitig Menschen in Not zu unterstützen. Die App bietet eine Plattform, auf der Nutzer überschüssige Lebensmittel mit anderen in ihrer Umgebung teilen können.
+![Example Image](https://github.com/SI-Classroom-Batch-017/abschlussprojekt-LarsNicodemus/blob/main/ResQFood/Assets.xcassets/Logo%20small.imageset/Logo%20small.png)
 
-## Warum ResQFood?
-In Deutschland wirft jeder Bürger durchschnittlich 76kg Lebensmittel pro Jahr weg. Hochgerechnet auf ganz Deutschland sind das 6,3 Millionen Tonnen! ResQFood möchte dieses Problem angehen, indem wir Menschen mit überschüssigen Lebensmitteln mit denen verbinden, die sie gebrauchen können. So schaffen wir eine nachhaltige und hilfsbereite Community.
+## About ResQFood
 
-## Hauptfunktionen
+ResQFood is a mobile application designed to combat food waste while supporting people in need. The app provides a platform where users can share surplus food with others in their community.
 
-### Lebensmittelspenden-System
-- Erstellung von Spendenanzeigen mit detaillierten Informationen
-- Angabe von Lebensmittelkategorien, Mengen, Zustand und MHD
-- Festlegung von Abholzeiträumen und -orten
-- Möglichkeit Produktbilder hinzuzufügen
-- Direkter Chat mit Interessenten
+## Why ResQFood?
 
-### Benutzerfreundlichkeit
-- Verschiedene Login-Optionen (Email, als Ausblick kommen noch weitere wie Google, Facebook, Apple dazu)
-- Anonymes Browsen für Basisfunktionen
-- Standortbasierte Suche mit einstellbarem Radius
-- Listen- und Kartenansicht verfügbarer Spenden
-- Integriertes Chat-System
-- Als Ausblick kommt noch ein Bewertungssystem nach erfolgreichen Übergaben
+In Germany, each citizen throws away an average of 76kg of food per year. Extrapolated to the entire country, that's 6.3 million tons! ResQFood aims to address this problem by connecting people who have excess food with those who can use it, creating a sustainable and supportive community.
 
-## Technische Umsetzung
-- MVVM-Architektur für bessere Wartbarkeit und Effizienz
-- Firebase-Integration für:
-   - Benutzerauthentifizierung
-   - Cloud-basierte Datenspeicherung
-   - Profilverwaltung
-   - Spendenauflistungen
-   - Punktesystem
-- Imgur API für Bildverwaltung
+## Key Features
 
-## Bonus, nach Mindestanforderungen
+### Food Donation System
+- Create donation listings with detailed information
+- Specify food categories, quantities, condition, and expiration dates
+- Set pickup times and locations
+- Option to add product images
+- Direct chat with interested parties
 
-### Community-Funktionen
-- Erstellen und Beitreten von Community-Gruppen
-- Austausch von Rezepten und Tipps
-- Diskussion über lebensmittelbezogene Themen
-- Erfahrungsaustausch und Organisation lokaler Initiativen
+### User Experience
+- Various login options (Email, with Google, Facebook, and Apple coming soon)
+- Anonymous browsing for basic functions
+- Location-based search with adjustable radius
+- List and map views of available donations
+- Integrated chat system
+- Rating system after successful transfers (coming soon)
 
-### Belohnungssystem
-- Punktesammeln für das Spenden und Abholen von Lebensmitteln
-- Einlösen von Punkten für:
-   - Gutscheine von lokalen Partnern
-   - Spenden an die Tafel
-   - Spezielle Rabatte
+## Technical Implementation
+- MVVM architecture for better maintainability and efficiency
+- Firebase integration for:
+  - User authentication
+  - Cloud-based data storage
+  - Profile management
+  - Donation listings
+  - Points system
+- Imgur API for image management
 
-### Zusätzliche Features
-- Rezeptvorschläge basierend auf verfügbaren Zutaten
-- Direkte Geldspenden-Option zur Unterstützung der Tafeln
-- Hell/Dunkel-Modus Anpassung
-- Profilverwaltungssystem
+## Bonus Features (Post-MVP)
 
-## Zukünftige Entwicklungsmöglichkeiten
-1. Integration von lokalen Supermärkten für Last-Minute-Angebote
-2. Erweiterung um Restaurantüberschüsse
-3. Integration mit Tafeln für größere Spenden
-4. Entwicklung eines Liefersystems für Menschen mit eingeschränkter Mobilität
-5. Implementation einer KI-gestützten Lebensmittelerkennung
-6. Hinzufügen von Nachhaltigkeits-Impact-Metriken
+### Community Functions
+- Create and join community groups
+- Exchange recipes and tips
+- Discuss food-related topics
+- Share experiences and organize local initiatives
+
+### Reward System
+- Earn points for donating and collecting food
+- Redeem points for:
+  - Vouchers from local partners
+  - Donations to food banks
+  - Special discounts
+
+### Additional Features
+- Recipe suggestions based on available ingredients
+- Direct monetary donation option to support food banks
+- Light/Dark mode customization
+- Profile management system
+
+## Future Development Possibilities
+1. Integration with local supermarkets for last-minute offers
+2. Expansion to include restaurant surpluses
+3. Integration with food banks for larger donations
+4. Development of a delivery system for people with limited mobility
+5. Implementation of AI-powered food recognition
+6. Addition of sustainability impact metrics
 
 ## Screenshots
-![Beispielbild](https://github.com/SI-Classroom-Batch-017/abschlussprojekt-LarsNicodemus/blob/main/ResQFood/Assets.xcassets/screenshotsapp.imageset/screenshotsapp.png) 
+![Example Image](https://github.com/LarsNicodemus/ResQFood/blob/main/ResQFood/Screen1.png)
+![Example Image](https://github.com/LarsNicodemus/ResQFood/blob/main/ResQFood/Screen2.png)
+![Example Image](https://github.com/LarsNicodemus/ResQFood/blob/main/ResQFood/Screen3.png)
 
-weitere folgen noch
-- Startbildschirm
-- Spendenerstellung
-- Chat-System
-- Kartenansicht
-- Profilseite
-- Community-Bereich]
+## Contribute
+I welcome contributions to make ResQFood even better! Feel free to submit pull requests or open issues for discussion.
 
-## Mitwirken
-Ich freuen mich über Beiträge, um ResQFood noch besser zu machen! Reiche gerne Pull Requests ein oder eröffnen einen Issues zur Diskussion.
-
-## Kontakt
-Bei Fragen, Feedback oder Vorschlägen kannst du mich unter folgenden Kanälen erreichen:
-
-- **GitHub:**       [LarsNicodemus](https://github.com/larsnicodemus) – Schauen dir meine anderen Projekte an oder erstelle ein Issue, um Fehler zu melden oder neue Funktionen vorzuschlagen.
-- **Email:**        [lars@no-19.net](mailto:lars@no-19.net) – Für direkte Anfragen oder ausführliches Feedback.
-- **LinkedIn:**     [Lars Nicodemus](https://www.linkedin.com/in/larsnicodemus/) – Bleiben mit mir in Verbindung.
+## Contact
+For questions, feedback, or suggestions, you can reach me through the following channels:
+- **GitHub:** [LarsNicodemus](https://github.com/larsnicodemus) – Check out my other projects or create an issue to report bugs or suggest new features.
+- **Email:** [lars@no-19.net](mailto:lars@no-19.net) – For direct inquiries or detailed feedback.
+- **LinkedIn:** [Lars Nicodemus](https://www.linkedin.com/in/larsnicodemus/) – Stay connected with me.
 
 ---
-Gemeinsam können wir Lebensmittelverschwendung reduzieren und Menschen in Not helfen. Werde noch heute Teil von ResQFood und Teil der Lösung!
+
+Together we can reduce food waste and help people in need. Join ResQFood today and be part of the solution!
